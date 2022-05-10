@@ -1,0 +1,13 @@
+pygame
+matplotlib
+pandas
+pynput
+numpy
+pytest
+scipy
+websocket-client
+opencv-contrib-python
+sklearn
+ray
+redis
+dynamixel_sdk
