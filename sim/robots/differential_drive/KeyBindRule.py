@@ -1,5 +1,5 @@
-from sim.type import KeyBind
-from sim.type import KeyBindRule as Rule
+from sim.type import DefBind
+from sim.type import DefBindRule as Rule
 
 
 # key binding rule
@@ -50,7 +50,7 @@ keyboard_rule = dict(
     j1=Rule(['up', 'down', 'left', 'right'], key_func, ['j1', 'j2'], float()),
     j2=Rule(None)   # j1 rule provides j2 values, so None rule
 )
-keyboard_bind = KeyBind(keyboard_rule)
+keyboard_bind = DefBind(keyboard_rule)
 test_in = {'up': True, 'down': False, 'left': False, 'right': False}
 print(keyboard_bind.bind(test_in))
 
@@ -64,7 +64,7 @@ keyboard_rule_class = dict(
     j2=Rule(None)   # j1 rule provides j2 values, so None rule
 )
 # Each time 'up' is pressed, it changes the state even with the same inputs
-keyboard_bind = KeyBind(keyboard_rule_class)
+keyboard_bind = DefBind(keyboard_rule_class)
 print(keyboard_bind.bind(test_in))
 print(keyboard_bind.bind(test_in))
 print(keyboard_bind.bind(test_in))

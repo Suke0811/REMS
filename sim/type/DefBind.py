@@ -2,7 +2,7 @@ from sim.type import DefDict, DefDictData
 from typing import Any
 
 
-class KeyBindRule:
+class DefBindRule:
     def __init__(self, bind_from, bind_func=None, bind_to=None, type_=float()):
         """
         Create a dict of binding rule
@@ -42,12 +42,12 @@ class KeyBindRule:
         return self.bind_to.data
 
 
-class KeyBind(DefDict):
+class DefBind(DefDict):
     def __init__(self, definition):
         super().__init__(definition)
 
     def bind(self, data):
-        for key, val in self.definition.items():
+        for key, val in self.DEF.items():
             self.data = val.bind(data, key)
         return self.data
 
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     #  └─ bind to
     #  └─ type
     #this defines that the 'k' is calculated by 'b' and 'c' using lambda function.
-    a = {'t': KeyBindRule(['b', 'c'], lambda b, c: 2*b+c)}
+    a = {'t': DefBindRule(['b', 'c'], lambda b, c: 2 * b + c)}
     # then formulate binding
-    b = KeyBind(a)
+    b = DefBind(a)
     # say we have data input
     inpt = {'a':0.0, 'b':2.0, 'c':6.0}
     # bind(inpt) will apply the binding rule

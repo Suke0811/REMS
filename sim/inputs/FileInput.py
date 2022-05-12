@@ -20,7 +20,6 @@ class FileInput(InputBase):
     def if_exit(self):
         return self._quit
 
-
     def _open_file(self):
         df = pd.read_csv(self._filepath)
         rowNames = df.columns

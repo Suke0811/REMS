@@ -2,22 +2,42 @@ from sim.type import DefDict
 """Where to store standard definitions"""
 
 # Defined type
+class dimentional_float(float):
+    unit = None
 class velocity(float): pass
 class position(float): pass
 class acceleration(float): pass
 class torque(float): pass
+class angular_velocity(float): pass
+class angular_acceleration(float): pass
+class angular_torque(float): pass
+class rotation(float): pass
+class euler(rotation): pass
+class quaternion(rotation): pass
 
 
 
 TIMESTAMP = dict(timestamp=float)
 
-STATE_2D = dict(x=float, y=float, th=float)
-STATE_3D_EULER = dict(x=float, y=float, z=float, a=float, b=float, c=float)
-STATE_3D_QUAT = dict(x=float, y=float, z=float, qx=float, qy=float, qz=float, w=float)
+POS_2D = dict(x=position, y=position)
+ROT_2D = dict(c=rotation)
+POS_3D = dict(x=position, y=position, z=position)
+EULER_3D = dict(a=rotation, b=rotation, c=rotation)
+QUAT = dict(qx=float, qy=float, qz=float, w=float)
+ROT_MAT_2D = dict(r11=float, r12=float,
+                  r21=float, r22=float)
+ROT_MAT_3D = dict(r11=float, r12=float, r13=float,
+                  r21=float, r22=float, r23=float,
+                  r31=float, r32=float, r33=float,)
+ROT_VECTOR = {'r.vec_0':float, 'r.vec_1':float, 'r.vec_2':float}
+ROT_UNIT_VECTOR = {'r.uvec_0':float, 'r.uvec_1':float, 'r.uvec_2':float, 'r.uvec_th':float}
 
-STATE_VEL_2D = dict(d_x=float, d_y=float, d_th=float)
-STATE_VEL_3D_EULER = dict(d_x=float, d_y=float, d_z=float, d_a=float, d_b=float, d_c=float)
-STATE_VEL_3D_QUAT = dict(d_x=float, d_y=float, d_z=float, d_qx=float, d_qy=float, d_qz=float, d_w=float)
+VEL_POS_2D = dict(d_x=float, d_y=float)
+VEL_ROT_2D = dict(d_th=float)
+VEL_POS_3D = dict(d_x=velocity, d_y=velocity, d_z=velocity)
+VEL_ROT_3D = dict(d_a=float, d_b=float, d_c=float)
+
+
 
 JACOB_2D = dict(J11=float, J12=float, J13=float,
                 J21=float, J22=float, J23=float,

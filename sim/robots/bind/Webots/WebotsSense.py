@@ -15,7 +15,7 @@ class WebotsSense(SenseBase):
         self.enable(enable=True)
 
     def open(self):
-        for SENSOR in self.outpt.definition.keys():
+        for SENSOR in self.outpt.DEF.keys():
             self._sensors[SENSOR] = self._robot.getDevice(SENSOR)
 
     def close(self):

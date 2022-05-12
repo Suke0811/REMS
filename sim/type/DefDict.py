@@ -15,7 +15,10 @@ class DefDict:
 
         self._data = DefDictData()
         for k, v in self._definition.items():
-            self._data[k] = v()
+            try:
+                self._data[k] = v()
+            except TypeError:
+                self._data[k] = None
         self._data = DefDictData(self._data)
 
     @property
@@ -26,8 +29,15 @@ class DefDict:
     def data(self):
         return self._data
 
+    def data_as(self, definition):
+        d = DefDict(definition)
+        return d.set_data(self.data)
+
     @data.setter
     def data(self, ndata):
+        self.set_data(ndata)
+
+    def set_data(self, ndata):
         if ndata is None:
             return
         if isinstance(ndata, dict):
@@ -38,6 +48,7 @@ class DefDict:
             self._list2dict(ndata)
         else:
             self._list2dict([ndata])
+        return self._data
 
     @data.deleter
     def data(self):
@@ -46,7 +57,7 @@ class DefDict:
         self._data = DefDictData(self._data)
 
     @property
-    def definition(self):
+    def DEF(self):
         return self._definition
 
     def add_definition(self, ndef, type_=float()):
@@ -58,28 +69,35 @@ class DefDict:
             self._definition[ndef] = type_
         else:
             raise TypeError('You can only add str, dict, or list')
+        # TODO: modify to initiate data with added def
 
     def _dict2dict(self, data: dict):
         for k, v in data.items():
             if self._data.get(k) is not None:
-                type_ = self.definition[k]()
-                self._data[k] = type_(v)        # Enforce type in the corresponding definition
+                self._data[k] = self._enforce_type(self.DEF[k], v)
 
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
         for i, k in enumerate(self._data):
             if i > length:
                 break
-            type_ = self.definition[k]()
-            self._data[k] = type_(data[i])  # Enforce type in the corresponding definition
+            self._data[k] = self._enforce_type(self.DEF[k],data[i])
+
+
+    def _enforce_type(self, d_type, value):
+        if d_type is Any:   # If the type is Any, no enforcement
+            return value
+        return d_type(value)    # Enforce type in the corresponding definition
 
     def assert_data(self, data=None):
         if data is None:
             data = self._data
         else:
             data = DefDictData(data)
-        assert (len(data) == len(self.definition))
-        assert (all(type(x) == y for x, y in zip(data.as_list(), self.definition.as_list())))
+        assert (len(data) == len(self.DEF))
+        assert (all(type(x) == y for x, y in zip(data.as_list(), self.DEF.as_list())))
+
+
 
 
 
