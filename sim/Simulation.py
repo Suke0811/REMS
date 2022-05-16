@@ -6,26 +6,28 @@ import ray
 
 from sim.job_background.RayJobHandler import JobHandler
 from sim import RobotActor
+from ray.util.queue import Queue, Empty
 import numpy as np
 
+DT = 0.1
 
 class Sim:
     DT_ERR = 0.01
 
-    def __init__(self, use_noise=False, suppress_info=False):
+    def __init__(self, suppress_info=False):
         """
         :param suppress_info: no log outputs to console
         """
-        self._use_noise = use_noise
         self.suppress_info = suppress_info
         self._input_system = None
         self._robots = []
-        self._robot_actors =[]
+        self._robot_actors = []
+        self._queue_ins = []
+        self._queue_outs = []
         self._processes = []
         self.jHandler = JobHandler()
         self.realtime = False
-        self.DT = TEST.DT
-        self.ticker = threading.Event()
+        self.DT = DT
 
     def set_input(self, input_system):
         """set InputSystem
@@ -38,16 +40,21 @@ class Sim:
         :param outputs: tuple of outputs (child of OutputSystem)
         """
         self._robots.append([robot, outputs])
-        if robot.DT is None:
-            robot.DT = self.DT      # if the robot does not have a specific DT, then provide TEST.DT
-        self.realtime += robot.realtime
+        run = robot.run
+        if run.DT is None:
+            run.DT = self.DT      # if the robot does not have a specific DT, then provide TEST.DT
+        self.realtime += run.realtime
 
     def add_process(self, process):
         self._processes.append(process)
 
     def unpack_robot(self):
         for robot, outputs in self._robots:
-            self._robot_actors.append(RobotActor(robot, outputs))
+            q_in = Queue()
+            q_out = Queue()
+            self._queue_ins.append(q_in)
+            self._queue_outs.append(q_out)
+            self._robot_actors.append(RobotActor(robot, outputs, q_in, q_out))
 
     def init_robot(self):
         for r in self._robot_actors:

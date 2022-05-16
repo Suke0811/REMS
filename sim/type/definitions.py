@@ -17,7 +17,7 @@ class quaternion(rotation): pass
 
 
 
-TIMESTAMP = dict(timestamp=float)
+TIMESTAMP = 'timestamp'
 
 POS_2D = dict(x=position, y=position)
 ROT_2D = dict(c=rotation)

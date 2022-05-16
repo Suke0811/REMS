@@ -5,3 +5,4 @@ class RunConfig:
         self.DT = DT
         self.realtime = realtime
         self.to_thread = to_thread
+        self.block = True

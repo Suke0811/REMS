@@ -11,6 +11,7 @@ class FileInput(InputBase):
         self.loop = loop
         self.timestamp_offset = 0.0
         # required call
+        self.data = []
         self._open_file()
         self.definition = None
 
@@ -26,10 +27,10 @@ class FileInput(InputBase):
         df_dict = df.to_dict('list')
         self._inpts = []
         for l in df_dict:
-            dm = DefDict(rowNames).data = l
-            if dm is not None:
-                self._inpts.append(dm)
-
+            dd = DefDict(rowNames).data_as(l)
+            if dd is not None:
+                self.data.append(dd)
+                self._inpts.append(self.input_def.set_data(dd))
         self._timestamps = df_dict[TIMESTAMP]
 
     def _find_input_by_timestamp(self, timestamp):
@@ -45,3 +46,7 @@ class FileInput(InputBase):
         else:
             self._quit = True
         return inpt
+
+
+if __name__ == '__main__':
+    i = FileInput('test')
