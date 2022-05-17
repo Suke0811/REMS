@@ -59,16 +59,16 @@ def define(prefix, num, type_=float):
     return ret
 
 def joint_pos(num):
-    return define('j', num, position)
+    return define('j_', num, position)
 
 def joint_vel(num):
-    return define('d_j', num, velocity)
+    return define('d_j_', num, velocity)
 
 def joint_acc(num):
-    return define('dd_j', num, acceleration)
+    return define('dd_j_', num, acceleration)
 
 def joint_torque(num):
-    return define('j_t', num, torque)
+    return define('j_t_', num, torque)
 
 a = joint_pos(6)
 pass

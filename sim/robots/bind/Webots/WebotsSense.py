@@ -1,8 +1,8 @@
-from sim.robots.bind import SenseBase
+from sim.robots.bind import SenseBaseBasic
 from sim.type import DefDict
 import numpy as np
 
-class WebotsSense(SenseBase):
+class WebotsSense(SenseBaseBasic):
     def __init__(self, wb_robot, timestep, sensor_definition: DefDict):
         super().__init__()
         self._sensors = []
@@ -28,7 +28,7 @@ class WebotsSense(SenseBase):
             else:
                 sensor.disable()
 
-    def sense(self, inpt, timestamp, definition=None):
+    def sense(self, inpt, timestamp):
         sensor_value = []
         for sensor in self._sensors:
             try: # Webots has two different functions of getValue()
@@ -48,3 +48,4 @@ class WebotsSense(SenseBase):
             if not np.isnan(v):
                 return v
         return None
+

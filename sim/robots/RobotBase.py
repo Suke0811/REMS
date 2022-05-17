@@ -1,9 +1,9 @@
 from sim.robots.RunConfig import RunConfig
-from sim.robots.bind import DeviceBase
+from sim.robots.bind import BasicDeviceBase
 from sim.type.definitions import *
 from sim.type import DefDict
 
-class RobotBase(DeviceBase):
+class RobotBaseBasic(BasicDeviceBase):
     def __init__(self, run_config=RunConfig()):
         """init with a specific initial state (optional) """
         self.inpt = {}
@@ -19,8 +19,10 @@ class RobotBase(DeviceBase):
         self.inpt = None
 
     def init(self, init_state=None):
-        """Initialization necessary for the robot
+        """Initialization necessary for the robot. call all binded objects' init
         """
+        super().init()
+        [d.init() and s.init() for d, s in zip(self.drivers, self.sensers)]
         pass
 
     def reset(self, **kwargs):
@@ -45,3 +47,9 @@ class RobotBase(DeviceBase):
     def clock(self, t):
         self._t_minus_1 = t
         return t + self.run.DT
+
+    def overwrite_robot(self, state=None, outpt=None, inpt=None):
+        if state is not None: self.state = state
+        if outpt is not None: self.outpt = outpt
+        if inpt is not None: self.inpt = inpt
+

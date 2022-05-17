@@ -38,7 +38,7 @@ class RobotActor:
             self.current_time = self.robot.clock(self.current_time)
             info = self.robot.get_update()
         for out in self.out:
-            out.process(state, inpt, observe, t, info)
+            out.process(state, inpt, observe, self.current_time, info)
 
     def send_data(self):    # sending data won't block the process
         self.queue_out.put_nowait(self.data_out.data_as([self.robot, self.out]))

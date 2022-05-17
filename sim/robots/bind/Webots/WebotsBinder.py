@@ -23,24 +23,22 @@ class WebotsBinder(RobotBase):
 
     def init(self):
         # init motors and sensors
+        super().init()
         self._robot.step(self._timestep)
 
-    def reset(self, init_state):
-        pos = DefDict(POS_3D)
-        rot = DefDict(QUAT)
-        vel = DefDict(VEL_POS_3D.update(VEL_ROT_3D))
-        self._trans_field.setSFVec3f(pos.set_data(init_state).as_list())  # move robot to the init state
-        self._rotation_field.setSFRotation([0, 1, 0, self.state[2]])
-        self._robot_node.setVelocity(vel.set_data(init_state).as_list())
+    def reset(self, state):
+        rot = DefDict(ROT_2D)
+        self._trans_field.setSFVec3f(DefDict(POS_3D).data_as(state).as_list())  # move robot to the init state
+        self._rotation_field.setSFRotation([0, 1, 0, rot])
+        self._robot_node.setVelocity(DefDict(VEL_POS_3D.update(VEL_ROT_3D)).data_as(state).as_list())
         self._robot_node.resetPhysics()  # reset physics
-
 
     def drive(self, inpts, timestamp):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         :return full state feedback"""
         self.inpt = inpts
-        self.driver.drive(inpts)
+        self.drivers.drive(inpts)
 
     def observe_state(self):
         self.state = self.wb_sense.state

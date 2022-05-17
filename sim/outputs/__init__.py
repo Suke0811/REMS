@@ -1,4 +1,4 @@
 from .FileOutput import FileOutput
 from .GraphOutput import GraphOutput
-from .OutputSystem import OutputSystem
+from .OutputBase import OutputBase
 from .AnimationOutput import AnimationOutput

@@ -28,20 +28,6 @@ def key_func(up, down, left, right):
         ret = [0.0, 0.0]
     return ret
 
-
-class test:
-    def __init__(self):
-        self.state = False
-
-    def key_func(self, up, down, left, right):
-        if up and self.state:
-            self.state = False
-            return [0.5, 1.0]
-        if up and not self.state:
-            self.state = True
-            return [0, -1]
-
-
 # normal case (Recommended)
 # the function can be def... or lambda function
 # they only depend on the arguments.
@@ -51,23 +37,6 @@ keyboard_rule = dict(
     j2=Rule(None)   # j1 rule provides j2 values, so None rule
 )
 keyboard_bind = DefBind(keyboard_rule)
-test_in = {'up': True, 'down': False, 'left': False, 'right': False}
-print(keyboard_bind.bind(test_in))
-
-
-# A test case using a class with internal variables.
-# this could be useful if you like to do persistent actions with button
-# i.e. reverse sign when a certain key is pressed.
-t = test()
-keyboard_rule_class = dict(
-    j1=Rule(['up', 'down', 'left', 'right'], t.key_func, ['j1', 'j2'], float()),
-    j2=Rule(None)   # j1 rule provides j2 values, so None rule
-)
-# Each time 'up' is pressed, it changes the state even with the same inputs
-keyboard_bind = DefBind(keyboard_rule_class)
-print(keyboard_bind.bind(test_in))
-print(keyboard_bind.bind(test_in))
-print(keyboard_bind.bind(test_in))
 
 
 axis = ['STICK_LEFT_X', 'STICK_LEFT_Y', 'STICK_RIGHT_X', 'STICK_RIGHT_Y', 'THROTTLE_L', 'THROTTLE_R']
@@ -75,8 +44,41 @@ axis = ['STICK_LEFT_X', 'STICK_LEFT_Y', 'STICK_RIGHT_X', 'STICK_RIGHT_Y', 'THROT
 def axis_func(LX, LY, RX, RY, LT, RT):
     pass
 
-keyboard_rule = dict(
+joystick_rule = dict(
     j1=Rule(['up', 'down', 'left', 'right'], axis_func, ['j1', 'j2'], float()),
     j2=Rule(None)   # j1 rule provides j2 values, so None rule
 )
 
+
+
+
+
+if __name__ == '__main__':
+    class test:
+        def __init__(self):
+            self.state = False
+
+        def key_func(self, up, down, left, right):
+            if up and self.state:
+                self.state = False
+                return [0.5, 1.0]
+            if up and not self.state:
+                self.state = True
+                return [0, -1]''
+    test_in = {'up': True, 'down': False, 'left': False, 'right': False}
+    print(keyboard_bind.bind(test_in))
+
+    # A test case using a class with internal variables.
+    # this could be useful if you like to do persistent actions with button
+    # i.e. reverse sign when a certain key is pressed.
+    t = test()
+    keyboard_rule_class = dict(
+        j1=Rule(['up', 'down', 'left', 'right'], t.key_func, ['j1', 'j2'], float()),
+        j2=Rule(None)  # j1 rule provides j2 values, so None rule
+    )
+
+    # Each time 'up' is pressed, it changes the state even with the same inputs
+    keyboard_bind = DefBind(keyboard_rule_class)
+    print(keyboard_bind.bind(test_in))
+    print(keyboard_bind.bind(test_in))
+    print(keyboard_bind.bind(test_in))

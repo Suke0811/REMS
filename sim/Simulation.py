@@ -5,8 +5,11 @@ import asyncio, threading
 import ray
 
 from sim.job_background.RayJobHandler import JobHandler
-from sim import RobotActor
+from sim.robot_actor.RobotActor import RobotActor
+from sim.robot_actor.definition_queue import *
 from ray.util.queue import Queue, Empty
+from sim.type import DefDict
+
 import numpy as np
 
 DT = 0.1
@@ -21,8 +24,10 @@ class Sim:
         self.suppress_info = suppress_info
         self._input_system = None
         self._robots = []
+        self._outs = []
         self._robot_actors = []
         self._queue_ins = []
+        self._data_in = DefDict(QUEUE_IN)
         self._queue_outs = []
         self._processes = []
         self.jHandler = JobHandler()
@@ -39,11 +44,14 @@ class Sim:
         :param robot: robot to simulate (child of RobotSystem)
         :param outputs: tuple of outputs (child of OutputSystem)
         """
-        self._robots.append([robot, outputs])
+        self._robots.append(robot)
+        self._outs.append(outputs)
         run = robot.run
         if run.DT is None:
             run.DT = self.DT      # if the robot does not have a specific DT, then provide TEST.DT
         self.realtime += run.realtime
+
+
 
     def add_process(self, process):
         self._processes.append(process)
@@ -54,15 +62,19 @@ class Sim:
             q_out = Queue()
             self._queue_ins.append(q_in)
             self._queue_outs.append(q_out)
-            self._robot_actors.append(RobotActor(robot, outputs, q_in, q_out))
+            self._robot_actors.append(RobotActor.remote(robot, outputs, q_in, q_out))
 
     def init_robot(self):
+        self.unpack_robot()
         for r in self._robot_actors:
             r.init.remote()
 
     def reset_robot(self):
         for r in self._robot_actors:
-            r.init.remote()
+            r.reset.remote()
+
+    def start_robot(self):
+        [r.main_loop.remote() for r in self._robot_actors]
 
     def run(self, max_duration, realtime=True):
         """Run modules with the given settings for max_duration seconds
@@ -74,10 +86,13 @@ class Sim:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init_robot()
         self.reset_robot()
+        self.start_robot()
         t = 0
         while t < max_duration and not self._input_system.is_done():
             # run the modules asynchronously
-            asyncio.run(self.create_tasks(t))  # run the robots asynchronously
+            self.send_data(t)
+            self.receive_data() # blocks till we get data
+            self.process()
             t += self.DT
         self.make_outputs()
 
@@ -87,25 +102,25 @@ class Sim:
                 rets = pro.process()
                 self.jHandler.find_job(rets)
             self.jHandler.execute()
-            self.jHandler.execute()
+
+
+    def send_data(self, t):  # sending data won't block the process
+        self._data_in.data_as([self._input_system.get_inputs(timestamp=t), t, self.DT])
+        for q, r in zip(self._queue_ins, self._robots):
+            q.put_nowait(self._data_in.data_as(r))
+
+    def receive_data(self):
+        # only receive data when all of the queue is not empty
+        data = [q.get() for q in self._queue_outs]
+        for d, r, o in zip(data, self._robots, self._outs):
+            """Receiving data can block the process if necessary"""
+            robot = d.data.get(ROBOT)
+            out = d.data.get(OUTPT)
+            r.overwrite_robot(robot.state, robot.outpt)     #TODO: maybe change the way to update the local instance of the robot?
+            o = out
 
     def make_outputs(self):
         for robot, outputs in self._robots:
             for out in outputs:
                 out.make_output()
 
-    async def create_tasks(self, t):
-        self.inpt = self._input_system.get_inputs(timestamp=t)
-        sim_tasks = []  # list of tasks (threads)
-        sim_tasks.append(asyncio.wait_for(self.loop(t), TEST.DT-self.DT_ERR))
-        if self.realtime:
-            sim_tasks.append(asyncio.sleep(TEST.DT-self.DT_ERR))
-        try:
-            await asyncio.wait_for((asyncio.gather(*sim_tasks, return_exceptions=True)), TEST.DT)  # awaits all threads are done
-        except asyncio.TimeoutError:
-            logging.info('timeout happened. DT of the actual simulation is bigger than specified DT') # forcing to time out for every DT. Still we get the return
-
-    def loop(self, t):
-        for robot_actor in self._robot_actors:
-            robot_actor.step_forward.remote(self.inpt, t, self.DT)
-        self.process()

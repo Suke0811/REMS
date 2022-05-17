@@ -1,10 +1,8 @@
-from sim.outputs.OutputSystem import OutputSystem
-from sim.constants import DATA
-from sim.formulation import *
+from sim.outputs.OutputBase import OutputBase
 import pandas as pd
 
 
-class FileOutput(OutputSystem):
+class FileOutput(OutputBase):
     def __init__(self, filepath):
         super().__init__()
         self._filepath = filepath

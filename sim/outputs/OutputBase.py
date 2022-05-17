@@ -1,8 +1,7 @@
-from sim.constants import DATA
-from sim.formulation import *
+from sim.type.DefDict import DefDict
 
 
-class OutputSystem:
+class OutputBase:
     def __init__(self):
         self._data = []
         self._states = []
@@ -19,23 +18,15 @@ class OutputSystem:
         :param timestamp: corresponding timestamp
         """
         self._timestamps.append(timestamp)
-        a = self._handle_new_data(inpt, self._inpts, INPUT_SPACE)
-        s = self._handle_new_data(state, self._states, STATE_SPACE)
-        o = self._handle_new_data(outpt, self._outpts, OUTPUT_SPACE)
-        i = self._handle_new_data(info, self._info, INFO_SPACE)
-
-        d = {DATA.TIMESTAMP: timestamp, **a , **s, **o, **i}
+        self._inpts.append(inpt)
+        self._states.append(state)
+        self._outpts.append(outpt)
+        self._info.append(info)
+        d = {**timestamp.data, **inpt.data , **state.data, **outpt.data, **info.data}
         self._data.append(d)
-
-
-    def _handle_new_data(self, newdata, alldata, space):
-        if newdata is None:
-            return {}
-        d = dict(zip(space, newdata))
-        alldata.append(d)
-        return d
-
 
     def make_output(self):
         """make proper output from the data"""
         raise NotImplementedError
+
+

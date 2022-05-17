@@ -1,6 +1,6 @@
-from sim.robots.bind import DeviceBase
+from sim.robots.bind import BasicDeviceBase
 
 
-class ObserveStateBase(DeviceBase):
+class ObserveStateBaseBasic(BasicDeviceBase):
     def observe_state(self):
         pass

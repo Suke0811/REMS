@@ -16,7 +16,8 @@ class JoystickInput(InputBase):
         self.axes = {}
         self.axes_deadzone = {}
 
-    def init(self):
+    def init(self, input_def=None):
+        super().init(input_def)
         pygame.init()
         pygame.joystick.init()
         count = pygame.joystick.get_count()
@@ -45,11 +46,14 @@ class JoystickInput(InputBase):
     def __del__(self):
         pygame.quit()
 
-    def get_inputs(self, timestamp=None):
+    def get_inputs(self, inpt_defDict: DefDict, timestamp=None):
         if not self.stick_name:
             self.init()
         self._capture_joystick()
-        return self._inpts
+        main_stick = self.stick_name[0]
+        inpt_defDict.data = self.axes[main_stick]
+        inpt_defDict.data = self.buttons[main_stick]
+        return inpt_defDict
 
     def if_exit(self):
         return self._quit

@@ -1,6 +1,6 @@
 
 
-class DeviceBase:
+class BasicDeviceBase:
     def init(self):
         self.open()
         self.enable(True)
