@@ -1,6 +1,6 @@
 from sim.type import DefDict
 """Where to store standard definitions"""
-
+from typing import Any
 # Defined type
 class dimentional_float(float):
     unit = None
@@ -11,18 +11,18 @@ class torque(float): pass
 class angular_velocity(float): pass
 class angular_acceleration(float): pass
 class angular_torque(float): pass
-class rotation(float): pass
-class euler(rotation): pass
-class quaternion(rotation): pass
-
+class angular_position(float): pass
+class rotation_matrix(angular_position): pass
+class euler(angular_position): pass
+class quaternion(angular_position): pass
 
 
 TIMESTAMP = 'timestamp'
 
 POS_2D = dict(x=position, y=position)
-ROT_2D = dict(c=rotation)
+ROT_2D = dict(c=euler)
 POS_3D = dict(x=position, y=position, z=position)
-EULER_3D = dict(a=rotation, b=rotation, c=rotation)
+EULER_3D = dict(a=euler, b=euler, c=euler)
 QUAT = dict(qx=float, qy=float, qz=float, w=float)
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)
@@ -51,24 +51,29 @@ JACOB_3D = dict(J11=float, J12=float, J13=float, J14=float, J15=float, J16=float
 
 
 
-def define(prefix, num, type_=float):
+def define(prefix, num, type_=Any):
     ret = {}
-    for i in range(num):
-        key = prefix + str(i)
-        ret[key] = type_
+    if isinstance(num, list):
+        for n in num:
+            key = prefix + '.' + str(n)
+            ret[key] = type_
+    else:
+        for i in range(num):
+            key = prefix + '.' + str(i)
+            ret[key] = type_
     return ret
 
 def joint_pos(num):
-    return define('j_', num, position)
+    return define('j', num, position)
 
 def joint_vel(num):
-    return define('d_j_', num, velocity)
+    return define('d_j', num, velocity)
 
 def joint_acc(num):
-    return define('dd_j_', num, acceleration)
+    return define('dd_j', num, acceleration)
 
 def joint_torque(num):
-    return define('j_t_', num, torque)
+    return define('j_t', num, torque)
 
 a = joint_pos(6)
 pass

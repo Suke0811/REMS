@@ -1,7 +1,7 @@
 from sim.inputs import InputBase
 from pynput.keyboard import Key, Listener
 from sim.type import DefDict
-from sim.inputs.binding.KEYBOARD_KEYMAP import KEYBOARD_DEF
+from sim.inputs.map.KEYBOARD_KEYMAP import KEYBOARD_DEF
 import numpy as np
 
 class KeyboardInput(InputBase):

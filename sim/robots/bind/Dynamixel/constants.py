@@ -41,7 +41,7 @@ class XM430:
     class GOAL_POSITION(TableBase):
         ADDR = 116
         LEN = 4
-        UNIT = 0.08789  # rad
+        UNIT = 0.00153398  # rad
 
     class GOAL_VELOCITY(TableBase):
         ADDR = 112
@@ -52,7 +52,7 @@ class XM430:
         ADDR = 132
         LEN = 4
         W = False
-        UNIT = 0.08789 # rad
+        UNIT = 0.00153398 # rad
 
     class PRESENT_VELOCITY(TableBase):
         ADDR = 128
@@ -70,5 +70,5 @@ class XM430:
 
 
 
-
+pass
 

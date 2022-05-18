@@ -21,6 +21,12 @@ class DefDictData(dict):
             ret.append(v)
         return ret
 
+    def key_as_list(self):
+        ret = []
+        for k, v in self.items():
+            ret.append(k)
+        return ret
+
     def filter(self, keys):
         if isinstance(keys, dict):
             keys = list(keys.keys())
@@ -46,3 +52,17 @@ class DefDictData(dict):
         vals = list(self.values())
 
         return DefDictData({keys[index]: vals[index] for index in found})
+
+    def get_key_suffix(self):
+        rets = []
+        keys = self.key_as_list()
+        for k in keys:
+            rets.append(k.split('.')[-1])
+        return rets
+
+    def get_prefix(self):
+        rets = []
+        keys = self.key_as_list()
+        for k in keys:
+            rets.append(k.split('.')[0])
+        return rets

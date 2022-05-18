@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 return [0.5, 1.0]
             if up and not self.state:
                 self.state = True
-                return [0, -1]''
+                return [0, -1]
     test_in = {'up': True, 'down': False, 'left': False, 'right': False}
     print(keyboard_bind.bind(test_in))
 

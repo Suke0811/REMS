@@ -48,7 +48,7 @@ class DefDict:
             self._list2dict(ndata)
         else:
             self._list2dict([ndata])
-        return self._data
+        return self
 
     @data.deleter
     def data(self):
@@ -81,7 +81,7 @@ class DefDict:
         for i, k in enumerate(self._data):
             if i > length:
                 break
-            self._data[k] = self._enforce_type(self.DEF[k],data[i])
+            self._data[k] = self._enforce_type(self.DEF[k], data[i])
 
 
     def _enforce_type(self, d_type, value):
@@ -96,7 +96,6 @@ class DefDict:
             data = DefDictData(data)
         assert (len(data) == len(self.DEF))
         assert (all(type(x) == y for x, y in zip(data.as_list(), self.DEF.as_list())))
-
 
 
 

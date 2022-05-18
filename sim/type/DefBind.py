@@ -65,7 +65,8 @@ if __name__ == '__main__':
     #  └─ bind to
     #  └─ type
     #this defines that the 'k' is calculated by 'b' and 'c' using lambda function.
-    a = {'t': DefBindRule(['b', 'c'], lambda b, c: 2 * b + c)}
+    rule = DefBindRule(['b', 'c'], lambda b, c: 2 * b + c)
+    a = {'t': rule}
     # then formulate binding
     b = DefBind(a)
     # say we have data input

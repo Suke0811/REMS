@@ -1,7 +1,7 @@
 from sim.inputs import InputBase
 import logging
 import pygame
-from sim.inputs.binding.JOYSTICK_KEYMAP import *
+from sim.inputs.map.JOYSTICK_KEYMAP import *
 from sim.type import DefDict
 
 
