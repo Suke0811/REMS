@@ -1,16 +1,14 @@
-from sim.robots.bind import FullDeviceBase
+from sim.robots.RobotBase import RobotBase
 import websocket, struct
 
 TARGET = "ws://192.168.4.1:81"
 
-class Websocket(FullDeviceBase):
+
+class WebsocketRobot(RobotBase):
     def __init__(self, target_address=TARGET):
         super().__init__()
         self.target = target_address
         self.ws = websocket.WebSocket()
-
-    def init(self):
-        pass
 
     def open(self):
         self.ws.connect(self.target)

@@ -1,22 +1,24 @@
 from sim.robots.RunConfig import RunConfig
-from sim.robots.bind import BasicDeviceBase
+from sim.robots.bind.BasicDeviceBase import BasicDeviceBase
+from sim.robots.RobotDefBase import RobotDefBase
 from sim.type.definitions import *
 from sim.type import DefDict
 
-class RobotBaseBasic(BasicDeviceBase):
-    def __init__(self, run_config=RunConfig()):
-        """init with a specific initial state (optional) """
+
+class RobotBase(RobotDefBase, BasicDeviceBase):
+    def __init__(self):
+        """init with a specific initial stat) """
+        super().__init__()
         self.inpt = {}
         self._t_minus_1 = 0.0       # delta t may not be a constant
         self.info = {}
         # Run settings
-        self.run = run_config
         self.drivers = []
         self.sensers = []
         self.state_observers = []
-        self.state = None
-        self.outpt = None
-        self.inpt = None
+        # Run settings
+        self.run = RunConfig()
+
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init

@@ -3,23 +3,12 @@ from sim.type.DefDictData import DefDictData
 from typing import Any
 
 class DefDict:
-    def __init__(self, definition, type_=Any):
-        if isinstance(definition, dict):
-            self._definition = DefDictData(definition)
-        elif isinstance(definition, list):
-            self._definition = DefDictData.fromkeys(definition, type_)
-        elif isinstance(definition, str):
-            self._definition = DefDictData({definition: type_})
-        else:
-            raise TypeError('definition must be dict, list or str')
-
+    def __init__(self, *definition, type_=Any):
+        self._definition = DefDictData()
         self._data = DefDictData()
-        for k, v in self._definition.items():
-            try:
-                self._data[k] = v()
-            except TypeError:
-                self._data[k] = None
-        self._data = DefDictData(self._data)
+        for d in definition:    # add as many definition as you want
+            self.add_definition(d)
+
 
     @property
     def data(self):
@@ -61,15 +50,26 @@ class DefDict:
         return self._definition
 
     def add_definition(self, ndef, type_=float()):
+        keys = []
         if isinstance(ndef, dict):
             self._definition.update(ndef)
+            keys.extend(DefDictData(ndef).key_as_list())
         elif isinstance(ndef, list):
             self._definition.update(dict.fromkeys(ndef, type_))
+            keys.extend(ndef)
         elif isinstance(ndef, str):
             self._definition[ndef] = type_
+            keys.append(ndef)
         else:
             raise TypeError('You can only add str, dict, or list')
-        # TODO: modify to initiate data with added def
+        self.init_data(keys)
+
+    def init_data(self, keys):
+        for k, v in self._definition.filter(keys).items():
+            try:
+                self._data[k] = v()
+            except TypeError:
+                self._data[k] = None
 
     def _dict2dict(self, data: dict):
         for k, v in data.items():
@@ -98,10 +98,8 @@ class DefDict:
         assert (all(type(x) == y for x, y in zip(data.as_list(), self.DEF.as_list())))
 
 
-
-
 if __name__ == '__main__':
-    store = DefDict(dict(a=float,b=float,c=float))
+    store = DefDict(dict(a=float, b=float, c=float))
     print(store.data)
     l = {'a':2.0,'v':4.0}
     a=np.array([2,6])

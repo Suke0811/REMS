@@ -17,7 +17,6 @@ class DefBindRule:
          └─ bind to
          └─ type
         """
-
         if bind_to is None:
             self.bind_to = None
         else:

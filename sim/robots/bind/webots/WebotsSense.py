@@ -31,7 +31,7 @@ class WebotsSense(SenseBaseBasic):
     def sense(self, inpt, timestamp):
         sensor_value = []
         for sensor in self._sensors:
-            try: # Webots has two different functions of getValue()
+            try: # webots has two different functions of getValue()
                 sensor_value.append(self._filter_nan(sensor.getValue()))
             except AttributeError: # then try getValues()
                 sensor_value.append(self._filter_nan(sensor.getValues()))

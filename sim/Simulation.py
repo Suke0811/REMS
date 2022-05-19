@@ -103,7 +103,6 @@ class Sim:
                 self.jHandler.find_job(rets)
             self.jHandler.execute()
 
-
     def send_data(self, t):  # sending data won't block the process
         self._data_in.data_as([self._input_system.get_inputs(timestamp=t), t, self.DT])
         for q, r in zip(self._queue_ins, self._robots):
@@ -123,4 +122,3 @@ class Sim:
         for robot, outputs in self._robots:
             for out in outputs:
                 out.make_output()
-

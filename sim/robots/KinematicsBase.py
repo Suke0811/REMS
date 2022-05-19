@@ -2,20 +2,20 @@ from sim.type import DefDict
 from sim.type.definitions import *
 
 class KinematicsBase:
-    def __init__(self, j_def, t_def=POS_3D, jac_def=JACOB_3D):
-        self.joint_definition = DefDict(j_def)
-        self.task_definition = DefDict(t_def)
-        self.jacobian_definition = DefDict(jac_def)
+    def __init__(self):
+        self.joint_definition = None
+        self.task_definition = None
+        self.jacobian_definition = None
         self.constants()
 
     def fk(self, jointspace: DefDict):
-        self.joint_definition.assert_data(jointspace)
+        raise NotImplementedError
 
     def ik(self, taskspace: DefDict):
-        self.task_definition.assert_data(taskspace)
+        raise NotImplementedError
 
     def jb(self, jointspace: DefDict):
-        self.joint_definition.assert_data(jointspace)
+        raise NotImplementedError
 
     def constants(self):
         pass
