@@ -12,7 +12,7 @@ class NullKinnematics(KinematicsBase):
 
     def jb(self, jointspace):
         super().jb(jointspace)
-        return self.jacobian_definition.data.as_numpy()
+        return self.jacobian_definition
 
     def constants(self):
         pass

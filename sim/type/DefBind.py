@@ -3,7 +3,7 @@ from typing import Any
 
 
 class DefBindRule:
-    def __init__(self, bind_from, bind_func=None, bind_to=None, type_=float()):
+    def __init__(self, bind_from, bind_func=None, bind_to=None, type_=Any):
         """
         Create a dict of binding rule
         key is definition of the input
@@ -20,11 +20,11 @@ class DefBindRule:
         if bind_to is None:
             self.bind_to = None
         else:
-            self.bind_to = DefDict(bind_to, type_)
+            self.bind_to = DefDict(bind_to, type_=type_)
         if bind_from is None:
             self.bind_from = None
         else:
-            self.bind_from = DefDict(bind_from, type_)
+            self.bind_from = DefDict(bind_from, type_=type_)
         self.bind_func = bind_func
         self.type_ = type_
 

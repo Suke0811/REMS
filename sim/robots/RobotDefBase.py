@@ -2,7 +2,6 @@ from sim.robots.RunConfig import RunConfig
 from sim.robots import KinematicsBase
 from sim.type.definitions import *
 from sim.type import DefDict
-from sim.robots.RobotBase import RobotBase
 
 
 class RobotDefBase:
@@ -23,13 +22,3 @@ class RobotDefBase:
     def control(self, *args):
         """run controller assigned to the robot"""
         pass
-
-
-def instance(bind: RobotBase):
-    class RobotDef(RobotDefBase, bind):
-        def __init__(self):
-            super(RobotDef, self).__init__()
-    return RobotDef()
-
-
-pass

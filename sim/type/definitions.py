@@ -1,29 +1,56 @@
 from sim.type import DefDict
 """Where to store standard definitions"""
 from typing import Any
+from sim.type.DefBind import DefBindRule as Rule
 # Defined type
+
+
+class QUAT:
+    qx = "qx"; qy = 'qy'; qz = 'qz'; qw = 'qw'
+    KEY = (qx,qy,qz,qw)
+
+class EULER:
+    a = 'a'; b = 'b'; c = 'c'
+    KEY = (a,b,c)
+
+
 class dimentional_float(float):
     unit = None
+class bindable(float):
+    bind_from = None
+    bind_to = []
+
 class velocity(float): pass
 class position(float): pass
 class acceleration(float): pass
 class torque(float): pass
 class angular_velocity(float): pass
+
 class angular_acceleration(float): pass
 class angular_torque(float): pass
-class angular_position(float): pass
+
+class angular_position(bindable): pass
 class rotation_matrix(angular_position): pass
 class euler(angular_position): pass
-class quaternion(angular_position): pass
+class quaternion(angular_position):
+    bind_from = QUAT.KEY
+    bind_to = [EULER.KEY]
 
 
 TIMESTAMP = 'timestamp'
 
+
+
 POS_2D = dict(x=position, y=position)
 ROT_2D = dict(c=euler)
 POS_3D = dict(x=position, y=position, z=position)
+
+
+
+
+QUAT = dict(qx=float, qy=float, qz=float, qw=float)
 EULER_3D = dict(a=euler, b=euler, c=euler)
-QUAT = dict(qx=float, qy=float, qz=float, w=float)
+
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)
 ROT_MAT_3D = dict(r11=float, r12=float, r13=float,
@@ -77,3 +104,12 @@ def joint_torque(num):
 
 a = joint_pos(6)
 pass
+
+
+Rule(EULER_3D, lambda x: x, QUAT)
+Rule(ROT_VECTOR, lambda x: x, QUAT)
+Rule(ROT_MAT_3D, lambda x: x, QUAT)
+
+Rule(QUAT, lambda x: x, EULER_3D)
+Rule(QUAT, lambda x: x, ROT_VECTOR)
+Rule(QUAT, lambda x: x, ROT_MAT_3D)
