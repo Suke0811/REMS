@@ -17,7 +17,7 @@ class DeviceBase:
     def drive(self, inpt: DefDict, timestamp):
         raise NotImplementedError
 
-    def sense(self, timestamp):
+    def sense(self):
         raise NotImplementedError
 
     def observe_state(self):

@@ -6,8 +6,8 @@ from sim.type import definitions as DEF
 import logging
 
 ID = 'id'
-def dynamixel_id(id_list):
-    return DefDict(DEF.define('Dynamixel.' + ID, id_list, DEF.angular_position))
+def dynamixel_id(id_list, dtype, prefix=''):
+    return DEF.define(prefix, id_list, dtype)
 
 
 def dynamixel_sensor_def(driver_def: DefDict):
@@ -17,15 +17,20 @@ def dynamixel_sensor_def(driver_def: DefDict):
 
 
 class Dynamixel(DeviceBase):
-    def __init__(self, drive_def: DefDict):
-        self.device_port = 'COM3'
+    def __init__(self, id_list, slave_ids=None, device_port='COM3'):
+        self.device_port = device_port
         self.packet = x.PacketHandler(XM430.PROTOCOL_VERSION)
-        self.motors = drive_def
-        self.motor_sensors = dynamixel_sensor_def(drive_def)
-        self.ids = None
-        self.enabled_ids = drive_def.set_data(False)
+        self.ids = id_list
+        if slave_ids:
+            self.ids.update(slave_ids)
+        self.motors = DefDict(dynamixel_id(self.ids, DEF.angular_position))
+        # TODO chage to use nested DefDict?
+        self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'))
+        self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
+        self.motor_sensors = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
+
+        self.enabled_ids = {k: False for k, v in self.motors.data.items()}  # TODO: change to use DefDict
         self.port = None
-        self.velcity_mode = None
 
     def init(self):
         self.port = x.PortHandler(self.device_port)
@@ -74,9 +79,11 @@ class Dynamixel(DeviceBase):
             self._sync_write(inpt, XM430.OPERATING_MODE, XM430.OPERATING_MODE.POS_MODE)
             self._sync_write(inpt, XM430.GOAL_POSITION)
 
-    def sense(self, timestamp):
-        self._sync_read(self.motor_sensors, XM430.PRESENT_POSITION)
-        self._sync_read(self.motor_sensors, XM430.PRESENT_VELOCITY)
+    def sense(self):
+        self._sync_read(self.motor_pos, XM430.PRESENT_POSITION)
+        self._sync_read(self.motor_vel, XM430.PRESENT_VELOCITY)
+        self.motor_sensors.data = self.motor_pos
+        self.motor_sensors.data = self.motor_vel
         return self.motor_sensors
 
     def __del__(self):

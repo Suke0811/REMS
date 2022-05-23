@@ -1,12 +1,13 @@
 import numpy as np
-from sim.type.DefDictData import DefDictData
-from sim.type.DefBind import DefDict
+from sim.type import DefDictData
 from typing import Any
 
+
 class DefDict:
-    def __init__(self, *definition, type_=Any):
+    def __init__(self, *definition, type_=Any, rule=None):
         self._definition = DefDictData()
         self._data = DefDictData()
+        self.out_rule = rule
 
         # if args type_=type was not specified, here we figure out if the last element is type
         if isinstance(definition[-1], type) or definition[-1] is Any:
@@ -14,7 +15,6 @@ class DefDict:
             definition = definition[0:-1]
         for d in definition:    # add as many definition as you want
             self.add_definition(d, type_)
-
 
     @property
     def data(self):
@@ -27,6 +27,13 @@ class DefDict:
     def data_as(self, definition):
         d = DefDict(definition)
         return d.set_data(self.data)
+
+    def format(self):
+        if self.out_rule is None:
+            return self._data
+        return self.out_rule.bind(self._data)
+
+
 
     @data.setter
     def data(self, ndata):
@@ -42,7 +49,7 @@ class DefDict:
         elif isinstance(ndata, list):
             self._list2dict(ndata)
         elif isinstance(ndata, np.ndarray):
-            self._list2dict(ndata)
+            self._list2dict(ndata.flatten())
         else:
             self._list2dict([ndata])
         return self
@@ -88,12 +95,14 @@ class DefDict:
         extra_data = {}
         stored_data_keys = []
         for k, v in data.items():
-            if self._data.get(k) is not None:
+            if k in self._data.keys():
                 self._data[k] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
                 extra_data[k] = v
         if not extra_data:
+            # TODO: binding implementation
+            pass
             self.bind_from(extra_data, stored_data_keys)
 
 
@@ -115,8 +124,9 @@ class DefDict:
         return ret    # Enforce type in the corresponding definition
 
     def bind_from(self, data, ignored_keys=None):
-        def_keys =
-        if ignored_keys is None:
+        pass
+        #def_keys =
+        #if ignored_keys is None:
 
 
     def assert_data(self, data=None):
@@ -136,4 +146,5 @@ if __name__ == '__main__':
     store.data = a
     print(store.data.as_list())
     store.assert_data()
+
 

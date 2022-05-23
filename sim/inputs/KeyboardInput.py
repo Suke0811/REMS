@@ -10,9 +10,9 @@ class KeyboardInput(InputBase):
         self._keys = KEYBOARD_DEF
         self._start_capture_key()   # set listener
 
-    def get_inputs(self, timestamp=None):
-        self._inputs = self.definitions
-        return self._inputs
+    def get_inputs(self, inpt_def: DefDict, timestamp = None):
+        inpt_def = self._inputs
+        return inpt_def
 
     def if_exit(self):
         return self._quit

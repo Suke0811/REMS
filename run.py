@@ -1,11 +1,14 @@
 import logging, os, time
 import pandas as pd
-from sim.Simulation import Sim
-from sim.inputs import FileInput
+from sim.Sim import Sim
+from sim.inputs import FileInput, KeyboardInput
 from sim.outputs import FileOutput
 from sim.robots import RobotDefBase
 import matplotlib.pyplot as plt
 from sim.utils.tictoc import tictoc
+from sim.robots.bind_robot import bind_robot
+from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
+from sim.robots.scalear_leg.ScalarHard import ScalerHard
 
 PRINT = True
 
@@ -19,8 +22,8 @@ s = Sim()    # Create instance of Robot testing system
 # Create instance of inputs system.
 # You can only have one type of inputs per test
 #i = FileInput('target_robot.csv',loop=True)
-#i = KeyboardInput()
-i = JoystickInput()
+i = KeyboardInput()
+#i = JoystickInput()
 
 s.set_input(i)  # specify inputs to run
 
@@ -28,13 +31,12 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-ref_robot = WebotsModel()
+ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM3')
 
 target_csv = FileOutput('target_robot.csv')       # save to test.csv at the same dir as the
 
 # add robots to simulation
-s.add_robot(ref_robot, (ref_csv,))
+s.add_robot(ref_robot, (target_csv,))
 
-@tictoc
 s.run(max_duration=150, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 

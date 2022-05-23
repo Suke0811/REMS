@@ -1,5 +1,4 @@
-from sim.type import DefDict
-from sim.robots.RobotBase import RobotBase
+from sim.type.DefDict import DefDict
 from typing import Any
 
 INPT='inpt'

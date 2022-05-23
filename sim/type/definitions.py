@@ -1,7 +1,10 @@
+import numpy as np
+
 from sim.type import DefDict
 """Where to store standard definitions"""
 from typing import Any
 from sim.type.DefBind import DefBindRule as Rule
+from sim.type import DefDictData
 # Defined type
 
 
@@ -34,16 +37,16 @@ class rotation_matrix(angular_position): pass
 class euler(angular_position): pass
 class quaternion(angular_position):
     bind_from = QUAT.KEY
-    bind_to = [EULER.KEY]
+    bind_to = [EULER]
 
 
 TIMESTAMP = 'timestamp'
 
 
 
-POS_2D = dict(x=position, y=position)
-ROT_2D = dict(c=euler)
-POS_3D = dict(x=position, y=position, z=position)
+POS_2D = DefDictData(x=position, y=position)
+ROT_2D = DefDictData(c=euler)
+POS_3D = DefDictData(x=position, y=position, z=position)
 
 
 
@@ -53,9 +56,22 @@ EULER_3D = dict(a=euler, b=euler, c=euler)
 
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)
-ROT_MAT_3D = dict(r11=float, r12=float, r13=float,
+ROT_MAT_3D = DefDictData(r11=float, r12=float, r13=float,
                   r21=float, r22=float, r23=float,
                   r31=float, r32=float, r33=float,)
+
+def T_mat_rule(r11, r12, r13,
+               r21, r22, r23,
+               r31, r32, r33,
+               x, y, z):
+    return np.array([[r11, r12, r13, x],
+               [r21, r22, r23, y],
+               [r31, r32, r33, z],
+               [0,0,0,1]])
+
+T_keys = ROT_MAT_3D.key_as_list() + POS_3D.key_as_list()
+T_MAT = DefDict(ROT_MAT_3D, POS_3D, rule=Rule(T_keys, T_mat_rule))
+
 ROT_VECTOR = {'r.vec_0':float, 'r.vec_1':float, 'r.vec_2':float}
 ROT_UNIT_VECTOR = {'r.uvec_0':float, 'r.uvec_1':float, 'r.uvec_2':float, 'r.uvec_th':float}
 
@@ -106,10 +122,10 @@ a = joint_pos(6)
 pass
 
 
-Rule(EULER_3D, lambda x: x, QUAT)
-Rule(ROT_VECTOR, lambda x: x, QUAT)
-Rule(ROT_MAT_3D, lambda x: x, QUAT)
-
-Rule(QUAT, lambda x: x, EULER_3D)
-Rule(QUAT, lambda x: x, ROT_VECTOR)
-Rule(QUAT, lambda x: x, ROT_MAT_3D)
+# Rule(EULER_3D, lambda x: x, QUAT)
+# Rule(ROT_VECTOR, lambda x: x, QUAT)
+# Rule(ROT_MAT_3D, lambda x: x, QUAT)
+#
+# Rule(QUAT, lambda x: x, EULER_3D)
+# Rule(QUAT, lambda x: x, ROT_VECTOR)
+# Rule(QUAT, lambda x: x, ROT_MAT_3D)

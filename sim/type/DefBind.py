@@ -28,27 +28,22 @@ class DefBindRule:
         self.bind_func = bind_func
         self.type_ = type_
 
-    def bind(self, data, bind_to):
+    def bind(self, data, bind_to=None):
         if self.bind_from is None:
             return  # None rule do nothing
+
         self.bind_from.data = data
         if self.bind_to is None:
-            self.bind_to = DefDict(bind_to, Any)
+            if bind_to is not None:
+                self.bind_to = DefDict(bind_to, Any)
         if self.bind_func is None:
             self.bind_to.data = self.bind_from.data.as_list()
         else:
-            self.bind_to.data = self.bind_func(*self.bind_from.data.as_list())
-        return self.bind_to.data
-
-
-class DefBind(DefDict):
-    def __init__(self, definition):
-        super().__init__(definition)
-
-    def bind(self, data):
-        for key, val in self.DEF.items():
-            self.data = val.bind(data, key)
-        return self.data
+            if self.bind_to is not None:
+                self.bind_to.data = self.bind_func(*self.bind_from.data.as_list())
+                return self.bind_to.data
+            else:
+                return self.bind_func(*self.bind_from.data.as_list())
 
 
 if __name__ == '__main__':
@@ -67,10 +62,7 @@ if __name__ == '__main__':
     rule = DefBindRule(['b', 'c'], lambda b, c: 2 * b + c)
     a = {'t': rule}
     # then formulate binding
-    b = DefBind(a)
+    #b = DefBind(a)
     # say we have data input
     inpt = {'a':0.0, 'b':2.0, 'c':6.0}
     # bind(inpt) will apply the binding rule
-    out = b.bind(inpt)
-    print(out)
-
