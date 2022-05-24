@@ -1,34 +1,85 @@
+import numpy as np
+
 from sim.type import DefDict
 """Where to store standard definitions"""
 from typing import Any
+from sim.type.DefBind import DefBindRule as Rule
+from sim.type import DefDictData
 # Defined type
+
+
+class QUAT:
+    qx = "qx"; qy = 'qy'; qz = 'qz'; qw = 'qw'
+    KEY = (qx,qy,qz,qw)
+
+class EULER:
+    a = 'a'; b = 'b'; c = 'c'
+    KEY = (a,b,c)
+
+
 class dimentional_float(float):
     unit = None
+class bindable(float):
+    bind_from = None
+    bind_to = []
+
 class velocity(float): pass
 class position(float): pass
 class acceleration(float): pass
 class torque(float): pass
 class angular_velocity(float): pass
+
 class angular_acceleration(float): pass
 class angular_torque(float): pass
-class angular_position(float): pass
+
+class angular_position(bindable): pass
 class rotation_matrix(angular_position): pass
 class euler(angular_position): pass
-class quaternion(angular_position): pass
+class quaternion(angular_position):
+    bind_from = QUAT.KEY
+    bind_to = [EULER]
 
 
 TIMESTAMP = 'timestamp'
 
-POS_2D = dict(x=position, y=position)
-ROT_2D = dict(c=euler)
-POS_3D = dict(x=position, y=position, z=position)
+
+
+POS_2D = DefDictData(x=position, y=position)
+ROT_2D = DefDictData(c=euler)
+POS_3D = DefDictData(x=position, y=position, z=position)
+
+
+
+
+QUAT = dict(qx=float, qy=float, qz=float, qw=float)
 EULER_3D = dict(a=euler, b=euler, c=euler)
-QUAT = dict(qx=float, qy=float, qz=float, w=float)
+
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)
-ROT_MAT_3D = dict(r11=float, r12=float, r13=float,
+ROT_MAT_3D = DefDictData(r11=float, r12=float, r13=float,
                   r21=float, r22=float, r23=float,
                   r31=float, r32=float, r33=float,)
+
+def T_mat_rule(r11, r12, r13,
+               r21, r22, r23,
+               r31, r32, r33,
+               x, y, z):
+    return np.array([[r11, r12, r13, x],
+               [r21, r22, r23, y],
+               [r31, r32, r33, z],
+               [0,0,0,1]])
+
+def Tmat2dict(row0,row1,row2,row3):
+    return DefDictData(r11=row0[0], r12=row0[1], r13=row0[2],
+                        r21=row1[0], r22=row1[1], r23=row1[2],
+                        r31=row2[0], r32=row2[1], r33=row2[2],
+                        x=row0[3], y=row1[3], z=row2[3])
+
+
+T_keys = ROT_MAT_3D.key_as_list() + POS_3D.key_as_list()
+Tmat2dict_rule = Rule(None, Tmat2dict, T_keys)
+T_MAT = DefDict(ROT_MAT_3D, POS_3D, rule=Rule(T_keys, T_mat_rule))
+
 ROT_VECTOR = {'r.vec_0':float, 'r.vec_1':float, 'r.vec_2':float}
 ROT_UNIT_VECTOR = {'r.uvec_0':float, 'r.uvec_1':float, 'r.uvec_2':float, 'r.uvec_th':float}
 
@@ -51,15 +102,15 @@ JACOB_3D = dict(J11=float, J12=float, J13=float, J14=float, J15=float, J16=float
 
 
 
-def define(prefix, num, type_=Any):
+def define(prefix, num, type_=Any, separater='.'):
     ret = {}
     if isinstance(num, list):
         for n in num:
-            key = prefix + '.' + str(n)
+            key = prefix + separater + str(n)
             ret[key] = type_
     else:
         for i in range(num):
-            key = prefix + '.' + str(i)
+            key = prefix + separater + str(i)
             ret[key] = type_
     return ret
 
@@ -77,3 +128,12 @@ def joint_torque(num):
 
 a = joint_pos(6)
 pass
+
+
+# Rule(EULER_3D, lambda x: x, QUAT)
+# Rule(ROT_VECTOR, lambda x: x, QUAT)
+# Rule(ROT_MAT_3D, lambda x: x, QUAT)
+#
+# Rule(QUAT, lambda x: x, EULER_3D)
+# Rule(QUAT, lambda x: x, ROT_VECTOR)
+# Rule(QUAT, lambda x: x, ROT_MAT_3D)

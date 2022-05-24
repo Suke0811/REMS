@@ -1,5 +1,5 @@
 from functools import wraps
-from time import time
+from time import perf_counter as time
 
 def tictoc(f):
     @wraps(f)

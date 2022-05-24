@@ -22,8 +22,14 @@ class OutputBase:
         self._states.append(state)
         self._outpts.append(outpt)
         self._info.append(info)
-        d = {**timestamp.data, **inpt.data , **state.data, **outpt.data, **info.data}
+        d = {'timestamp': timestamp, **self.to_dict(inpt), **self.to_dict(state), **self.to_dict(outpt), **self.to_dict(info)}
         self._data.append(d)
+
+    def to_dict(self, data):
+        ret = {}
+        if isinstance(data, DefDict):
+            ret = data.data
+        return ret
 
     def make_output(self):
         """make proper output from the data"""

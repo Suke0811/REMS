@@ -1,22 +1,22 @@
 from sim.robots.RunConfig import RunConfig
-from sim.robots.bind import BasicDeviceBase
-from sim.type.definitions import *
-from sim.type import DefDict
+from sim.robots.bind.BasicDeviceBase import BasicDeviceBase
+from sim.robots.RobotDefBase import RobotDefBase
 
-class RobotBaseBasic(BasicDeviceBase):
-    def __init__(self, run_config=RunConfig()):
-        """init with a specific initial state (optional) """
+
+class RobotBase(RobotDefBase, BasicDeviceBase):
+    def __init__(self, *args, **kwargs):
+        """init with a specific initial stat) """
+        super().__init__(*args, **kwargs)
         self.inpt = {}
         self._t_minus_1 = 0.0       # delta t may not be a constant
         self.info = {}
         # Run settings
-        self.run = run_config
         self.drivers = []
         self.sensers = []
         self.state_observers = []
-        self.state = None
-        self.outpt = None
-        self.inpt = None
+        # Run settings
+        self.run = RunConfig()
+        self.home_position = self.joint_space
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
@@ -33,14 +33,19 @@ class RobotBaseBasic(BasicDeviceBase):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         :return full state feedback"""
-        self.inpt = inpt
+        self.inpt.data = inpt
+        self.joint_space.data = self.inpt
+        for d in self.drivers:
+            d.drive(self.joint_space)
 
-    def sense(self, definition=None):
+    def sense(self):
         """generate the sensor reading
         :return output"""
+        for s in self.sensers:
+            self.outpt.data = s.sense()
         return self.outpt
 
-    def observe_state(self, definition=None):
+    def observe_state(self):
         """get current state"""
         return self.state
 

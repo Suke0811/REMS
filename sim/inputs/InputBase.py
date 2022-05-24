@@ -8,22 +8,17 @@ class InputBase:
     def __init__(self, estop_callback=None):
         self._timestamps = []
         self._inputs = None
-        self.input_def = None
         self._command = None
         self._quit = False
         self._estop = False
         self.estop_callback = estop_callback
 
-    def init(self, input_def: DefDict=None):
-        if input_def is not None:
-            self.input_def = input_def
+    def init(self):
+        pass
 
-        if self.input_def is None or isinstance(self.input_def, DefDict):
-            raise ImportError('Key input definition must be defined')
-
-    def get_input(self):
-        self._inputs = self.input_def
-        return self._inputs
+    def get_inputs(self, inpt_def: DefDict, timestamp=None):
+        inpt_def = self._inputs
+        return inpt_def
 
     def get_command(self):
         """For general key handling such as setting commands"""

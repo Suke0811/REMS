@@ -27,7 +27,7 @@ class TableBase:
 
 
 
-class XM430:
+class DynamiexX:
     RETRY_MAX = 5
     PROTOCOL_VERSION = 2.0
     BAUDRATE = 4000000
@@ -37,13 +37,17 @@ class XM430:
     class LED(TableBase):
         ADDR = 65
 
-
     class GOAL_POSITION(TableBase):
         ADDR = 116
         LEN = 4
         UNIT = 0.00153398  # rad
 
     class GOAL_VELOCITY(TableBase):
+        ADDR = 104
+        LEN = 4
+        UNIT = 0.02398  # rev/sec
+
+    class PROFILE_VELOCITY(TableBase):
         ADDR = 112
         LEN = 4
         UNIT = 0.02398  # rev/sec

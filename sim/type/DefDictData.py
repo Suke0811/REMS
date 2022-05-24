@@ -53,6 +53,9 @@ class DefDictData(dict):
 
         return DefDictData({keys[index]: vals[index] for index in found})
 
+    def as_ruled(self):
+        pass
+
     def get_key_suffix(self):
         rets = []
         keys = self.key_as_list()
