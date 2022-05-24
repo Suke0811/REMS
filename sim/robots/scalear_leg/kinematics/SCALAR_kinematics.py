@@ -1,6 +1,7 @@
 from .SCALER_v2_Leg_6DOF_gripper import Leg
 import numpy as np
 from sim.robots.scalear_leg.kinematics import util
+from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_pi
 
 
 
@@ -37,5 +38,5 @@ class ScalerKinematics(object):
 
         shoulder_angle, q11, q12, q13, q21, q22, qw1, qw2, qw3, phi = self.k_model.leg_ik_direct_calculation_6DoF(T_shi_wrist3[0:3,3].tolist(), quaternion_state, which_leg, is_first_ik = is_first_ik, prev_angles = prev_angles)
 
-        return [shoulder_angle, q11, q21, qw1, qw2, qw3]
+        return wrap_to_pi([shoulder_angle, q11, q21, qw1, qw2, qw3])
         

@@ -3,14 +3,14 @@ from typing import Any
 
 
 class DefBindRule:
-    def __init__(self, bind_from, bind_func=None, bind_to=None, type_=Any):
+    def __init__(self, bind_from, bind_func=None, bind_to=None, dtype=Any):
         """
         Create a dict of binding rule
         key is definition of the input
         :param bind_from indicates which named variables should be used to calculate the values
         :param bind_func (optional) is a function used to calculate the value: bind_to = func(bind_from). Default is 1-1 mapping
         :param bind_to (optional) indicates to which the calculated value should be applied. Default to key.
-        :param type_ (optional) to define the value type. Default to float
+        :param dtype (optional) to define the value type. Default to float
         key
          └─ bind from
          └─ bind function
@@ -20,13 +20,13 @@ class DefBindRule:
         if bind_to is None:
             self.bind_to = None
         else:
-            self.bind_to = DefDict(bind_to, type_=type_)
+            self.bind_to = DefDict(bind_to, type_=dtype)
         if bind_from is None:
             self.bind_from = None
         else:
-            self.bind_from = DefDict(bind_from, type_=type_)
+            self.bind_from = DefDict(bind_from, type_=dtype)
         self.bind_func = bind_func
-        self.type_ = type_
+        self.type_ = dtype
 
     def bind(self, data, bind_to=None):
         if self.bind_from is None:

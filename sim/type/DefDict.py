@@ -9,7 +9,7 @@ class DefDict:
         self._data = DefDictData()
         self.out_rule = rule
 
-        # if args type_=type was not specified, here we figure out if the last element is type
+        # if args dtype=type was not specified, here we figure out if the last element is type
         if isinstance(definition[-1], type) or definition[-1] is Any:
             type_=definition[-1]
             definition = definition[0:-1]

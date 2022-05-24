@@ -94,15 +94,15 @@ JACOB_3D = dict(J11=float, J12=float, J13=float, J14=float, J15=float, J16=float
 
 
 
-def define(prefix, num, type_=Any):
+def define(prefix, num, type_=Any, separater='.'):
     ret = {}
     if isinstance(num, list):
         for n in num:
-            key = prefix + '.' + str(n)
+            key = prefix + separater + str(n)
             ret[key] = type_
     else:
         for i in range(num):
-            key = prefix + '.' + str(i)
+            key = prefix + separater + str(i)
             ret[key] = type_
     return ret
 

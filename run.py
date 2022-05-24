@@ -9,6 +9,7 @@ from sim.utils.tictoc import tictoc
 from sim.robots.bind_robot import bind_robot
 from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
+from sim.robots.NopRobot import NopRobot
 
 PRINT = True
 
@@ -21,8 +22,8 @@ s = Sim()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-#i = FileInput('target_robot.csv',loop=True)
-i = KeyboardInput()
+i = FileInput('target_robot.csv', loop=True)
+#i = KeyboardInput()
 #i = JoystickInput()
 
 s.set_input(i)  # specify inputs to run
@@ -33,10 +34,11 @@ s.set_input(i)  # specify inputs to run
 
 ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM3')
 
-target_csv = FileOutput('target_robot.csv')       # save to test.csv at the same dir as the
+target_csv = FileOutput('test_robot.csv')       # save to test.csv at the same dir as the
 
 # add robots to simulation
 s.add_robot(ref_robot, (target_csv,))
 
-s.run(max_duration=150, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=10, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+
 

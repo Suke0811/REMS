@@ -3,11 +3,13 @@ from sim.robots.bind.Dynamixel.constants import *
 from sim.robots.DeviceBase import DeviceBase
 from sim.type import DefDict
 from sim.type import definitions as DEF
+from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_pi
 import logging
 
+DEFAULT_SPEED = 1
 ID = 'id'
 def dynamixel_id(id_list, dtype, prefix=''):
-    return DEF.define(prefix, id_list, dtype)
+    return DEF.define(prefix, id_list, dtype, separater='')
 
 
 def dynamixel_sensor_def(driver_def: DefDict):
@@ -19,10 +21,10 @@ def dynamixel_sensor_def(driver_def: DefDict):
 class Dynamixel(DeviceBase):
     def __init__(self, id_list, slave_ids=None, device_port='COM3'):
         self.device_port = device_port
-        self.packet = x.PacketHandler(XM430.PROTOCOL_VERSION)
-        self.ids = id_list
-        if slave_ids:
-            self.ids.update(slave_ids)
+        self.packet = x.PacketHandler(DynamiexX.PROTOCOL_VERSION)
+        self.ids = [int(i) for i in id_list]
+        if slave_ids and slave_ids is not None:
+            self.ids.extend([int(i) for i in slave_ids])
         self.motors = DefDict(dynamixel_id(self.ids, DEF.angular_position))
         # TODO chage to use nested DefDict?
         self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'))
@@ -40,7 +42,7 @@ class Dynamixel(DeviceBase):
     def open(self):
         if not self.port.is_open:
             self.port.openPort()
-            self.port.setBaudRate(XM430.BAUDRATE)
+            self.port.setBaudRate(DynamiexX.BAUDRATE)
 
         if self.port.is_open:
             logging.info('Dynamixel Connected')
@@ -59,10 +61,11 @@ class Dynamixel(DeviceBase):
         if self.port.is_open:
             for i, id in enumerate(self.ids):
                 result = self.func_retry(self.packet.write1ByteTxRx,
-                                         args=(self.port, id, XM430.TORQUE_ENABLE.ADDR, enable),
+                                         args=(self.port, id, DynamiexX.TORQUE_ENABLE.ADDR, enable),
                                          success_condition=x.COMM_SUCCESS)
-                if result == x.COMM_SUCCESS:    self.enabled_ids[i] = enable
-            if sum(self.enabled_ids) == len(self.ids):
+                if result == x.COMM_SUCCESS:
+                    self.enabled_ids[str(id)] = enable
+            if sum(self.enabled_ids.values()) == len(self.ids):
                 logging.info('enabled {}'.format(self.enabled_ids))
                 return True
             else:
@@ -73,15 +76,17 @@ class Dynamixel(DeviceBase):
     def drive(self, inpt: DefDict, timestamp):
         # TODO: change this so that each motor could have different mode
         if isinstance(inpt.DEF.as_list()[0], DEF.velocity):
-            self._sync_write(inpt, XM430.OPERATING_MODE, XM430.OPERATING_MODE.POS_MODE)
-            self._sync_write(inpt, XM430.GOAL_VELOCITY)
+            self._sync_write(inpt, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
+            self._sync_write(inpt, DynamiexX.GOAL_VELOCITY)
         else:
-            self._sync_write(inpt, XM430.OPERATING_MODE, XM430.OPERATING_MODE.POS_MODE)
-            self._sync_write(inpt, XM430.GOAL_POSITION)
+            self._sync_write(inpt, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
+            self._sync_write(inpt, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
+            self._sync_write(inpt, DynamiexX.GOAL_POSITION)
+
 
     def sense(self):
-        self._sync_read(self.motor_pos, XM430.PRESENT_POSITION)
-        self._sync_read(self.motor_vel, XM430.PRESENT_VELOCITY)
+        self._sync_read(self.motor_pos, DynamiexX.PRESENT_POSITION)
+        self._sync_read(self.motor_vel, DynamiexX.PRESENT_VELOCITY)
         self.motor_sensors.data = self.motor_pos
         self.motor_sensors.data = self.motor_vel
         return self.motor_sensors
@@ -114,7 +119,7 @@ class Dynamixel(DeviceBase):
         return values
 
     @staticmethod
-    def func_retry(func, args=None, retry_max=XM430.RETRY_MAX, success_condition=True):
+    def func_retry(func, args=None, retry_max=DynamiexX.RETRY_MAX, success_condition=True):
         result = None
         for retry_count in range(retry_max):
             logging.debug(f"Connection try {retry_count} of {retry_max}")
@@ -136,23 +141,23 @@ if __name__ == '__main__':
     import logging
     l = logging.getLogger()
     l.setLevel(logging.INFO)
-    d = Dynamixel([1, 2])
+    d = Dynamixel([10,11,12,22,23,24], device_port='COM5')
     d.init()
-    i = DefDict({'1': float, '2': float})
-    i.data = [3.14, 3.14]
-
-    d._sync_write(i, XM430.GOAL_POSITION)
+    i = DefDict({'10': float, '11': float, '12':float, '22':float, '23':float, '24':float})
+    i.data = [0,0,0,0,0,0,0]
+    d.drive(i, 0)
     import time
 
     time.sleep(2)
-    print(d._sync_read(i, XM430.PRESENT_POSITION).data.as_list())
+    d._sync_write(i, DynamiexX.PROFILE_VELOCITY, 5)
+    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
     i.data = [True, True]
-    d._sync_write(i, XM430.LED)
+    d._sync_write(i, DynamiexX.LED)
     i.data = [0, 0]
-    d._sync_write(i.set_data([False, False]), XM430.LED)
-    d._sync_write(i, XM430.GOAL_POSITION)
-    print(d._sync_read(i, XM430.PRESENT_POSITION).data.as_list())
-    time.sleep(1)
+    d._sync_write(i.set_data([False, False]), DynamiexX.LED)
+    d._sync_write(i, DynamiexX.GOAL_POSITION)
+    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
+    time.sleep(2)
     d.close()
     pass
 

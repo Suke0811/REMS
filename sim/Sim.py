@@ -106,15 +106,15 @@ class Sim:
             state = robot.observe_state()
 
             t = robot.clock(t)
-            info = robot.get_update()
+            info = robot.info
         for out in outputs:
                 out.process(state, inpt, observe, t, info)
 
         if not self.suppress_info:
-            logging.info("dt: {}, t: {}, inpt: {}, state: {}, observe: {}, info: {}".format(np.round(time.time() - t_start, ROUND), np.round(t, ROUND), np.round(inpt, ROUND), np.round(state, ROUND), np.round(observe, ROUND), info))
+            logging.info("dt: {}, t: {}".format(np.round(time.time() - t_start, ROUND), np.round(t, ROUND)))
 
     def make_outputs(self):
-        for robot, outputs in self._robots:
+        for inpt, robot, outputs in self._robots:
             robot.close()
             for out in outputs:
                 out.make_output()

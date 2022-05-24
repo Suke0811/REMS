@@ -14,9 +14,12 @@ class FileInput(InputBase):
         self.data = []
         self._open_file()
         self.definition = None
+        self.inpt = None
 
-    def get_inputs(self, timestamp=None):
-        return self._find_input_by_timestamp(timestamp-self.timestamp_offset)
+
+    def get_inputs(self, inpt: DefDict, timestamp=None):
+        inpt.set_data(self._find_input_by_timestamp(timestamp-self.timestamp_offset))
+        return inpt
 
     def if_exit(self):
         return self._quit
@@ -25,27 +28,23 @@ class FileInput(InputBase):
         df = pd.read_csv(self._filepath)
         rowNames = df.columns
         df_dict = df.to_dict('list')
-        self._inpts = []
-        for l in df_dict:
-            dd = DefDict(rowNames).data_as(l)
-            if dd is not None:
-                self.data.append(dd)
-                self._inpts.append(self.input_def.set_data(dd))
+        self._inpt = DefDict(rowNames.to_list())
+        self.data = list(zip(*(df_dict[k] for k in rowNames.to_list())))  # zipping 2 lists to create list of tuple
         self._timestamps = df_dict[TIMESTAMP]
 
     def _find_input_by_timestamp(self, timestamp):
         # Zero-order hold: return most recently specified inputs
-        inpt = self._inpts[0]
-        for t, i in zip(self._timestamps, self._inpts):
+        self._inpt.data = list(self.data[0])
+        for t, i in zip(self._timestamps, self.data):
             if t > timestamp:
-                return inpt
-            inpt = i
+                return self._inpt
+            self._inpt.data = list(i)
 
         if self.loop:
             self.timestamp_offset += timestamp
         else:
             self._quit = True
-        return inpt
+        return self._inpt
 
 
 if __name__ == '__main__':
