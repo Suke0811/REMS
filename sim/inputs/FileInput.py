@@ -31,10 +31,11 @@ class FileInput(InputBase):
         self._inpt = DefDict(rowNames.to_list())
         self.data = list(zip(*(df_dict[k] for k in rowNames.to_list())))  # zipping 2 lists to create list of tuple
         self._timestamps = df_dict[TIMESTAMP]
+        # initiate _inpt with the first data
+        self._inpt.data = list(self.data[0])
 
     def _find_input_by_timestamp(self, timestamp):
         # Zero-order hold: return most recently specified inputs
-        self._inpt.data = list(self.data[0])
         for t, i in zip(self._timestamps, self.data):
             if t > timestamp:
                 return self._inpt

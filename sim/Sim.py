@@ -1,8 +1,9 @@
-import time
+from time import perf_counter as time
 import logging
 import asyncio
 from sim.job_background.RayJobHandler import JobHandler
 import numpy as np
+import math
 
 ROUND = 2
 
@@ -95,7 +96,7 @@ class Sim:
             logging.info('timeout happened. DT of the actual simulation is bigger than specified DT') # forcing to time out for every DT. Still we get the return
 
     def step_forward(self, inpt, robot, outputs, t_init):
-        t_start = time.time()
+        t_start = time()
         t=t_init
         state = None
         observe = None
@@ -107,11 +108,16 @@ class Sim:
 
             t = robot.clock(t)
             info = robot.info
+
         for out in outputs:
                 out.process(state, inpt, observe, t, info)
 
         if not self.suppress_info:
-            logging.info("dt: {}, t: {}".format(np.round(time.time() - t_start, ROUND), np.round(t, ROUND)))
+            logging.info("dt: {}, t: {}, inpt: {}, state: {}, output: {}".format(
+                np.round(time() - t_start, 5), np.round(t, ROUND),
+                {k: round(v, ROUND) for k, v in inpt.data.items()},
+                {k: round(v, ROUND) for k, v in state.data.items()},
+                {k: round(v, ROUND) for k, v in observe.data.items()}))
 
     def make_outputs(self):
         for inpt, robot, outputs in self._robots:

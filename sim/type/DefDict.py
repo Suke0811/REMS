@@ -4,17 +4,17 @@ from typing import Any
 
 
 class DefDict:
-    def __init__(self, *definition, type_=Any, rule=None):
+    def __init__(self, *definition, dtype=Any, rule=None):
         self._definition = DefDictData()
         self._data = DefDictData()
         self.out_rule = rule
 
         # if args dtype=type was not specified, here we figure out if the last element is type
         if isinstance(definition[-1], type) or definition[-1] is Any:
-            type_=definition[-1]
+            dtype=definition[-1]
             definition = definition[0:-1]
         for d in definition:    # add as many definition as you want
-            self.add_definition(d, type_)
+            self.add_definition(d, dtype)
 
     @property
     def data(self):
@@ -28,12 +28,13 @@ class DefDict:
         d = DefDict(definition)
         return d.set_data(self.data)
 
-    def format(self):
+    def ruled_get(self):
         if self.out_rule is None:
             return self._data
         return self.out_rule.bind(self._data)
 
-
+    def ruled_set(self, ndata):
+        pass
 
     @data.setter
     def data(self, ndata):
@@ -59,6 +60,11 @@ class DefDict:
         for k, v in self._definition.items():
             self._data[k] = v()
         self._data = DefDictData(self._data)
+
+    def format_data(self, ndata):
+        d = DefDict(self._data, rule=self.out_rule)
+        return d.set_data(ndata)
+
 
     @property
     def DEF(self):

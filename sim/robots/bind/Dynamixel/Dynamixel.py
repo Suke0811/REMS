@@ -6,7 +6,7 @@ from sim.type import definitions as DEF
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_pi
 import logging
 
-DEFAULT_SPEED = 1
+DEFAULT_SPEED = 3
 ID = 'id'
 def dynamixel_id(id_list, dtype, prefix=''):
     return DEF.define(prefix, id_list, dtype, separater='')
@@ -30,7 +30,6 @@ class Dynamixel(DeviceBase):
         self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'))
         self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
         self.motor_sensors = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
-
         self.enabled_ids = {k: False for k, v in self.motors.data.items()}  # TODO: change to use DefDict
         self.port = None
 
@@ -38,6 +37,7 @@ class Dynamixel(DeviceBase):
         self.port = x.PortHandler(self.device_port)
         if self.open():
             self.enable(enable=True)
+            self._sync_write(self.motors, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
 
     def open(self):
         if not self.port.is_open:
@@ -75,13 +75,9 @@ class Dynamixel(DeviceBase):
 
     def drive(self, inpt: DefDict, timestamp):
         # TODO: change this so that each motor could have different mode
-        if isinstance(inpt.DEF.as_list()[0], DEF.velocity):
-            self._sync_write(inpt, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
-            self._sync_write(inpt, DynamiexX.GOAL_VELOCITY)
-        else:
-            self._sync_write(inpt, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
-            self._sync_write(inpt, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
-            self._sync_write(inpt, DynamiexX.GOAL_POSITION)
+        self._sync_write(inpt, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
+        self._sync_write(inpt, DynamiexX.GOAL_POSITION)
+
 
 
     def sense(self):
@@ -106,15 +102,15 @@ class Dynamixel(DeviceBase):
     def _sync_read(self, values:DefDict, table):
         # TODO use bulk instead (table def added when add params)
         read = x.GroupSyncRead(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in values.data.items():
+        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
             read.addParam(int(id))
         # write
         self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+        for id, key in zip(values.data.get_key_suffix(), values.data.key_as_list()):
             result = read.isAvailable(int(id), table.ADDR, table.LEN)
             if result:
                 # Get Dynamixel present position value
-                val = table.to_unit(read.getData(int(id), table.ADDR, table.LEN))
+                values.data[key] = table.to_unit(read.getData(int(id), table.ADDR, table.LEN))
         read.clearParam()
         return values
 

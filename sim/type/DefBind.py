@@ -20,17 +20,17 @@ class DefBindRule:
         if bind_to is None:
             self.bind_to = None
         else:
-            self.bind_to = DefDict(bind_to, type_=dtype)
+            self.bind_to = DefDict(bind_to, dtype=dtype)
         if bind_from is None:
             self.bind_from = None
         else:
-            self.bind_from = DefDict(bind_from, type_=dtype)
+            self.bind_from = DefDict(bind_from, dtype=dtype)
         self.bind_func = bind_func
         self.type_ = dtype
 
     def bind(self, data, bind_to=None):
         if self.bind_from is None:
-            return  # None rule do nothing
+            return self.bind_func(*data)
 
         self.bind_from.data = data
         if self.bind_to is None:

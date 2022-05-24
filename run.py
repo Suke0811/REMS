@@ -32,13 +32,13 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM3')
+ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM5')
 
 target_csv = FileOutput('test_robot.csv')       # save to test.csv at the same dir as the
 
 # add robots to simulation
 s.add_robot(ref_robot, (target_csv,))
 
-s.run(max_duration=10, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=6, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 

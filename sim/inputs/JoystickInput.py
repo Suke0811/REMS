@@ -34,7 +34,7 @@ class JoystickInput(InputBase):
                 if MAP is None:
                     MAP: JOYSTIC_BASE = SUPPORTED_JOYSTICKs.get(DEFAULT)
 
-                self.buttons[name] = DefDict(MAP.button, type_=bool)
+                self.buttons[name] = DefDict(MAP.button, dtype=bool)
                 self.axes[name] = DefDict(MAP.axis)
                 self.axes_deadzone[name] = DefDict(MAP.axis_deadzone)
 

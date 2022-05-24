@@ -1,6 +1,7 @@
 from sim.robots.RobotBase import RobotBase
 from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
+from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
 import numpy as np
 
 
@@ -27,12 +28,19 @@ class ScalerHard(RobotBase):
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
                 """
-        # binding rule
-        # joint and main ids are positional match
-        self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
         # slave joints are coupled to certain servos
         self.JOINT_SLAVE_ID_BIND = rule(self.ID_LIST, lambda *vals: [i for i in vals], self.ID_LIST_SLAVE)
         self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
+        # binding rule
+        # joint and main ids are positional match
+        self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
+        # Hardware offset rule (from frame to hardware value)
+        self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
+                                    lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
+        # Hardware offset (inverse of frame2hard)
+        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
+                                    lambda *vals: wrap_to_2pi(np.array(vals) * self.DIR - self.OFFSET))
+
         self.dynamixel.init()
 
     def drive(self, inpt, timestamp):
@@ -40,15 +48,14 @@ class ScalerHard(RobotBase):
         self.inpt = inpt
         dynamixel_inpt = self.dynamixel.motors
         # TODO: binding for offsets
-        joint = self.ik(inpt).data.as_numpy() * self.DIR + self.OFFSET
+        joint = self.frame2hard.bind(self.ik(inpt))
         self.joint_space.data = joint
-        dynamixel_inpt.data = self.joint_space.data.as_list()
+        dynamixel_inpt.data = joint
         dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
-
         self.dynamixel.drive(dynamixel_inpt, timestamp)
 
     def sense(self):
-        return self.outpt
         s = self.dynamixel.sense()
+        s.data = self.hard2frame.bind(s)
         self.outpt.data = s.data.as_list()
         return self.outpt
