@@ -1,7 +1,5 @@
 import time
 import logging
-import asyncio, threading
-
 import ray
 
 from sim.job_background.RayJobHandler import JobHandler
@@ -10,14 +8,16 @@ from sim.robot_actor.definition_queue import *
 from ray.util.queue import Queue, Empty
 from sim.type import DefDict
 
+from sim.Sim import Sim as SimBase
 import numpy as np
 
-DT = 0.1
+ROUND = 2
 
-class Sim:
+class Sim(SimBase):
     DT_ERR = 0.01
+    DT_DEFAULT = 0.25
 
-    def __init__(self, suppress_info=False):
+    def __init__(self, suppress_info=False, DT=DT_DEFAULT):
         """
         :param suppress_info: no log outputs to console
         """
@@ -50,7 +50,6 @@ class Sim:
         if run.DT is None:
             run.DT = self.DT      # if the robot does not have a specific DT, then provide TEST.DT
         self.realtime += run.realtime
-
 
 
     def add_process(self, process):
