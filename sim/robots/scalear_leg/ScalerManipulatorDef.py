@@ -14,12 +14,11 @@ class ScalerManipulator(RobotDefBase):
         RobotDefBase.__init__(self)
         self.kin = ScalerKinematics()
 
-
     def define(self):
         # input is 2D pos
         self.inpt = DefDict(POS_3D)
         # state is joint pos and vel
-        self.state = DefDict(POS_3D)
+        self.state = DefDict(POS_3D, VEL_POS_3D)
         # sensors are joins pos and vel
         self.outpt = DefDict(joint_pos(self.NUM_JOINTS), joint_vel(self.NUM_JOINTS))
 
@@ -44,5 +43,7 @@ class ScalerManipulator(RobotDefBase):
                                                prev_angles=self.joint_space.data.as_list()))
 
     def observe_state(self):
+        #prev vel = self.state
         self.state.set_data(self.fk(self.outpt))
+
         return self.state

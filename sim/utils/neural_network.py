@@ -2,10 +2,14 @@ import numpy as np
 from sklearn.datasets import make_moons
 
 class NeuralNetwork():
-    def __init__(self, NN_ARCHITECTURE):
+    def __init__(self, NN_ARCHITECTURE, load_params):
         self.nn_architecture = NN_ARCHITECTURE
         self.seed = 2
-        self.params_values = self.init_layers()
+        if len(load_params) > 0:
+            self.params_values = self.init_layers()
+            self.params_values = self.Auto_to_Neural_Format(load_params)
+        else:
+            self.params_values = self.init_layers()
 
     def init_layers(self):
         # random seed initiation
@@ -25,9 +29,9 @@ class NeuralNetwork():
             # initiating the values of the W matrix
             # and vector b for subsequent layers
             params_values['W' + str(layer_idx)] = np.random.randn(
-                layer_output_size, layer_input_size) * 0.1
+                layer_output_size, layer_input_size) * 0.1 # 0.01
             params_values['b' + str(layer_idx)] = np.random.randn(
-                layer_output_size, 1) * 0.1
+                layer_output_size, 1) * 0.1 # 0.01
 
         return params_values
 
@@ -38,7 +42,7 @@ class NeuralNetwork():
         return np.maximum(0, Z)
 
     def leakyRelu(self, Z):
-        return np.maximum(0.1*Z,Z)
+        return np.maximum(0.001*Z,Z) # 0.001
 
     def linear(self, Z):
         return Z
@@ -130,7 +134,7 @@ if __name__ == '__main__':
     N_SAMPLES = 1
     # ratio between training and test sets
     TEST_SIZE = 0.1
-    NN = NeuralNetwork(NN_ARCHITECTURE)
+    NN = NeuralNetwork(NN_ARCHITECTURE, [])
     X, y = make_moons(n_samples=N_SAMPLES, noise=0.2, random_state=100)
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TEST_SIZE, random_state=42)
     Y_hat, _ = NN.full_forward_propagation(np.transpose(X))
