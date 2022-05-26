@@ -118,7 +118,7 @@ class AutoTuner():
             for j in range(self.N_horizon):
                 # get initial states received from the simulated robot
                 inputs = self.inputs[:, j]
-                state_sim_cur = Robot.drive(Robot.inpt.set_data(inputs))
+                state_sim_cur = Robot.drive(Robot.inpt.set_data(inputs), 0.0)
                 h_cost = np.array([state_sim_cur[0]*self.cost[0],state_sim_cur[1]*self.cost[1]]).reshape(self.N_trainingObj,)
                 self.h_est[(j) * self.N_trainingObj:(j) * self.N_trainingObj + self.N_trainingObj, i] = h_cost.reshape(self.N_trainingObj,)
 

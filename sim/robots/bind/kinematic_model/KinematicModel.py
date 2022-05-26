@@ -34,8 +34,11 @@ class KinematicModel(RobotBase):
         self.outpt = self.joint_space
         self.task_space.data = self.fk(self.joint_space)
         prev_state = self.state.data_as(POS_3D).data.as_list()
+
         self.state.data = self.task_space
         next_state =  self.state.data_as(POS_3D).data.as_list()
+
+
         dx  = (next_state[0] - prev_state[0])/self.run.DT
         dy = (next_state[1] - prev_state[1])/self.run.DT
         dz = (next_state[2] - prev_state[2])/self.run.DT
@@ -55,5 +58,4 @@ class KinematicModel(RobotBase):
         return self.outpt
 
     def observe_state(self):
-
         return self.state

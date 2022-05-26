@@ -27,6 +27,7 @@ class ScalerManipulator(RobotDefBase):
         self.task_space = T_MAT
         # Jacobian is not available
         self.jacobian = None
+        self.info = DefDict({'h2_norm':0, 'h2_norm_x':0, 'h2_norm_y':0})
 
     def fk(self, jointspace: DefDict):
         d = self.kin.scalar_forward_kinematics(which_leg=self.WHICH_LEG,
@@ -42,8 +43,4 @@ class ScalerManipulator(RobotDefBase):
                                                T_shi_wrist3=self.task_space.format_data(taskspace).ruled_get(),
                                                prev_angles=self.joint_space.data.as_list()))
 
-    def observe_state(self):
-        #prev vel = self.state
-        self.state.set_data(self.fk(self.outpt))
 
-        return self.state

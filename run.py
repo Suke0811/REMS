@@ -23,7 +23,7 @@ s = Sim()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-i = FileInput('target_robot.csv', loop=True)
+i = FileInput('sim/utils/target_robot_circle.csv', loop=True)
 #i = KeyboardInput()
 #i = JoystickInput()
 
@@ -47,20 +47,20 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=10.0, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=100, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 data_target = pd.read_csv('test_robot.csv')
 data_ref = pd.read_csv('ref_robot.csv')
 
-dx_ref = data_ref['dx'].to_numpy()
-dy_ref = data_ref['dy'].to_numpy()
+dx_ref = data_ref['d_x'].to_numpy()
+dy_ref = data_ref['d_y'].to_numpy()
 
-dx_tar = data_target['dx'].to_numpy()
-dy_tar = data_target['dy'].to_numpy()
+dx_tar = data_target['d_x'].to_numpy()
+dy_tar = data_target['d_y'].to_numpy()
 
 h2_norm = data_target['h2_norm'].to_numpy()
-h2_norm_dx = data_target['h2_norm_dx'].to_numpy()
-h2_norm_dy = data_target['h2_norm_dy'].to_numpy()
+h2_norm_dx = data_target['h2_norm_x'].to_numpy()
+h2_norm_dy = data_target['h2_norm_y'].to_numpy()
 time_stamp = data_target['timestamp'].to_numpy()
 
 plt.figure(1)
@@ -78,6 +78,7 @@ plt.plot(time_stamp,h2_norm)
 plt.xlabel('time, [s]')
 plt.ylabel('h2 norm')
 plt.title('h2 norm')
+
 plt.figure(4)
 plt.plot(time_stamp,dx_ref)
 plt.plot(time_stamp,dx_tar)

@@ -5,7 +5,7 @@ from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
 HORIZON = 5
-INIT_COV = 0.00001 # 0.00001 for sim-to-kin for webots
+INIT_COV = 0.001 # 0.00001 for sim-to-kin for webots
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
@@ -36,7 +36,7 @@ class AutoTuning(TuningSystem):
         robot.init_NN(NN)
 
         # training objectives, is same shape as theta
-        N_trainingObj = 3
+        N_trainingObj = 2
         # Cv determines the weight given to each training objective (ex. is x more important than y), and Co determines
         # how quickly the auto-tuner will adapt (too fast may cause divergence)
 
@@ -77,13 +77,12 @@ class AutoTuning(TuningSystem):
         self.target_sim_h2 = self.target_sim_h2.reshape(2*HORIZON,1)
 
         self.calculateH2Norm(self.states_sim_h2,self.target_sim_h2)
-        self.target_robot.info[0] = self.h2_norm
-        self.target_robot.info[1] = self.h2_norm_x
-        self.target_robot.info[2] = self.h2_norm_y
+        self.target_robot.info.data = [self.h2_norm, self.h2_norm_x, self.h2_norm_y]
+
 
         self.time_count += 1
         if self.time_count % HORIZON == 0 and self.time_count != 0:  # only run the tuning every Horizon
-            self.target_robot.state = self.ref_robot.state
+            self.target_robot.state.data = self.ref_robot.state
 
             if self.update:
                 return job_type(self.job)

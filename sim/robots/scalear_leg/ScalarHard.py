@@ -2,6 +2,7 @@ from sim.robots.RobotBase import RobotBase
 from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
+from sim.type.definitions import *
 import numpy as np
 
 
@@ -23,7 +24,6 @@ class ScalerHard(RobotBase):
         """init with a specific initial stat) """
         super().__init__(*args, **kwargs)
         self.dynamiex_port = dynamiex_port
-        self.run.to_thread = False
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
@@ -46,6 +46,7 @@ class ScalerHard(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt = inpt
+        state = self.state
         dynamixel_inpt = self.dynamixel.motors
         # TODO: binding for offsets
         joint = self.frame2hard.bind(self.ik(inpt))
@@ -54,8 +55,25 @@ class ScalerHard(RobotBase):
         dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
         self.dynamixel.drive(dynamixel_inpt, timestamp)
 
+
+
     def sense(self):
         s = self.dynamixel.sense()
         s.data = self.hard2frame.bind(s)
         self.outpt.data = s.data.as_list()
         return self.outpt
+
+    def observe_state(self):
+        state = self.state
+        self.state.set_data(self.fk(self.outpt))
+        self.calc_vel(pre_state=state, curr_state=self.state)
+        return self.state
+
+    def calc_vel(self, pre_state, curr_state):
+        prev_state = pre_state.data_as(POS_3D).data.as_list()
+        self.state.data = self.task_space
+        next_state = curr_state.data_as(POS_3D).data.as_list()
+        dx = (next_state[0] - prev_state[0]) / self.run.DT
+        dy = (next_state[1] - prev_state[1]) / self.run.DT
+        dz = (next_state[2] - prev_state[2]) / self.run.DT
+        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
