@@ -5,7 +5,7 @@ from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
 HORIZON = 5
-INIT_COV = 0.001 # 0.00001 for sim-to-kin for webots
+INIT_COV = 0.01 # 0.00001 for sim-to-kin for webots
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
