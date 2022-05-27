@@ -101,14 +101,14 @@ class Sim:
         state = None
         observe = None
         info = None
-        while t - t_init < self.DT:
+        while np.round(t - t_init, ROUND) < self.DT:
+
             robot.drive(inpt, t)
             observe = robot.sense()
             state = robot.observe_state()
 
             t = robot.clock(t)
             info = robot.info
-
         for out in outputs:
                 out.process(state, inpt, observe, t, info)
 
@@ -120,6 +120,7 @@ class Sim:
                 {k: round(v, ROUND) for k, v in state.data.items()},
                 {k: round(v, ROUND) for k, v in observe.data.items()},
             info.data))
+
 
     def make_outputs(self):
         for inpt, robot, outputs in self._robots:

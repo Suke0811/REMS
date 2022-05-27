@@ -1,3 +1,5 @@
+import time
+
 from sim.robots.RobotBase import RobotBase
 from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
@@ -6,6 +8,8 @@ from sim.type.definitions import *
 import numpy as np
 import logging
 from sim.utils.tictoc import tictoc
+import ray
+from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):
@@ -25,13 +29,15 @@ class ScalerHard(RobotBase):
         super().__init__(*args, **kwargs)
         self.dynamiex_port = dynamiex_port
         self.run.name = "Hard"
+        self.run.to_thread = False
+        ray.init()
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
                 """
         # slave joints are coupled to certain servos
         self.JOINT_SLAVE_ID_BIND = rule(self.ID_LIST, lambda *vals: [i for i in vals], self.ID_LIST_SLAVE)
-        self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
+        #self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
         # binding rule
         # joint and main ids are positional match
         self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
@@ -39,27 +45,23 @@ class ScalerHard(RobotBase):
         self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                     lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
-        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
-                                    lambda *vals: wrap_to_2pi(np.array(vals) * self.DIR - self.OFFSET))
+        #self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
+         #                           lambda *vals: wrap_to_2pi(np.array(vals) * self.DIR - self.OFFSET))
 
-        self.dynamixel.init()
+
+        self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
+        ray.get(self.dynamiexl_actor.init.remote())
+        #self.d.dynamixel_loop.remote()
+
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt = inpt
-        state = self.state
-        dynamixel_inpt = self.dynamixel.motors
-        # TODO: binding for offsets
-        joint = self.frame2hard.bind(self.ik(inpt))
-        self.joint_space.data = joint
-        dynamixel_inpt.data = joint
-        dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
-        self.dynamixel.drive(dynamixel_inpt, timestamp)
+        self.dynamiexl_actor.drive.remote(inpt)
+
 
     def sense(self):
-        s = self.dynamixel.sense()
-        s.data = self.hard2frame.bind(s)
-        self.outpt.data = s.data.as_list()
+        self.outpt.data = ray.get(self.dynamiexl_actor.sense.remote())
         return self.outpt
 
     def observe_state(self):
@@ -76,3 +78,37 @@ class ScalerHard(RobotBase):
         dy = (next_state[1] - prev_state[1]) / self.run.DT
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+
+    def __del__(self):
+        ray.kill(self.dynamiexl_actor)
+
+
+
+@ray.remote#(max_restarts=5, max_task_retries=-1)
+class DynamiexlActor:
+    def __init__(self, data):
+        self.data = data
+
+    def init(self):
+        self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
+        self.dynamixel.init()
+
+    def drive(self, inpt):
+        # TODO: implement auto binding mechanism to remove this part
+        dynamixel_inpt = self.dynamixel.motors
+        joint = self.data.frame2hard.bind(self.data.ik(inpt))
+        self.data.joint_space.data = joint
+        dynamixel_inpt.data = joint
+        dynamixel_inpt.data = self.data.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
+        self.dynamixel.drive(dynamixel_inpt, 0)
+
+    def sense(self):
+        s = self.dynamixel.sense()
+        # s.data = self.hard2frame.bind(s)
+        self.data.outpt.data = s.data.as_list()
+        return self.data.outpt
+
+
+
+
+
