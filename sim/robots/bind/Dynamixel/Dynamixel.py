@@ -6,6 +6,7 @@ from sim.type import definitions as DEF
 import dynamixel_sdk as x
 from serial.serialutil import SerialException
 import logging
+from sim.utils.tictoc import tictoc
 
 DEFAULT_SPEED = 2
 DEFAULT_ACC = 20

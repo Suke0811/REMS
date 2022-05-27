@@ -19,7 +19,7 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 if PRINT:
     logging.basicConfig(level=LOGLEVEL)
 
-s = Sim()    # Create instance of Robot testing system
+s = Sim(DT=0.25)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -33,7 +33,7 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
+ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM5')
 target_robot = bind_robot(ScalerManipulator, KinematicModel)
 at_process = AutoTuning(target_robot, ref_robot)
 
@@ -47,7 +47,7 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=15, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=500, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 data_target = pd.read_csv('test_robot.csv')
 data_ref = pd.read_csv('ref_robot.csv')

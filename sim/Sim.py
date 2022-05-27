@@ -113,7 +113,8 @@ class Sim:
                 out.process(state, inpt, observe, t, info)
 
         if not self.suppress_info:
-            logging.info("dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
+            logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
+                robot.run.name,
                 np.round(time() - t_start, 5), np.round(t, ROUND),
                 {k: round(v, ROUND) for k, v in inpt.data.items()},
                 {k: round(v, ROUND) for k, v in state.data.items()},

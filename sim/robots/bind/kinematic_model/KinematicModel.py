@@ -6,6 +6,7 @@ class KinematicModel(RobotBase):
     def __init__(self):
         super().__init__()
         self.auto_tuner = None
+        self.run.name = 'Kin'
 
     def init_NN(self, NN: NeuralNetwork):
         # initialize the NN architecture

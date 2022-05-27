@@ -9,9 +9,9 @@ import pandas as pd
 scalerKin = ScalerKinematics()
 # specify radius of the circle (meters)
 r = 0.10
-offset = 50
+offset = 50/1e3
 # scalar starting position (mm)
-start_pos = [r*1000+offset,0.0,-250.0]
+start_pos = [r+offset,0.0,-0.250]
 # specify leg
 which_leg = 3
 # specify dt in seconds
@@ -36,8 +36,8 @@ x_list = []
 y_list = []
 
 for i in range(len(t)):
-    x_list.append(r*np.cos(t[i])+start_pos[0]/1000)
-    y_list.append(r*np.sin(t[i])+start_pos[1]/1000)
+    x_list.append(r*np.cos(t[i])+start_pos[0])
+    y_list.append(r*np.sin(t[i])+start_pos[1])
 
 dx_list = []
 dy_list = []
@@ -49,7 +49,7 @@ for i in range(len(t)-1):
 ref_state = []
 
 for i in range(len(t)-1):
-    ref_state.append([x_list[i]*1000,y_list[i]*1000,start_pos[2],dx_list[i]*1000,dy_list[i]*1000,0.0])
+    ref_state.append([x_list[i],y_list[i],start_pos[2],dx_list[i],dy_list[i],0.0])
 
 # build list of joint angles
 j0,j1,j2,j3,j4,j5,dj0,dj1,dj2,dj3,dj4,dj5 = [],[],[],[],[],[],[],[],[],[],[],[]
@@ -97,9 +97,14 @@ for i in range(len(t)-1):
     cur_time += dt
     timestamp.append(cur_time)
 
+
 dict = {'timestamp':timestamp, 'x':ref_x, 'y':ref_y,
                 'z':ref_z, 'j.0':j0, 'j.1':j1,
                 'j.2':j2, 'j.3':j3,'j.4':j4,'j.5':j5,'d_j.0':dj0,'d_j.1':dj1,'d_j.2':dj2,
                 'd_j.3': dj3, 'd_j.4': dj4, 'd_j.5': dj5}
 df = pd.DataFrame(dict)
 df.to_csv('target_robot_circle.csv',index=False)
+
+
+plt.plot(ref_x,ref_y)
+plt.show()

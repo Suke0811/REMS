@@ -6,3 +6,4 @@ class RunConfig:
         self.realtime = realtime
         self.to_thread = to_thread
         self.block = True
+        self.name = 'robot'

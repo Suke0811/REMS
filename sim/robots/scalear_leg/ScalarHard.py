@@ -4,8 +4,8 @@ from sim.type import DefBindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
 from sim.type.definitions import *
 import numpy as np
-
-
+import logging
+from sim.utils.tictoc import tictoc
 
 
 class ScalerHard(RobotBase):
@@ -24,6 +24,7 @@ class ScalerHard(RobotBase):
         """init with a specific initial stat) """
         super().__init__(*args, **kwargs)
         self.dynamiex_port = dynamiex_port
+        self.run.name = "Hard"
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
@@ -54,8 +55,6 @@ class ScalerHard(RobotBase):
         dynamixel_inpt.data = joint
         dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
         self.dynamixel.drive(dynamixel_inpt, timestamp)
-
-
 
     def sense(self):
         s = self.dynamixel.sense()
