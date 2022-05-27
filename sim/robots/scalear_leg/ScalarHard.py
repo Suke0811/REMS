@@ -1,5 +1,6 @@
 import time
 
+import sim.type.definitions
 from sim.robots.RobotBase import RobotBase
 from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
@@ -23,14 +24,13 @@ class ScalerHard(RobotBase):
     ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
     OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
 
-
     def __init__(self, dynamiex_port, *args, **kwargs):
         """init with a specific initial stat) """
         super().__init__(*args, **kwargs)
         self.dynamiex_port = dynamiex_port
         self.run.name = "Hard"
         self.run.to_thread = False
-        ray.init()
+        self.sense_ref = None
 
     def init(self, init_state=None):
         """Initialization necessary for the robot. call all binded objects' init
@@ -51,20 +51,34 @@ class ScalerHard(RobotBase):
 
         self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
-        #self.d.dynamixel_loop.remote()
+        #self.dynamiexl_actor.main_loop.remote()
 
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
-        self.inpt = inpt
+        self.inpt.data = inpt
+        #self.queue.put(inpt)
         self.dynamiexl_actor.drive.remote(inpt)
 
 
     def sense(self):
-        self.outpt.data = ray.get(self.dynamiexl_actor.sense.remote())
+        ready = []
+        # Allow 1000 in flight calls
+        # For example, if i = 5000, this call blocks until that
+        # 4000 of the object_refs in result_refs are ready
+        # and available.
+        # if len(self.ray_refs) > 10:
+        #     num_ready = len(self.ray_refs) - 10
+        #     ready, self.ray_refs = ray.wait(self.ray_refs, num_returns=num_ready)
+        # self.ray_refs.append(self.dynamiexl_actor.sense.remote())
+        # if ready:
+        #     self.outpt.data = ray.get(ready[-1])
+        if self.sense_ref is not None:
+            self.outpt.data = ray.get(self.sense_ref)
+        self.sense_ref = self.dynamiexl_actor.sense.remote()
         return self.outpt
 
-    def observe_state(self):
+    def observe_state( self):
         state = self.state
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state)
@@ -84,17 +98,27 @@ class ScalerHard(RobotBase):
 
 
 
-@ray.remote#(max_restarts=5, max_task_retries=-1)
+@ray.remote(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
 class DynamiexlActor:
     def __init__(self, data):
         self.data = data
+        self.quite = False
+        self.block = True
+        #self.queue_in = data.queue
+        # self.data_in = self.data.inpt
 
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
         self.dynamixel.init()
 
+    # def main_loop(self):
+    #     while not self.quite:
+    #         self.data_in.data = self.receive_data()
+    #         self.drive(self.data_in)
+
     def drive(self, inpt):
         # TODO: implement auto binding mechanism to remove this part
+        self.data.inpt = inpt
         dynamixel_inpt = self.dynamixel.motors
         joint = self.data.frame2hard.bind(self.data.ik(inpt))
         self.data.joint_space.data = joint
@@ -104,11 +128,49 @@ class DynamiexlActor:
 
     def sense(self):
         s = self.dynamixel.sense()
-        # s.data = self.hard2frame.bind(s)
+        s.data = self.hard2frame.bind(s)
         self.data.outpt.data = s.data.as_list()
         return self.data.outpt
 
+    # def send_data(self):    # sending data won't block the process
+    #     self.queue_out.put_nowait(self.data_out.data_as([self.robot, self.out]))
+
+    # def receive_data(self):
+    #     """Receiving data can block the process if necessary"""
+    #     try:
+    #         self.data_in = self.queue_in.get(self.block)
+    #     except Empty:
+    #         pass
+
+    def __del__(self):
+        self.dynamixel.close()
 
 
+
+if __name__ == '__main__':
+    from sim.robots.bind_robot import bind_robot
+    from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
+
+    d = bind_robot(ScalerManipulator, ScalerHard, 'COM5')
+    d.init()
+    d.reset()
+    i = d.inpt
+
+    i.data = [0,0,-0.350]
+    c = True
+    N = 10000
+    for n in range(N):
+        if n % 100 == 0:
+            if c:
+                i.data = [0,0, -0.25]
+                c = False
+            else:
+                i.data = [0,0,-0.35]
+                c = True
+        d.drive(i, 0)
+        #t = d.clock(n)
+        time.sleep(0.1)
+        print(n)
+        #d.sense()
 
 
