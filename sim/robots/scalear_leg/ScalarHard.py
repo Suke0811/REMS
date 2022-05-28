@@ -45,8 +45,6 @@ class ScalerHard(RobotBase):
         self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                     lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
-        #self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
-         #                           lambda *vals: wrap_to_2pi(np.array(vals) * self.DIR - self.OFFSET))
 
 
         self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
@@ -65,7 +63,7 @@ class ScalerHard(RobotBase):
         ready = []
         # Allow 1000 in flight calls
         # For example, if i = 5000, this call blocks until that
-        # 4000 of the object_refs in result_refs are ready
+        # 4000 of the objectsudo chmod 666 /dev/sdY_refs in result_refs are ready
         # and available.
         # if len(self.ray_refs) > 10:
         #     num_ready = len(self.ray_refs) - 10
@@ -89,7 +87,7 @@ class ScalerHard(RobotBase):
         self.state.data = self.task_space
         next_state = curr_state.data_as(POS_3D).data.as_list()
         dx = (next_state[0] - prev_state[0]) / self.run.DT
-        dy = (next_state[1] - prev_state[1]) / self.run.DT
+        dy = (next_state[1] - prev_state[1]) / self.run.DTi
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 
@@ -98,7 +96,7 @@ class ScalerHard(RobotBase):
 
 
 
-@ray.remote(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
+@ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
 class DynamiexlActor:
     def __init__(self, data):
         self.data = data
@@ -110,11 +108,13 @@ class DynamiexlActor:
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
         self.dynamixel.init()
+        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
+                              lambda *vals: wrap_to_2pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
 
     # def main_loop(self):
     #     while not self.quite:
     #         self.data_in.data = self.receive_data()
-    #         self.drive(self.data_in)
+    #         self.drive(self.data_in)25
 
     def drive(self, inpt):
         # TODO: implement auto binding mechanism to remove this part

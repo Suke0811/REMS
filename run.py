@@ -1,7 +1,7 @@
 import logging, os, time
 import pandas as pd
 from sim.Sim import Sim
-from sim.inputs import FileInput, KeyboardInput
+from sim.inputs import FileInput
 from sim.outputs import FileOutput
 import matplotlib.pyplot as plt
 from sim.utils.tictoc import tictoc
@@ -30,10 +30,10 @@ i = FileInput('sim/utils/target_robot_circle.csv', loop=True)
 s.set_input(i)  # specify inputs to run
 
 # Create instance of robots and corresponding omutput methods.
-# each robot can have multiple output system
+# each robot can have multiple output systemN_trainingObj = 2
 # Robot simulation using kinematics model
 
-ref_robot = bind_robot(ScalerManipulator, ScalerHard, 'COM5')
+ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
 target_robot = bind_robot(ScalerManipulator, KinematicModel)
 at_process = AutoTuning(target_robot, ref_robot)
 
