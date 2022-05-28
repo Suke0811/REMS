@@ -19,7 +19,7 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 if PRINT:
     logging.basicConfig(level=LOGLEVEL)
 
-s = Sim(DT=0.1)    # Create instance of Robot testing system
+s = Sim(DT=0.2)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -47,7 +47,7 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=100, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=10, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 data_target = pd.read_csv('test_robot.csv')
 data_ref = pd.read_csv('ref_robot.csv')

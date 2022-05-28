@@ -9,7 +9,7 @@ import logging
 from sim.utils.tictoc import tictoc
 
 DEFAULT_SPEED = 2
-DEFAULT_ACC = 20
+DEFAULT_ACC = 3
 ID = 'id'
 def dynamixel_id(id_list, dtype, prefix=''):
     return DEF.define(prefix, id_list, dtype, separater='')
@@ -44,7 +44,7 @@ class Dynamixel(DeviceBase):
             self._sync_write(self.motors, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
             self._sync_write(self.motors, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
             self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
-
+            self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
 
     def open(self):
         if not self.port.is_open:
@@ -80,7 +80,6 @@ class Dynamixel(DeviceBase):
                 else:       logging.info('Disabled')
         return False
 
-    #@tictoc
     def drive(self, inpt: DefDict, timestamp):
         # TODO: change this so that each motor could have different mode
         self._sync_write(inpt, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)

@@ -49,28 +49,14 @@ class ScalerHard(RobotBase):
 
         self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
-        #self.dynamiexl_actor.main_loop.remote()
 
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.data = inpt
-        #self.queue.put(inpt)
         self.dynamiexl_actor.drive.remote(inpt)
 
-
     def sense(self):
-        ready = []
-        # Allow 1000 in flight calls
-        # For example, if i = 5000, this call blocks until that
-        # 4000 of the objectsudo chmod 666 /dev/sdY_refs in result_refs are ready
-        # and available.
-        # if len(self.ray_refs) > 10:
-        #     num_ready = len(self.ray_refs) - 10
-        #     ready, self.ray_refs = ray.wait(self.ray_refs, num_returns=num_ready)
-        # self.ray_refs.append(self.dynamiexl_actor.sense.remote())
-        # if ready:
-        #     self.outpt.data = ray.get(ready[-1])
         if self.sense_ref is not None:
             self.outpt.data = ray.get(self.sense_ref)
         self.sense_ref = self.dynamiexl_actor.sense.remote()
@@ -87,13 +73,9 @@ class ScalerHard(RobotBase):
         self.state.data = self.task_space
         next_state = curr_state.data_as(POS_3D).data.as_list()
         dx = (next_state[0] - prev_state[0]) / self.run.DT
-        dy = (next_state[1] - prev_state[1]) / self.run.DTi
+        dy = (next_state[1] - prev_state[1]) / self.run.DT
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
-
-    def __del__(self):
-        ray.kill(self.dynamiexl_actor)
-
 
 
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
@@ -131,16 +113,6 @@ class DynamiexlActor:
         s.data = self.hard2frame.bind(s)
         self.data.outpt.data = s.data.as_list()
         return self.data.outpt
-
-    # def send_data(self):    # sending data won't block the process
-    #     self.queue_out.put_nowait(self.data_out.data_as([self.robot, self.out]))
-
-    # def receive_data(self):
-    #     """Receiving data can block the process if necessary"""
-    #     try:
-    #         self.data_in = self.queue_in.get(self.block)
-    #     except Empty:
-    #         pass
 
     def __del__(self):
         self.dynamixel.close()
