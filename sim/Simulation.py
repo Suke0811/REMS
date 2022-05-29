@@ -63,12 +63,12 @@ class Sim(SimBase):
             self._queue_outs.append(q_out)
             self._robot_actors.append(RobotActor.remote(robot, outputs, q_in, q_out))
 
-    def init_robot(self):
+    def init(self):
         self.unpack_robot()
         for r in self._robot_actors:
             r.init.remote()
 
-    def reset_robot(self):
+    def reset(self):
         for r in self._robot_actors:
             r.reset.remote()
 
@@ -83,8 +83,8 @@ class Sim(SimBase):
 
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
-        self.init_robot()
-        self.reset_robot()
+        self.init()
+        self.reset()
         self.start_robot()
         t = 0
         while t < max_duration and not self._input_system.is_done():

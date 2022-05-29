@@ -14,14 +14,20 @@ from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):
-    ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
-    ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
+    #ID_LIST =[str(n) for n in [10,11,12,22,23,24,]]
+    #ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
+    ID_LIST = [str(n) for n in [7, 8, 9, 19, 20, 21, ]]
+    ID_LIST_SLAVE = [str(n) for n in [107, 108, 109]]
 
     SLAVE_PREFIX = '1'
 
     HOME_POSITION = [0.0 for _ in ID_LIST]
-    DIR = np.array([1, 1, -1, 1, -1, 1])
     ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
+
+    DIR = np.array([1, 1, -1, 1, -1, 1])
+    OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
+
+    DIR = np.array([1, -1, 1, 1, 1, 1])
     OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
 
     def __init__(self, dynamiex_port, *args, **kwargs):
@@ -45,8 +51,6 @@ class ScalerHard(RobotBase):
         self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                     lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
-
-
         self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
 
@@ -76,6 +80,9 @@ class ScalerHard(RobotBase):
         dy = (next_state[1] - prev_state[1]) / self.run.DT
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+
+    def close(self):
+        self.dynamiexl_actor.close.remote()
 
 
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
@@ -114,8 +121,13 @@ class DynamiexlActor:
         self.data.outpt.data = s.data.as_list()
         return self.data.outpt
 
-    def __del__(self):
+    def close(self):
         self.dynamixel.close()
+
+    #def __del__(self):
+        #self.dynamixel.close()
+        #pass
+    #there is a bug with ray and we cannot access class object
 
 
 

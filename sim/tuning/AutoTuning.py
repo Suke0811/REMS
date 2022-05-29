@@ -4,8 +4,8 @@ from sim.utils.neural_network import NeuralNetwork
 from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
-HORIZON = 5
-INIT_COV = 0.001 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet
+HORIZON = 1
+INIT_COV = 0.1 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
@@ -14,7 +14,7 @@ class AutoTuning(TuningSystem):
         # real to sim flag
         self.real_to_sim = real_to_sim
         # initialize cost
-        self.cost = [1.0,1.0]
+        self.cost = [10.0,1.0]
         # initialize robot class
         robot = self.target_robot
         self.states_sim = np.zeros((6,HORIZON))

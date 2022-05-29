@@ -1,6 +1,6 @@
 import logging, os, time
 import pandas as pd
-from sim.Sim import Sim
+from sim.SimRay import Sim
 from sim.inputs import FileInput
 from sim.outputs import FileOutput
 import matplotlib.pyplot as plt
@@ -19,13 +19,15 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 if PRINT:
     logging.basicConfig(level=LOGLEVEL)
 
-s = Sim(DT=0.25)    # Create instance of Robot testing system
+s = Sim(DT=0.1)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
 i = FileInput('sim/utils/target_robot_circle_line.csv', loop=True)
 #i = KeyboardInput()
 #i = JoystickInput()
+
+
 
 s.set_input(i)  # specify inputs to run
 
@@ -47,7 +49,7 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=25, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=10, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 data_target = pd.read_csv('test_robot.csv')
 data_ref = pd.read_csv('ref_robot.csv')

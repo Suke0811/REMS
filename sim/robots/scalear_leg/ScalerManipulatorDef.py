@@ -8,7 +8,7 @@ from sim.robots.RobotBase import RobotBase
 
 class ScalerManipulator(RobotDefBase):
     NUM_JOINTS = 6
-    WHICH_LEG = 3
+    WHICH_LEG = 2
 
     def __init__(self):
         RobotDefBase.__init__(self)

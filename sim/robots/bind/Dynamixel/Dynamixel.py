@@ -14,12 +14,10 @@ ID = 'id'
 def dynamixel_id(id_list, dtype, prefix=''):
     return DEF.define(prefix, id_list, dtype, separater='')
 
-
 def dynamixel_sensor_def(driver_def: DefDict):
     d = DefDict(dict(j=DEF.angular_position, d_j=DEF.angular_velocity))
     ret = DefDict(driver_def.data.as_list(), d)
     return ret
-
 
 class Dynamixel(DeviceBase):
     def __init__(self, id_list, slave_ids=None, device_port='COM3'):
