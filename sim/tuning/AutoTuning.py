@@ -1,16 +1,20 @@
 from sim.tuning import TuningSystem
-from sim.tuning import AutoTuner
+from sim.tuning import AutoTuner, AutoTuner2
 from sim.utils.neural_network import NeuralNetwork
 from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
-HORIZON = 1
-INIT_COV = 0.00001 # 0.00001 for sim-to-kin for webots
+HORIZON = 5
+INIT_COV = 0.001 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
-    def __init__(self, target, ref):
+    def __init__(self, target, ref, real_to_sim):
         super().__init__(target_robot=target, reference_robot=ref)
+        # real to sim flag
+        self.real_to_sim = real_to_sim
+        # initialize cost
+        self.cost = [1.0,1.0]
         # initialize robot class
         robot = self.target_robot
         self.states_sim = np.zeros((6,HORIZON))
@@ -19,21 +23,10 @@ class AutoTuning(TuningSystem):
         N_horizon = self.states_sim.shape[1]
         # initialize the NN architecture
         NN_ARCHITECTURE = [
-                {"input_dim": 2, "output_dim": 10, "activation": "leakyRelu"},
+                {"input_dim": 6, "output_dim": 10, "activation": "leakyRelu"},
                 {"input_dim": 10, "output_dim": 10, "activation": "leakyRelu"},
                 {"input_dim": 10, "output_dim": 2, "activation": "linear"}
             ]
-
-        if LOAD_PARAM:
-            try:
-                    load_params = np.load('sim/controllers/NN_param.npy')
-            except:
-                    load_params = []
-                    print('NO NEURAL NETWORK MODEL NAMED NN_param.npy exists')
-        else:
-            load_params = []
-        NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
-        robot.init_NN(NN)
 
         # training objectives, is same shape as theta
         N_trainingObj = 2
@@ -43,8 +36,30 @@ class AutoTuning(TuningSystem):
         # weights also determine difference in magnitude between different sigma points
         weight_a = 0.01
         weight_c = 0.01
+        if not real_to_sim:
+            if LOAD_PARAM:
+                try:
+                    load_params = np.load('sim/controllers/NN_param.npy')
+                except:
+                    load_params = []
+                    print('NO NEURAL NETWORK MODEL NAMED NN_param.npy exists')
+            else:
+                load_params = []
+            NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
+            robot.init_NN(NN)
+            self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost)
+        else:
+            load_params = np.load('sim/controllers/NN_param.npy')
+            NN2 = NeuralNetwork(NN_ARCHITECTURE, load_params)
+            if LOAD_PARAM:
+                try:
+                    load_params = np.load('sim/controllers/NN_param.npy')
+                except:
+                    load_params = []
+            NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
+            self.auto_tuner = AutoTuner2(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost, NN, NN2)
+            self.target_robot.auto_tuner = self.auto_tuner
 
-        self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot)
         self.time_count = 0
         self.update = True
         self.calcH2norm = True
@@ -79,10 +94,9 @@ class AutoTuning(TuningSystem):
         self.calculateH2Norm(self.states_sim_h2,self.target_sim_h2)
         self.target_robot.info.data = [self.h2_norm, self.h2_norm_x, self.h2_norm_y]
 
-
         self.time_count += 1
         if self.time_count % HORIZON == 0 and self.time_count != 0:  # only run the tuning every Horizon
-            self.target_robot.state.data = self.ref_robot.state
+            #self.target_robot.state.data = self.ref_robot.state
 
             if self.update:
                 return job_type(self.job)
@@ -92,7 +106,10 @@ class AutoTuning(TuningSystem):
         return np.column_stack((np.delete(array,0,1), val))
 
     def job(self, **kwargs):
-        self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
+        if not self.real_to_sim:
+            self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
+        else:
+            self.auto_tuner.update_parameters(self.states_sim, self.target_sim)
         return job_return_type(self.done, **kwargs)  # pack and go
 
     def done(self, **kwargs):

@@ -10,12 +10,14 @@ __date__ = "March, 2022"
 is to accomplish real to sim. The Auto-tuning method used can be found in the paper, "Kalman Filter for Controller 
 Calibration" by Marcel Menner, Karl Berntorp, and Stefano Di Cairano."""
 
-class AutoTuner():
-    def __init__(self, init_cov, weight_a, weight_c, NtrainingObj, N_horizon, Robot_class, cost):
+class AutoTuner2():
+    def __init__(self, init_cov, weight_a, weight_c, NtrainingObj, N_horizon, Robot_class, cost, NN, NN2):
         # provide the covariance matrix Cv and Co, where Cv determines the relative importance of the vector-valued
         # objective vector yk, and Co determines the aggressiveness of the adaptation. These matrices will be 3x3.
+        self.NN = NN
+        self.NN2 = NN2
         self.Robot = Robot_class
-        self.theta = self.Robot.NN.Neural_to_Auto_Format(self.Robot.NN.params_values)
+        self.theta = self.Robot.NN.Neural_to_Auto_Format(self.NN.params_values)
         self.N_theta = self.theta.shape[0]
         # provide number of states (we assume number of states corresponds to size of the training objective h)
         self.N_trainingObj = NtrainingObj
@@ -40,21 +42,20 @@ class AutoTuner():
         self.cost = cost
         self.N_horizon = N_horizon
 
-    def update_parameters(self, ref_states, inputs):
+    def update_parameters(self, states_real, states_sim):
         # ref_states are the reference states in task space (assume list of x,y and z, and dx,dy and dz) from simulator or real robot
         # joint_states are the reference joint states in joint space from the reference state trajectory (assume list of 12 -- joint angles and joint velocities)
         if self.theta.shape[1] == self.N_horizon*2:
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
-        self.ref_states, self.inputs = ref_states, inputs
-        self.N_horizon = self.ref_states.shape[1]
+
+        self.states_real, self.states_sim = states_real, states_sim
+        self.N_horizon = self.states_real.shape[1]
         # initialize h (or y in equation 15e of the paper), note we include the initial sigma result as well
         self.h_est = np.zeros((self.N_horizon * self.N_trainingObj, self.N_theta * 2 + 1))
         # create initial y (considered the nominal values)
         self.y_k = np.zeros((self.N_horizon * self.N_trainingObj,))
         for i in range(self.N_horizon):
-            nominal_values = np.array([self.ref_states[3,i]*self.cost[0],self.ref_states[4,i]*self.cost[1]]).reshape(self.N_trainingObj,)
-            #if self.y_k.shape[1] == 1:
-            #    nominal_values= nominal_values.reshape(self.N_trainingObj,1)
+            nominal_values = np.array([self.states_real[3,i]*self.cost[0],self.states_real[4,i]*self.cost[1]]).reshape(self.N_trainingObj,)
             self.y_k[i * self.N_trainingObj:i * self.N_trainingObj + self.N_trainingObj] = nominal_values
         self.y_k =self.y_k.reshape(self.N_trainingObj*self.N_horizon,1)
         # we first calculate our sigma points
@@ -112,17 +113,26 @@ class AutoTuner():
             return False
 
     def calcH_est(self):
-        Robot = copy.deepcopy(self.Robot)
         for i in range(self.N_theta * 2 + 1):
             # get the current sigma value
             sigma_curr = self.sigmas[:, i]
-            # initialize robot parameters to current sigma points
-            Robot.PARAMS = sigma_curr
+            state_sim_cur = np.zeros(6,)
             for j in range(self.N_horizon):
                 # get initial states received from the simulated robot
-                inputs = self.inputs[:, j]
-                state_sim_cur = Robot.drive(Robot.inpt.set_data(inputs), 0.0)
-                h_cost = np.array([state_sim_cur[0]*self.cost[0],state_sim_cur[1]*self.cost[1]]).reshape(self.N_trainingObj,)
+                state_sim_cur[:,] = self.states_sim[:, j]
+                param_values_NN = self.NN.Auto_to_Neural_Format(sigma_curr.reshape(self.theta.shape[0],))
+                self.NN.params_values = param_values_NN
+
+                NN_input = np.array([state_sim_cur[3], state_sim_cur[4]])
+                NN_output, _ = self.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
+
+                # get output from previously trained Real-to-Kin case
+                #NN2_output, _ = self.NN2.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
+
+                state_sim_cur[3] = state_sim_cur[3] + NN_output[0] #+ NN2_output[0]
+                state_sim_cur[4] = state_sim_cur[4] + NN_output[1] #+ NN2_output[1]
+
+                h_cost = np.array([state_sim_cur[3]*self.cost[0],state_sim_cur[4]*self.cost[1]]).reshape(self.N_trainingObj,)
                 self.h_est[(j) * self.N_trainingObj:(j) * self.N_trainingObj + self.N_trainingObj, i] = h_cost.reshape(self.N_trainingObj,)
 
     def prediction_theta(self):
@@ -187,49 +197,4 @@ class AutoTuner():
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
 
         # initialize robot parameters to finalized parameter solution
-        self.Robot.PARAMS = self.theta.reshape(self.theta.shape[0], )
-
-"""
-# for testing and debugging
-if __name__ == '__main__':
-    # initialize robot class
-    robot = bind_robot(ScalerManipulator, KinematicModel)
-    robot.DT = 0.1
-    ref_states = np.random.sample(size=(6,10))
-
-    N_horizon = ref_states.shape[1]
-
-    # training objectives, is same shape as theta
-    N_trainingObj = 2
-
-    # weights also determine difference in magnitude between different sigma points
-    weight_a = 0.01
-    weight_c = 0.01
-    # get dt of the robot
-    dt = robot.DT
-    NN_ARCHITECTURE = [
-        {"input_dim": 6, "output_dim": 20, "activation": "relu"},
-        {"input_dim": 20, "output_dim": 6, "activation": "sigmoid"},
-    ]
-
-    NN1 = NeuralNetwork(NN_ARCHITECTURE, [])
-    robot.init_NN(NN1)
-    NN2 = NeuralNetwork(NN_ARCHITECTURE, [])
-    robot.init_NN2(NN2)
-
-    # Cv determines the weight given to each training objective (ex. is x more important than y), and Co determines
-    # how quickly the auto-tuner will adapt (too fast may cause divergence)
-    auto_tuner = AutoTuner(0.0001,weight_a,weight_c,N_trainingObj,N_horizon,robot)
-
-    import time
-    time_vec = []
-
-    for i in range(10):
-        start = time.time()
-        auto_tuner.update_parameters(ref_states, joint_states)
-        end = time.time() - start
-        time_vec.append(end)
-
-    auto_tuner.calcH2Norm(ref_states, joint_states)
-    print(sum(time_vec)/len(time_vec))
-"""
+        self.NN.params_values = self.NN.Auto_to_Neural_Format(self.theta.reshape(self.theta.shape[0], ))
