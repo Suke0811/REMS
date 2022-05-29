@@ -87,10 +87,10 @@ class Sim:
             if robot.run.to_thread: # send the robot process to a separate thread
                 sim_tasks.append(asyncio.to_thread(self.step_forward, inpt, robot, outputs, t))
             else:
-                sim_tasks.append(asyncio.wait_for(self.step_forward(inpt, robot, outputs, t), self.DT/10-self.DT_ERR))
+                sim_tasks.append(asyncio.wait_for(self.step_forward(inpt, robot, outputs, t), self.DT*0.8-self.DT_ERR))
 
         if self.realtime:
-            sim_tasks.append(asyncio.sleep(self.DT/10-self.DT_ERR))
+            sim_tasks.append(asyncio.sleep(self.DT*0.8-self.DT_ERR))
         try:
             await asyncio.wait_for((asyncio.gather(*sim_tasks, return_exceptions=True)), self.DT)  # awaits all threads are done
         except asyncio.TimeoutError:
