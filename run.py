@@ -1,7 +1,7 @@
 import logging, os, time
 import pandas as pd
 from sim.Sim import Sim
-from sim.inputs import FileInput, KeyboardInput
+from sim.inputs import FileInput
 from sim.outputs import FileOutput
 import matplotlib.pyplot as plt
 from sim.utils.tictoc import tictoc

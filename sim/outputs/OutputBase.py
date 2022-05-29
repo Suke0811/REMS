@@ -1,5 +1,5 @@
 from sim.type.DefDict import DefDict
-
+from sim.utils.tictoc import tictoc
 
 class OutputBase:
     def __init__(self):
