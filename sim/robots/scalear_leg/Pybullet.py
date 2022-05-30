@@ -65,4 +65,5 @@ class Pybullet(RobotBase):
         dy = (next_state[1] - prev_state[1]) / self.run.DT
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+        self.task_space.data = self.state.data
 

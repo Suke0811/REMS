@@ -10,11 +10,12 @@ from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.tuning.AutoTuning import AutoTuning
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.robots.scalear_leg.Pybullet import Pybullet
+from sim.robots.scalear_leg.Pybullet_AutoTune import Pybullet2
 from sim.robots.bind.kinematic_model.KinematicModel import KinematicModel
 import numpy as np
 
 PRINT = True
-real_to_sim = False
+real_to_sim = True
 
 LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 
@@ -36,7 +37,7 @@ s.set_input(i)  # specify inputs to run
 # Robot simulation using kinematics model
 
 if real_to_sim:
-    target_robot = bind_robot(ScalerManipulator, Pybullet)
+    target_robot = bind_robot(ScalerManipulator, Pybullet2)
     ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
 
 else:
@@ -56,7 +57,7 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=50, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=100, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 
 data_target = pd.read_csv('test_robot.csv')
@@ -118,4 +119,9 @@ plt.show()
 if not real_to_sim:
     with open('sim/NN_param.npy', 'wb') as f:
         print('NN Model Saved')
+        np.save(f, target_robot.PARAMS)
+
+if real_to_sim:
+    with open('sim/NN2_param.npy', 'wb') as f:
+        print('NN2 Model Saved')
         np.save(f, target_robot.PARAMS)

@@ -77,7 +77,6 @@ class ScalerHard(RobotBase):
         dz = (next_state[2] - prev_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 
-
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
 class DynamiexlActor:
     def __init__(self, data):

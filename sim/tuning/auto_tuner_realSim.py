@@ -17,7 +17,7 @@ class AutoTuner2():
         self.NN = NN
         self.NN2 = NN2
         self.Robot = Robot_class
-        self.theta = self.Robot.NN.Neural_to_Auto_Format(self.NN.params_values)
+        self.theta = NN.Neural_to_Auto_Format(self.NN.params_values)
         self.N_theta = self.theta.shape[0]
         # provide number of states (we assume number of states corresponds to size of the training objective h)
         self.N_trainingObj = NtrainingObj
@@ -42,13 +42,13 @@ class AutoTuner2():
         self.cost = cost
         self.N_horizon = N_horizon
 
-    def update_parameters(self, states_real, states_sim):
+    def update_parameters(self, states_real, states_sim, inpts):
         # ref_states are the reference states in task space (assume list of x,y and z, and dx,dy and dz) from simulator or real robot
         # joint_states are the reference joint states in joint space from the reference state trajectory (assume list of 12 -- joint angles and joint velocities)
         if self.theta.shape[1] == self.N_horizon*2:
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
 
-        self.states_real, self.states_sim = states_real, states_sim
+        self.states_real, self.states_sim, self.inpts = states_real, states_sim, inpts
         self.N_horizon = self.states_real.shape[1]
         # initialize h (or y in equation 15e of the paper), note we include the initial sigma result as well
         self.h_est = np.zeros((self.N_horizon * self.N_trainingObj, self.N_theta * 2 + 1))
@@ -122,8 +122,11 @@ class AutoTuner2():
                 state_sim_cur[:,] = self.states_sim[:, j]
                 param_values_NN = self.NN.Auto_to_Neural_Format(sigma_curr.reshape(self.theta.shape[0],))
                 self.NN.params_values = param_values_NN
+                inpt = self.inpts[:, j]
+                # add neural network result
+                NN_input = np.array(
+                    [(inpt[0] + 2.0) / 10.0, (inpt[1] + 2.0) / 10.0, (state_sim_cur[3] + 2.0) / 10.0, (state_sim_cur[4] + 2.0) / 10.0])
 
-                NN_input = np.array([state_sim_cur[3], state_sim_cur[4]])
                 NN_output, _ = self.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
 
                 # get output from previously trained Real-to-Kin case
@@ -197,4 +200,4 @@ class AutoTuner2():
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
 
         # initialize robot parameters to finalized parameter solution
-        self.NN.params_values = self.NN.Auto_to_Neural_Format(self.theta.reshape(self.theta.shape[0], ))
+        #self.NN.params_values = self.NN.Auto_to_Neural_Format(self.theta.reshape(self.theta.shape[0], ))

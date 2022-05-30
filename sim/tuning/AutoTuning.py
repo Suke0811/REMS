@@ -53,7 +53,7 @@ class AutoTuning(TuningSystem):
             NN2 = NeuralNetwork(NN_ARCHITECTURE, load_params)
             if LOAD_PARAM:
                 try:
-                    load_params = np.load('sim/controllers/NN_param.npy')
+                    load_params = np.load('sim/controllers/NN2_param.npy')
                 except:
                     load_params = []
             NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
@@ -109,14 +109,17 @@ class AutoTuning(TuningSystem):
         if not self.real_to_sim:
             self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
         else:
-            self.auto_tuner.update_parameters(self.states_sim, self.target_sim)
+            self.auto_tuner.update_parameters(self.states_sim, self.target_sim, self.inputs)
             # initialize robot parameters to finalized parameter solution
 
         return job_return_type(self.done, **kwargs)  # pack and go
 
     def done(self, **kwargs):
         self.calcH2norm = True
-        self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
+        if not self.real_to_sim:
+            self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
+        else:
+            self.auto_tuner.NN.params_values = self.auto_tuner.NN.Auto_to_Neural_Format(self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], ))
 
     def calculateH2Norm(self,states_sim_h2,target_sim_h2):
         self.h2_norm = np.linalg.norm((states_sim_h2-target_sim_h2) ** 2)
@@ -138,7 +141,6 @@ class AutoTuning(TuningSystem):
         self.h2_norm_y = np.linalg.norm((self.h_act_list_y - self.y_k_list_y) ** 2)
 
         # TODO: ADD covariance heuristics here
-        """
         if self.h2_norm_x <= 0.009:
             print('COST OF DX set to 0')
             self.auto_tuner.cost[0] = 0.000001
@@ -147,5 +149,5 @@ class AutoTuning(TuningSystem):
             print('COST OF DY set to 0')
             self.auto_tuner.cost[0] = 0.000001
             self.auto_tuner.cost[1] = 0.000001
-        """
+
 
