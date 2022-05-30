@@ -138,7 +138,7 @@ class AutoTuning(TuningSystem):
         self.h2_norm_y = np.linalg.norm((self.h_act_list_y - self.y_k_list_y) ** 2)
 
         # TODO: ADD covariance heuristics here
-        """
+
         if self.h2_norm_x <= 0.009:
             print('COST OF DX set to 0')
             self.auto_tuner.cost[0] = 0.000001
@@ -147,5 +147,5 @@ class AutoTuning(TuningSystem):
             print('COST OF DY set to 0')
             self.auto_tuner.cost[0] = 0.000001
             self.auto_tuner.cost[1] = 0.000001
-        """
+
 
