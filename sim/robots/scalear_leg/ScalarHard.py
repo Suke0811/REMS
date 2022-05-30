@@ -14,14 +14,28 @@ from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):
-    ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
-    ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
+    # ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
+    # ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
+    #
+    # SLAVE_PREFIX = '1'
+    #
+    # HOME_POSITION = [0.0 for _ in ID_LIST]
+    # DIR = np.array([1, 1, -1, 1, -1, 1])
+    # ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
+    # OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
+
+    ID_LIST = [str(n) for n in [7, 8, 9, 19, 20, 21, ]]
+    ID_LIST_SLAVE = [str(n) for n in [107, 108, 109]]
 
     SLAVE_PREFIX = '1'
 
     HOME_POSITION = [0.0 for _ in ID_LIST]
-    DIR = np.array([1, 1, -1, 1, -1, 1])
     ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
+
+    DIR = np.array([1, 1, -1, 1, -1, 1])
+    OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
+
+    DIR = np.array([1, -1, 1, 1, 1, 1])
     OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
 
     def __init__(self, dynamiex_port, *args, **kwargs):
@@ -62,19 +76,16 @@ class ScalerHard(RobotBase):
         self.sense_ref = self.dynamiexl_actor.sense.remote()
         return self.outpt
 
-    def observe_state( self):
-        state = self.state
+    def observe_state(self):
+        state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state)
+        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
         return self.state
 
     def calc_vel(self, pre_state, curr_state):
-        prev_state = pre_state.data_as(POS_3D).data.as_list()
-        self.state.data = self.task_space
-        next_state = curr_state.data_as(POS_3D).data.as_list()
-        dx = (next_state[0] - prev_state[0]) / self.run.DT
-        dy = (next_state[1] - prev_state[1]) / self.run.DT
-        dz = (next_state[2] - prev_state[2]) / self.run.DT
+        dx = (curr_state[0] - pre_state[0]) / self.run.DT
+        dy = (curr_state[1] - pre_state[1]) / self.run.DT
+        dz = (curr_state[2] - pre_state[2]) / self.run.DT
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)

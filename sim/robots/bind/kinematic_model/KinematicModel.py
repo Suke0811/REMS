@@ -17,9 +17,10 @@ class KinematicModel(RobotBase):
         self.inpt = inpt
         self.joint_space.data = self.ik(self.inpt)
         self.outpt = self.joint_space
-        state = self.state
+
+        state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state)
+        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
 
         return self.state.data_as(VEL_POS_3D).data.as_list()
 
@@ -30,12 +31,9 @@ class KinematicModel(RobotBase):
         return self.state
 
     def calc_vel(self, pre_state, curr_state):
-        prev_state = pre_state.data_as(POS_3D).data.as_list()
-        self.state.data = self.task_space
-        next_state = curr_state.data_as(POS_3D).data.as_list()
-        dx = (next_state[0] - prev_state[0]) / self.run.DT
-        dy = (next_state[1] - prev_state[1]) / self.run.DT
-        dz = (next_state[2] - prev_state[2]) / self.run.DT
+        dx = (curr_state[0] - pre_state[0]) / self.run.DT
+        dy = (curr_state[1] - pre_state[1]) / self.run.DT
+        dz = (curr_state[2] - pre_state[2]) / self.run.DT
         params_values_NN = self.NN.Auto_to_Neural_Format(self.PARAMS)
         self.NN.params_values = params_values_NN
         inpt = self.inpt.data.as_list()
