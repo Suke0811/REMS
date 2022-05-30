@@ -66,11 +66,9 @@ class Sim:
         self.reset_robot()
 
         while t < max_duration and not self._input_system.quite:
-            st = time()
             asyncio.run(self.create_tasks(t))   # run the robots asynchronously
             self.process()
             t += self.DT
-            print(time()-st)
         self.make_outputs()
 
     def process(self):

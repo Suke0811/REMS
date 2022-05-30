@@ -5,7 +5,7 @@ from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
 HORIZON = 5
-INIT_COV = 0.001 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet
+INIT_COV = 0.01  # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet, 01 best for real-to-kin, 001 very slow but improves needs over 2000
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
@@ -23,8 +23,8 @@ class AutoTuning(TuningSystem):
         N_horizon = self.states_sim.shape[1]
         # initialize the NN architecture
         NN_ARCHITECTURE = [
-                {"input_dim": 6, "output_dim": 10, "activation": "leakyRelu"},
-                {"input_dim": 10, "output_dim": 10, "activation": "leakyRelu"},
+                {"input_dim": 4, "output_dim": 10, "activation": "relu"},
+                {"input_dim": 10, "output_dim": 10, "activation": "relu"},
                 {"input_dim": 10, "output_dim": 2, "activation": "linear"}
             ]
 
@@ -110,10 +110,13 @@ class AutoTuning(TuningSystem):
             self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
         else:
             self.auto_tuner.update_parameters(self.states_sim, self.target_sim)
+            # initialize robot parameters to finalized parameter solution
+
         return job_return_type(self.done, **kwargs)  # pack and go
 
     def done(self, **kwargs):
         self.calcH2norm = True
+        self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
 
     def calculateH2Norm(self,states_sim_h2,target_sim_h2):
         self.h2_norm = np.linalg.norm((states_sim_h2-target_sim_h2) ** 2)
@@ -133,3 +136,16 @@ class AutoTuning(TuningSystem):
 
         self.h2_norm_x = np.linalg.norm((self.h_act_list_x - self.y_k_list_x) ** 2)
         self.h2_norm_y = np.linalg.norm((self.h_act_list_y - self.y_k_list_y) ** 2)
+
+        # TODO: ADD covariance heuristics here
+        """
+        if self.h2_norm_x <= 0.009:
+            print('COST OF DX set to 0')
+            self.auto_tuner.cost[0] = 0.000001
+            self.auto_tuner.cost[1] = 2.0
+        if self.h2_norm_y <= 0.009:
+            print('COST OF DY set to 0')
+            self.auto_tuner.cost[0] = 0.000001
+            self.auto_tuner.cost[1] = 0.000001
+        """
+

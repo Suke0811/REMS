@@ -44,8 +44,14 @@ class Pybullet(RobotBase):
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state)
 
-        # filter
         cur_vel = self.state.data_as(VEL_POS_3D).data.as_list()
+
+        # add neural network result
+        NN_input = np.array([cur_vel[0], cur_vel[1]])
+        NN_output, _ = self.auto_tuner.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
+        cur_vel[0] = cur_vel[0] + NN_output[0]
+        cur_vel[1] = cur_vel[1] + NN_output[1]
+
         self.moving_average_dx.append(cur_vel[0])
         self.moving_average_dy.append(cur_vel[1])
 
@@ -54,12 +60,6 @@ class Pybullet(RobotBase):
             self.moving_average_dy.pop(0)
             cur_vel[0] = sum(self.moving_average_dx) / len(self.moving_average_dx)
             cur_vel[1] = sum(self.moving_average_dy) / len(self.moving_average_dy)
-
-        # add neural network result
-        NN_input = np.array([cur_vel[0], cur_vel[1]])
-        NN_output, _ = self.auto_tuner.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
-        cur_vel[0] = cur_vel[0] + NN_output[0]
-        cur_vel[1] = cur_vel[1] + NN_output[1]
 
         self.state.data = {'d_x': cur_vel[0], 'd_y': cur_vel[1], 'd_z': cur_vel[2]}
 
