@@ -45,9 +45,8 @@ class ScalerHard(RobotBase):
         self.dynamiex_port = dynamiex_port
         self.run.name = "Hard"
         self.run.to_thread = False
-        self.sense_ref = []
+        self.sense_ref = None
         self.arm_id = arm_id
-
 
     def init(self, init_state=None):
         """
@@ -68,31 +67,33 @@ class ScalerHard(RobotBase):
         self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                     lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
+        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
+                               lambda *vals: wrap_to_2pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
 
-    def reset(self, inpt, t):
-        self.drive(inpt, t)
-        time.sleep(1)
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.data = inpt
+        dynamixel_inpt = self.dynamixel.motors
+        joint = self.frame2hard.bind(self.ik(inpt))
+        self.joint_space.data = joint
+        dynamixel_inpt.data = joint
+        dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
+
         self.dynamiexl_actor.drive.remote(inpt)
 
+
     def sense(self):
-        # TODO: speedup this things
-        # if self.sense_ref is not None:
-        #     self.outpt.data = ray.get(self.sense_ref)
-        # self.sense_ref = self.dynamiexl_actor.sense.remote()
-        if self.sense_ref:
-            finished, self.sense_ref = ray.wait(self.sense_ref, num_returns=len(self.sense_ref))
-            if finished:
-                self.outpt.data = ray.get(finished[-1])
-        self.sense_ref.append(self.dynamiexl_actor.sense.remote())
+        if self.sense_ref is not None:
+            self.outpt.data = ray.get(self.sense_ref)
+        s = self.dynamiexl_actor.sense.remote()
+        s.data = self.hard2frame.bind(s)
+        self.outpt.data = s.data.as_list()
         return self.outpt
 
-    def observe_state(self):
+    def observe_state( self):
         state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
@@ -107,9 +108,6 @@ class ScalerHard(RobotBase):
     def close(self):
         self.dynamiexl_actor.close.remote()
 
-    def __del__(self):
-        return
-
 
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
 class DynamiexlActor:
@@ -122,35 +120,23 @@ class DynamiexlActor:
 
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
-        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
-                              lambda *vals: wrap_to_2pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamixel.init()
-        return True
 
     def main_loop(self):
-        while not self.quite:
-            self.data_in.data = self.receive_data()
-            self.drive(self.data_in)
+         while not self.quite:
+             self.data_in.data = self.receive_data()
+             self.drive(self.data_in)
 
     def drive(self, inpt):
         # TODO: implement auto binding mechanism to remove this part
-        self.data.inpt = inpt
-        dynamixel_inpt = self.dynamixel.motors
-        joint = self.data.frame2hard.bind(self.data.ik(inpt))
-        self.data.joint_space.data = joint
-        dynamixel_inpt.data = joint
-        dynamixel_inpt.data = self.data.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
-        self.dynamixel.drive(dynamixel_inpt, 0)
+        self.dynamixel.drive(inpt, 0)
 
     def sense(self):
         s = self.dynamixel.sense()
-        s.data = self.hard2frame.bind(s)
-        self.data.outpt.data = s.data.as_list()
-        return self.data.outpt#.data.as_list()
+        return self.data.outpt
 
     def close(self):
         self.dynamixel.close()
-        return False
 
     #def __del__(self):
         #self.dynamixel.close()

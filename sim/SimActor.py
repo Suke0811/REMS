@@ -14,14 +14,14 @@ class SimActor:
     def init(self):
         self.robot.init()
 
-    def reset(self):
-        self.robot.reset()
+    def reset(self, inpt, t):
+        self.robot.reset(inpt, t)
 
     def main(self):
         while True:
             data_in = self.q_in.get()
             data_out = self.step(*data_in)
-            self.q_out.put_nowait(data_out)
+            self.q_out.put(data_out, block=False)
 
     def drive(self, inpt, timestamp):
         self.inpt.data = inpt
@@ -43,7 +43,6 @@ class SimActor:
             self.robot.drive(inpt, t)
             observe = self.robot.sense()
             state = self.robot.observe_state()
-
             t = self.robot.clock(t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st
@@ -62,7 +61,7 @@ class SimActor:
 
             t = self.robot.clock(t)
             info = self.robot.info
-        dt_actual = time.perf_counter() -st
+        dt_actual = time.perf_counter() - st
         return observe.data.as_list(), state.data.as_list(), info.data.as_list(), dt_actual
 
     def close(self):

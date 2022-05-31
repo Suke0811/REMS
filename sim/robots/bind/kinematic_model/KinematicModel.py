@@ -1,6 +1,7 @@
 from sim.robots.RobotBase import RobotBase
 from sim.utils.neural_network import NeuralNetwork
 from sim.type.definitions import *
+from sim.utils.tictoc import tictoc
 
 class KinematicModel(RobotBase):
     def __init__(self):
@@ -38,7 +39,7 @@ class KinematicModel(RobotBase):
         prev_state = self.state.data_as(POS_3D).data.as_list()
 
         self.state.data = self.task_space
-        next_state =  self.state.data_as(POS_3D).data.as_list()
+        next_state = self.state.data_as(POS_3D).data.as_list()
 
 
         dx  = (next_state[0] - prev_state[0])/self.run.DT

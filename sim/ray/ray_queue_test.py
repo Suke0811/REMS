@@ -18,7 +18,7 @@ class queue_test:
             robot = self.q_in.get()
             print(robot.inpt.data)
 #            robot.state.data['y'] += 1
-            self.q_out.put(robot)
+            self.q_out.put(robot, block=False)
 
 q_in = Queue()
 q_out = Queue()
@@ -29,15 +29,14 @@ d = DefDict(POS_3D)
 
 scaler = ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
 scaler.define()
-sca = scaler
+
 
 st = time.perf_counter()
 for n in range(N):
     scaler.inpt.data = [n]
-    q_in.put(scaler)
+    q_in.put(scaler, block=False)
 
     scaler = q_out.get()
-    sca = scaler
     print(scaler.state.data)
 
 print((time.perf_counter()-st)/N)

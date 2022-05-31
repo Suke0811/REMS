@@ -7,6 +7,7 @@ import dynamixel_sdk as x
 from serial.serialutil import SerialException
 import logging
 from sim.utils.tictoc import tictoc
+import time
 
 DEFAULT_SPEED = 2
 DEFAULT_ACC = 3
@@ -18,6 +19,7 @@ def dynamixel_sensor_def(driver_def: DefDict):
     d = DefDict(dict(j=DEF.angular_position, d_j=DEF.angular_velocity))
     ret = DefDict(driver_def.data.as_list(), d)
     return ret
+
 
 class Dynamixel(DeviceBase):
     def __init__(self, id_list, slave_ids=None, device_port='COM3'):
@@ -32,6 +34,7 @@ class Dynamixel(DeviceBase):
         self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
         self.motor_sensors = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
         self.enabled_ids = {k: False for k, v in self.motors.data.items()}  # TODO: change to use DefDict
+        self.read_vel = False
 
     def init(self):
         self.port = x.PortHandler(self.device_port)
@@ -43,6 +46,7 @@ class Dynamixel(DeviceBase):
             self._sync_write(self.motors, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
             self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
             self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
+            self.homing()
 
     def open(self):
         if not self.port.is_open:
@@ -58,9 +62,14 @@ class Dynamixel(DeviceBase):
 
     def close(self):
         if self.port.is_open:
+            self.homing()
             self.enable(False)
             self.port.closePort()
             logging.info('Dynamixel port closed')
+
+    def homing(self):
+        self._sync_write(self.motors, DynamiexX.GOAL_POSITION, np.pi)
+        time.sleep(1)   # TODO: wait till the motor reach the target position
 
     def enable(self, enable):
         if self.port.is_open:
@@ -84,8 +93,10 @@ class Dynamixel(DeviceBase):
         self._sync_write(inpt, DynamiexX.GOAL_POSITION)
 
     def sense(self):
-        self._sync_read(self.motor_pos, DynamiexX.PRESENT_POSITION)
-        self._sync_read(self.motor_vel, DynamiexX.PRESENT_VELOCITY)
+        if not self.read_vel:
+            self._sync_read(self.motor_pos, DynamiexX.PRESENT_POSITION)
+        else:
+            self._sync_read(self.motor_vel, DynamiexX.PRESENT_VELOCITY)
         self.motor_sensors.data = self.motor_pos
         self.motor_sensors.data = self.motor_vel
         return self.motor_sensors
@@ -107,12 +118,8 @@ class Dynamixel(DeviceBase):
         read = x.GroupSyncRead(self.port, self.packet, table.ADDR, table.LEN)
         for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
             read.addParam(int(id))
-        # write
-        apt=time.perf_counter()
-
-        self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        readt = time.perf_counter()
-        #logging.info(f" read {readt - apt}")
+        read.txRxPacket()
+        #self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
         for id, key in zip(values.data.get_key_suffix(), values.data.key_as_list()):
             result = read.isAvailable(int(id), table.ADDR, table.LEN)
             if result:
@@ -165,7 +172,7 @@ if __name__ == '__main__':
     import logging
     l = logging.getLogger()
     l.setLevel(logging.INFO)
-    d = Dynamixel([10,11,12,22,23,24], device_port='COM5')
+    d = Dynamixel([7, 8, 9, 19, 20, 21, ], device_port='/dev/ttyUSB0')
     d.init()
     i = DefDict({'10': float, '11': float, '12':float, '22':float, '23':float, '24':float})
     i.data = [np.pi for _ in range(6)]
