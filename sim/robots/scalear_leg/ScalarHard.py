@@ -14,28 +14,14 @@ from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):
-    # ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
-    # ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
-    #
-    # SLAVE_PREFIX = '1'
-    #
-    # HOME_POSITION = [0.0 for _ in ID_LIST]
-    # DIR = np.array([1, 1, -1, 1, -1, 1])
-    # ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
-    # OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
-
-    ID_LIST = [str(n) for n in [7, 8, 9, 19, 20, 21, ]]
-    ID_LIST_SLAVE = [str(n) for n in [107, 108, 109]]
+    ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
+    ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
 
     SLAVE_PREFIX = '1'
 
     HOME_POSITION = [0.0 for _ in ID_LIST]
-    ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
-
     DIR = np.array([1, 1, -1, 1, -1, 1])
-    OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
-
-    DIR = np.array([1, -1, 1, 1, 1, 1])
+    ZERO_OFFSET = np.array([1.0 for _ in ID_LIST]) * np.pi
     OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0]) + ZERO_OFFSET
 
     def __init__(self, dynamiex_port, *args, **kwargs):
@@ -79,6 +65,7 @@ class ScalerHard(RobotBase):
     def observe_state(self):
         state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
+        #self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
         self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
         return self.state
 

@@ -4,8 +4,8 @@ from sim.utils.neural_network import NeuralNetwork
 from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
 import numpy as np
-HORIZON = 5
-INIT_COV = 0.01  # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet, 01 best for real-to-kin, 001 very slow but improves needs over 2000
+HORIZON = 20
+INIT_COV = 0.01 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet, 01 best for real-to-kin, 001 very slow but improves needs over 2000
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
@@ -109,14 +109,17 @@ class AutoTuning(TuningSystem):
         if not self.real_to_sim:
             self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
         else:
-            self.auto_tuner.update_parameters(self.states_sim, self.target_sim)
+            self.auto_tuner.update_parameters(self.states_sim, self.target_sim, self.inputs)
             # initialize robot parameters to finalized parameter solution
 
         return job_return_type(self.done, **kwargs)  # pack and go
 
     def done(self, **kwargs):
         self.calcH2norm = True
-        self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
+        if not self.real_to_sim:
+            self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
+        else:
+            self.auto_tuner.NN.params_values = self.auto_tuner.NN.Auto_to_Neural_Format(self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], ))
 
     def calculateH2Norm(self,states_sim_h2,target_sim_h2):
         self.h2_norm = np.linalg.norm((states_sim_h2-target_sim_h2) ** 2)
@@ -139,13 +142,18 @@ class AutoTuning(TuningSystem):
 
         # TODO: ADD covariance heuristics here
 
-        if self.h2_norm_x <= 0.009:
+        """
+        if self.h2_norm_x <= 0.1:
             print('COST OF DX set to 0')
-            self.auto_tuner.cost[0] = 0.000001
+            self.auto_tuner.cost[0] = 0.0001
             self.auto_tuner.cost[1] = 2.0
-        if self.h2_norm_y <= 0.009:
+        if self.h2_norm_y <= 0.1:
             print('COST OF DY set to 0')
-            self.auto_tuner.cost[0] = 0.000001
-            self.auto_tuner.cost[1] = 0.000001
+            self.auto_tuner.cost[0] = 2.0
+            self.auto_tuner.cost[1] = 0.0001
+            #self.auto_tuner.Co = np.eye(self.auto_tuner.N_theta)*0.000000001
 
-
+        if (self.h2_norm_x <= 0.1)  and (self.h2_norm_y <= 0.1):
+            print('CONVERGE!!')
+            self.auto_tuner.Co = np.eye(self.auto_tuner.N_theta) * 0.000000001
+        """

@@ -48,7 +48,7 @@ class AutoTuner2():
         if self.theta.shape[1] == self.N_horizon*2:
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
 
-        self.states_real, self.states_sim, self.inpts = states_real, states_sim, inpts
+        self.states_real, self.states_sim_val, self.inpts_val = states_real, states_sim, inpts
         self.N_horizon = self.states_real.shape[1]
         # initialize h (or y in equation 15e of the paper), note we include the initial sigma result as well
         self.h_est = np.zeros((self.N_horizon * self.N_trainingObj, self.N_theta * 2 + 1))
@@ -113,27 +113,28 @@ class AutoTuner2():
             return False
 
     def calcH_est(self):
+        NN = copy.deepcopy(self.NN)
         for i in range(self.N_theta * 2 + 1):
             # get the current sigma value
             sigma_curr = self.sigmas[:, i]
             state_sim_cur = np.zeros(6,)
             for j in range(self.N_horizon):
                 # get initial states received from the simulated robot
-                state_sim_cur[:,] = self.states_sim[:, j]
-                param_values_NN = self.NN.Auto_to_Neural_Format(sigma_curr.reshape(self.theta.shape[0],))
-                self.NN.params_values = param_values_NN
-                inpt = self.inpts[:, j]
+                state_sim_cur[:,] = self.states_sim_val[:, j]
+                param_values_NN = NN.Auto_to_Neural_Format(sigma_curr.reshape(self.theta.shape[0],))
+                NN.params_values = param_values_NN
+                inpt = self.inpts_val[:, j]
                 # add neural network result
                 NN_input = np.array(
                     [(inpt[0] + 2.0) / 10.0, (inpt[1] + 2.0) / 10.0, (state_sim_cur[3] + 2.0) / 10.0, (state_sim_cur[4] + 2.0) / 10.0])
 
-                NN_output, _ = self.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
+                NN_output, _ = NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
 
                 # get output from previously trained Real-to-Kin case
                 #NN2_output, _ = self.NN2.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
 
-                state_sim_cur[3] = state_sim_cur[3] + NN_output[0] #+ NN2_output[0]
-                state_sim_cur[4] = state_sim_cur[4] + NN_output[1] #+ NN2_output[1]
+                state_sim_cur[3] = state_sim_cur[3] + NN_output[0] + 0.4 #+ NN2_output[0]
+                state_sim_cur[4] = state_sim_cur[4] + NN_output[1] - 0.4 #+ NN2_output[1]
 
                 h_cost = np.array([state_sim_cur[3]*self.cost[0],state_sim_cur[4]*self.cost[1]]).reshape(self.N_trainingObj,)
                 self.h_est[(j) * self.N_trainingObj:(j) * self.N_trainingObj + self.N_trainingObj, i] = h_cost.reshape(self.N_trainingObj,)

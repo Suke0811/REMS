@@ -33,10 +33,10 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
-target_robot = bind_robot(ScalerManipulator, KinematicModel)
+ref_robot1 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
+ref_robot2 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB1')
 
-at_process = AutoTuning(target_robot, ref_robot, real_to_sim=False)
+at_process = AutoTuning(ref_robot1, ref_robot2, real_to_sim=False)
 
 target_csv = FileOutput('test_robot.csv')       # save to test.csv at the same dir as the
 ref_csv = FileOutput('ref_robot.csv')
@@ -49,56 +49,3 @@ s.add_robot(target_robot, (target_csv,))
 s.add_process(at_process)
 
 s.run(max_duration=150, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
-
-data_target = pd.read_csv('test_robot.csv')
-data_ref = pd.read_csv('ref_robot.csv')
-
-dx_ref = data_ref['d_x'].to_numpy()
-dy_ref = data_ref['d_y'].to_numpy()
-
-dx_tar = data_target['d_x'].to_numpy()
-dy_tar = data_target['d_y'].to_numpy()
-
-h2_norm = data_target['h2_norm'].to_numpy()
-h2_norm_dx = data_target['h2_norm_x'].to_numpy()
-h2_norm_dy = data_target['h2_norm_y'].to_numpy()
-time_stamp = data_target['timestamp'].to_numpy()
-
-
-with open('sim/controllers/NN_param.npy', 'wb') as f:
-    print('NN Model Saved')
-    np.save(f, target_robot.PARAMS)
-
-plt.figure(1)
-plt.plot(time_stamp,h2_norm_dx)
-plt.xlabel('time, [s]')
-plt.ylabel('h2 norm x')
-plt.title('h2 norm x')
-plt.figure(2)
-plt.plot(time_stamp,h2_norm_dy)
-plt.xlabel('time, [s]')
-plt.ylabel('h2 norm y')
-plt.title('h2 norm y')
-plt.figure(3)
-plt.plot(time_stamp,h2_norm)
-plt.xlabel('time, [s]')
-plt.ylabel('h2 norm')
-plt.title('h2 norm')
-
-plt.figure(4)
-plt.plot(time_stamp,dx_ref)
-plt.plot(time_stamp,dx_tar)
-plt.xlabel('time, [s]')
-plt.ylabel('dx, [m]')
-plt.legend(['dx ref', 'dx target'])
-plt.title('dx')
-plt.figure(5)
-plt.plot(time_stamp,dy_ref)
-plt.plot(time_stamp,dy_tar)
-plt.xlabel('time, [s]')
-plt.ylabel('dy, [m]')
-plt.legend(['dy ref', 'dy target'])
-plt.show()
-
-
-

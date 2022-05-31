@@ -57,7 +57,7 @@ s.add_robot(target_robot, (target_csv,))
 # add process
 s.add_process(at_process)
 
-s.run(max_duration=100, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
+s.run(max_duration=1000, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
 
 
 data_target = pd.read_csv('test_robot.csv')

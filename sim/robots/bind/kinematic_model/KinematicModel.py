@@ -21,6 +21,7 @@ class KinematicModel(RobotBase):
         state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
+        #self.calc_vel(pre_state=state, curr_state=[0.0,0.0,0.0])
 
         return self.state.data_as(VEL_POS_3D).data.as_list()
 
@@ -39,7 +40,8 @@ class KinematicModel(RobotBase):
         inpt = self.inpt.data.as_list()
         NN_input = np.array([(inpt[0]+2.0)/10.0,(inpt[1]+2.0)/10.0,(dx+2.0)/10.0,(dy+2.0)/10.0])
         NN_output, _ = self.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
-        dx = dx + NN_output[0][0] + 1.0
-        dy = dy + NN_output[1][0] - 1.0
+        dx = dx + NN_output[0][0] + 0.4
+        dy = dy + NN_output[1][0] - 0.4
+
 
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
