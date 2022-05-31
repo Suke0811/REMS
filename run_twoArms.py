@@ -23,29 +23,29 @@ s = Sim(DT=0.25)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-i = FileInput('sim/utils/target_robot_circle.csv', loop=True)
+i1 = FileInput('test_robot.csv', loop=True)
+i2 = FileInput('ref_robot.csv', loop=True)
 #i = KeyboardInput()
 #i = JoystickInput()
 
-s.set_input(i)  # specify inputs to run
+s.set_input(i1)  # specify inputs to run
 
 # Create instance of robots and corresponding omutput methods.
 # each robot can have multiple output system
 # Robot simulation using kinematics model
+ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
 
-ref_robot1 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
-ref_robot2 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB1')
 
-at_process = AutoTuning(ref_robot1, ref_robot2, real_to_sim=False)
+#at_process = AutoTuning(ref_robot1, ref_robot2, real_to_sim=False)
 
 target_csv = FileOutput('test_robot.csv')       # save to test.csv at the same dir as the
 ref_csv = FileOutput('ref_robot.csv')
 
 # add robots to simulation
-s.add_robot(ref_robot, (ref_csv,))
-s.add_robot(target_robot, (target_csv,))
+s.add_robot(ref_robot1, (ref_csv,))
+s.add_robot(ref_robot2, (target_csv,))
 
 # add process
-s.add_process(at_process)
+#s.add_process(at_process)
 
 s.run(max_duration=150, realtime=True)  # run 10sec, at the end of run, automatically do outputs.
