@@ -4,14 +4,10 @@ from sim.robots import RobotBase
 from sim.utils.tictoc import tictoc
 ROUND = 2
 
-@ray.remote(num_cpus=1, )
+@ray.remote
 class SimActor:
-    def __init__(self, robot, q_in, q_out):
-        self._robot = robot
-        self.q_in = q_in
-        self.q_out = q_out
-
-
+    def __init__(self, robot):
+        self.robot = robot
 
     def init(self):
         self.robot.init()
@@ -21,12 +17,6 @@ class SimActor:
 
     def reset(self, inpt, t):
         self.robot.reset(inpt, t)
-
-    def main(self):
-        while True:
-            data_in = self.q_in.get()
-            data_out = self.step(*data_in)
-            self.q_out.put(data_out, block=False)
 
     def drive(self, inpt, timestamp):
         self.inpt.data = inpt
@@ -39,6 +29,7 @@ class SimActor:
         return self.robot.observe_state()
 
     def step(self, inpt, t_init, DT):
+        raise NotImplemented
         st = time.perf_counter()
         t = t_init
         state = None

@@ -4,11 +4,11 @@ import queue
 
 from sim.job_background import JobHandler as JobHandler
 import numpy as np
-from sim.utils.tictoc import tictoc
+from sim.utils import tictoc, time_str
 from sim.SimActor import SimActor
 import ray, time, signal
-from ray.util.queue import Queue, Empty
 from sim.ray import ProcessActor
+from sim.outputs import FileOutput
 
 ROUND = 2
 
@@ -29,19 +29,14 @@ class Sim:
         self.realtime = False
         self.DT = DT
         self.futs = []
-        self.queues =[]
-        self.q_ins = []
-        self.q_outs = []
         self.robot_actors = []
-        self.inpts = []
         self.futs_time = []
         self.futs_robots = []
-        self.t_process = []
         signal.signal(signal.SIGINT, self.handler_ctrl_c)
         self._processes_refs= []
-        #ray.init(local_mode=True)
 
     def handler_ctrl_c(self, signum, frame):
+        """Ctrl+C termination handling"""
         self.close()
         exit(1)
 
@@ -50,29 +45,28 @@ class Sim:
         :param input_system: input to be used (child of InputSystem)"""
         self._input_system = input_system
 
-    def add_robot(self, robot, outputs):
-        """Add a robot to simulate and specify output forms
+    def add_robot(self, robot, outputs=None, inpt=None):
+        """
+        Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
         :param outputs: tuple of outputs (child of OutputSystem)
+        :param inpt: InputSystem specific to the robot. Default to system wide Inputsystem
         """
         run = robot.run
         if run.DT is None:
             run.DT = self.DT      # if the robot does not have a specific DT, then provide self.DT
         self.realtime += run.realtime
-        q_in = Queue()
-        q_out = Queue()
-        self.queues.append((q_in, q_out))
-        r = SimActor.options(name=run.name+str(time.time()), max_concurrency=2).remote(robot, q_in, q_out)
-        self._robots.append((robot.inpt, robot, r, outputs))
-        self.q_ins.append(q_in)
-        self.q_outs.append(q_out)
-        self.robot_actors.append(r)
-        self.inpts.append(robot.inpt)
+        if outputs is None:     # in no output is specified, then do file outputs
+            (outputs,) = FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv')
 
+        r = SimActor.options(name=run.name+str(time.time()), max_concurrency=2).remote(robot)
+        self._robots.append((inpt, robot, r, outputs))
+        self.robot_actors.append(r)
+        if self._input_system is None and inpt is not None:
+            self._input_system = inpt
 
     def add_process(self, process):
         self._processes.append(ProcessActor.options(max_concurrency=2).remote(process))
-
 
     def init(self):
         futs = []
@@ -83,8 +77,11 @@ class Sim:
     def reset(self, t):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
-            inpt.data = self._input_system.get_inputs(inpt, timestamp=t)
-            futs.append(robot_actor.reset.remote(inpt, t))
+            if inpt is None:
+                robot.inpt.data = self._input_system.get_inputs(robot.inpt, timestamp=t)
+            else:
+                robot.inpt.data = inpt.get_inputs(robot.inpt, timestamp=t)
+            futs.append(robot_actor.reset.remote(robot.inpt, t))
         done = ray.get(futs)
         time.sleep(1)
 
@@ -104,15 +101,12 @@ class Sim:
         t = 0
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
-
         self.init()
         self.reset(t)
-        #[robot_actor.main.remote() for inpt, robot, robot_actor, outputs in self._robots]
         st = time.perf_counter()
         next_time = time.perf_counter()
-        while t <= max_duration and not self._input_system.quite:
-           # self.step(t)   # run the robots asynchronously
-           if self.realtime is False or time.perf_counter() >= next_time:
+        while t <= max_duration and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
+            if self.realtime is False or time.perf_counter() >= next_time:
                 self.run_robot(t)
                 self.process()
                 t += self.DT
@@ -122,34 +116,6 @@ class Sim:
         self.make_outputs()
         self.close()
         print(f"close {time.perf_counter() - st}")
-
-    def step(self, t):
-        #for inpt, r, q_in in zip(self.inpts, self.robot_actors, self.q_ins):
-        inpt = self.inpts[0]
-        inpt.data = self._input_system.get_inputs(inpt, timestamp=t)
-        for i in range(2):
-            q_in = self.q_ins[i]
-            q_in.put((inpt, t, self.DT))
-        rets = [q_out.get() for q_in, q_out in self.queues]
-
-        if rets is not None:
-            for r, ret in zip(self._robots, rets):
-                inpt, robot, robot_actor, outputs = r
-                observe, state, info, dt_actual = ret
-                robot.outpt.data = observe
-                robot.state.data = state
-                robot.info.data = info
-                for out in outputs:
-                    out.process(robot.state, inpt, robot.outpt, t, robot.info)
-
-                if not self.suppress_info:
-                    logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
-                        robot.run.name,
-                        np.round(dt_actual, 5), np.round(t, ROUND),
-                        {k: round(v, ROUND) for k, v in inpt.data.items()},
-                        {k: round(v, ROUND) for k, v in robot.state.data.items()},
-                        {k: round(v, ROUND) for k, v in robot.outpt.data.items()},
-                        robot.info.data))
 
     @tictoc
     def process(self):
@@ -166,13 +132,14 @@ class Sim:
 
     def run_robot(self, t):
         self.get_ret()
-        # self.inpts[0].data = self._input_system.get_inputs(self.inpts[0], timestamp=t)
-        # self.futs.append(self.robot_actors[0].step_forward.remote(self.inpts[0], t, self.DT))
         for inpt, robot, robot_actor, outputs in self._robots:
-            inpt.data = self._input_system.get_inputs(inpt, timestamp=t)
-            self.futs.append(robot_actor.step_forward.remote(inpt, t, self.DT))
+            if inpt is None:
+                robot.inpt.data = self._input_system.get_inputs(robot.inpt, timestamp=t)
+            else:
+                robot.inpt.data = inpt.get_inputs(robot.inpt, timestamp=t)
+            self.futs.append(robot_actor.step_forward.remote(robot.inpt, t, self.DT))
             self.futs_time.append(t)
-            self.futs_robots.append((inpt, robot, robot_actor, outputs))
+            self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
 
     def get_ret(self):
         if self.futs:
@@ -191,7 +158,7 @@ class Sim:
         robot.state.data = state
         robot.info.data = info
         for out in outputs:
-            out.process(robot.state, inpt, robot.outpt, t, robot.info)
+            out.process(robot.state, robot.inpt, robot.outpt, t, robot.info)
 
         if not self.suppress_info:
             logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
