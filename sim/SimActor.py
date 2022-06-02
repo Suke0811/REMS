@@ -4,15 +4,20 @@ from sim.robots import RobotBase
 from sim.utils.tictoc import tictoc
 ROUND = 2
 
-@ray.remote(num_cpus=1)
+@ray.remote(num_cpus=1, )
 class SimActor:
     def __init__(self, robot, q_in, q_out):
-        self.robot = robot
+        self._robot = robot
         self.q_in = q_in
         self.q_out = q_out
 
+
+
     def init(self):
         self.robot.init()
+
+    def ret_robot(self):
+        return self.robot
 
     def reset(self, inpt, t):
         self.robot.reset(inpt, t)

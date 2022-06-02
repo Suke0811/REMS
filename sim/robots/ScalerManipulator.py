@@ -1,16 +1,11 @@
 import time
 
-import sim.type.definitions
 from sim.robots.RobotBase import RobotBase
-from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
+from sim.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
-from sim.type.definitions import *
 import numpy as np
-import logging
-from sim.utils.tictoc import tictoc
 import ray
-from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):

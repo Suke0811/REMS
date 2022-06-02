@@ -1,4 +1,4 @@
-from sim.robots.bind import SenseBaseBasic
+from sim.bind import SenseBaseBasic
 from sim.type import DefDict
 import numpy as np
 

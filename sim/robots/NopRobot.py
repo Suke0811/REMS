@@ -1,5 +1,5 @@
 from sim.robots.RobotBase import RobotBase
-from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
+from sim.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
 import numpy as np
 

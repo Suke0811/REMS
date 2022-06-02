@@ -1,13 +1,14 @@
+import copy
 import logging
-import asyncio
 import queue
 
-from sim.job_background.RayJobHandler import JobHandler
+from sim.job_background import JobHandler as JobHandler
 import numpy as np
 from sim.utils.tictoc import tictoc
 from sim.SimActor import SimActor
 import ray, time, signal
 from ray.util.queue import Queue, Empty
+from sim.ray import ProcessActor
 
 ROUND = 2
 
@@ -37,8 +38,8 @@ class Sim:
         self.futs_robots = []
         self.t_process = []
         signal.signal(signal.SIGINT, self.handler_ctrl_c)
-        self.counter = 0
-        self.counter_read = 0
+        self._processes_refs= []
+        #ray.init(local_mode=True)
 
     def handler_ctrl_c(self, signum, frame):
         self.close()
@@ -61,7 +62,7 @@ class Sim:
         q_in = Queue()
         q_out = Queue()
         self.queues.append((q_in, q_out))
-        r = SimActor.options(name=run.name).remote(robot, q_in, q_out)
+        r = SimActor.options(name=run.name+str(time.time()), max_concurrency=2).remote(robot, q_in, q_out)
         self._robots.append((robot.inpt, robot, r, outputs))
         self.q_ins.append(q_in)
         self.q_outs.append(q_out)
@@ -70,7 +71,8 @@ class Sim:
 
 
     def add_process(self, process):
-        self._processes.append(process)
+        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process))
+
 
     def init(self):
         futs = []
@@ -84,7 +86,7 @@ class Sim:
             inpt.data = self._input_system.get_inputs(inpt, timestamp=t)
             futs.append(robot_actor.reset.remote(inpt, t))
         done = ray.get(futs)
-        time.sleep(0.1)
+        time.sleep(1)
 
     def close(self):
         futs = []
@@ -121,9 +123,6 @@ class Sim:
         self.close()
         print(f"close {time.perf_counter() - st}")
 
-
-
-
     def step(self, t):
         #for inpt, r, q_in in zip(self.inpts, self.robot_actors, self.q_ins):
         inpt = self.inpts[0]
@@ -152,15 +151,20 @@ class Sim:
                         {k: round(v, ROUND) for k, v in robot.outpt.data.items()},
                         robot.info.data))
 
+    @tictoc
     def process(self):
+        return
         if self._processes:
+            if self._processes_refs:
+                finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
+                if finished:
+                    rets = (ray.get(finished[-1]))
+
             for pro in self._processes:
-                rets = pro.process()
-                self.jHandler.find_job(rets)
-            self.jHandler.execute()
+                self._processes_refs.append(pro.process.remote())
+
 
     def run_robot(self, t):
-        self.counter += 1
         self.get_ret()
         # self.inpts[0].data = self._input_system.get_inputs(self.inpts[0], timestamp=t)
         # self.futs.append(self.robot_actors[0].step_forward.remote(self.inpts[0], t, self.DT))

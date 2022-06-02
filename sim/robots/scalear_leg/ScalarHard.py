@@ -1,16 +1,11 @@
 import time
 
-import sim.type.definitions
 from sim.robots.RobotBase import RobotBase
-from sim.robots.bind.Dynamixel.Dynamixel import Dynamixel
+from sim.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
-from sim.type.definitions import *
 import numpy as np
-import logging
-from sim.utils.tictoc import tictoc
 import ray
-from ray.util.queue import Queue, Empty
 
 
 class ScalerHard(RobotBase):
@@ -49,6 +44,7 @@ class ScalerHard(RobotBase):
         self.arm_id = arm_id
 
 
+
     def init(self, init_state=None):
         """
         Initialization necessary for the robot. call all binded objects' init
@@ -68,12 +64,13 @@ class ScalerHard(RobotBase):
         self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                     lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
-        self.dynamiexl_actor = DynamiexlActor.options(name="dynamixel").remote(self)
+        self.dynamiexl_actor = DynamiexlActor.remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
 
-    def reset(self, inpt, t):
-        self.drive(inpt, t)
-        time.sleep(1)
+    def reset(self, inpt=None, t=None):
+        if inpt is not None:
+            self.drive(inpt, t)
+
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
@@ -82,9 +79,6 @@ class ScalerHard(RobotBase):
 
     def sense(self):
         # TODO: speedup this things
-        # if self.sense_ref is not None:
-        #     self.outpt.data = ray.get(self.sense_ref)
-        # self.sense_ref = self.dynamiexl_actor.sense.remote()
         if self.sense_ref:
             finished, self.sense_ref = ray.wait(self.sense_ref, num_returns=len(self.sense_ref))
             if finished:
@@ -152,18 +146,11 @@ class DynamiexlActor:
         self.dynamixel.close()
         return False
 
-    #def __del__(self):
-        #self.dynamixel.close()
-        #pass
-    #there is a bug with ray and we cannot access class object
-
-
-
 if __name__ == '__main__':
     from sim.robots.bind_robot import bind_robot
     from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 
-    d = bind_robot(ScalerManipulator, ScalerHard, 'COM5')
+    d = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
     d.init()
     d.reset()
     i = d.inpt

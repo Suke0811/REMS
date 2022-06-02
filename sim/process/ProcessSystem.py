@@ -15,3 +15,9 @@ class ProcessSystem:
 
     def done(self, **kwargs):
         """called when the job is done"""
+
+    def process_callback(self, *args, **kwargs):
+        """
+        callback for SimRay
+        """
+

@@ -93,7 +93,7 @@ class AutoTuning(TuningSystem):
 
         self.calculateH2Norm(self.states_sim_h2,self.target_sim_h2)
         self.target_robot.info.data = [self.h2_norm, self.h2_norm_x, self.h2_norm_y]
-
+        print(self.auto_tuner.sigmas.flags)
         self.time_count += 1
         if self.time_count % HORIZON == 0 and self.time_count != 0:  # only run the tuning every Horizon
             #self.target_robot.state.data = self.ref_robot.state

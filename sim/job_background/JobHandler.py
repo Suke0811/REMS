@@ -8,13 +8,6 @@ class JobHandler(JobHandlerBase):
         super().__init__()
         self.executor = ThreadPoolExecutor()
 
-    def find_job(self, jobs):
-        if not isinstance(jobs, list):
-            jobs = [jobs]
-        for l in jobs:
-            if isinstance(l, job_type):
-                self.jobs.append(l)
-
     def execute(self):
         if not self.jobs:
             return
@@ -31,7 +24,6 @@ class JobHandler(JobHandlerBase):
         ret = future.result()
         if isinstance(ret, job_return_type):
             ret.callback(**ret.kwargs)
-
 
     def __del__(self):
         self.executor.shutdown(cancel_futures=True)

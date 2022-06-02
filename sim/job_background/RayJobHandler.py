@@ -1,13 +1,13 @@
 from sim.job_background.job_type import job_type
 from sim.job_background.job_return_type import job_return_type
-from sim.job_background.JobHandler import JobHandler
-from concurrent.futures import ThreadPoolExecutor
+from sim.job_background.JobHandlerBase import JobHandlerBase
 
 import ray
 
-class RayJobHandler(JobHandler):
+class RayJobHandler(JobHandlerBase):
     def __init__(self):
         super().__init__()
+        self.executor = None
 
     def execute(self):
         if not self.jobs:
@@ -17,7 +17,7 @@ class RayJobHandler(JobHandler):
         self.jobs.clear()
 
     @staticmethod
-    @ray.remote(num_cpus=1)
+    @ray.remote(num_cpus=2)
     def task(job):
         ret = job.job()
         if isinstance(ret, job_return_type):

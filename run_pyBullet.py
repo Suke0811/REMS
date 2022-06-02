@@ -1,16 +1,14 @@
-import logging, os, time
+import logging, os
 import pandas as pd
 from sim.Sim import Sim
-from sim.inputs import FileInput, KeyboardInput
+from sim.inputs import FileInput
 from sim.outputs import FileOutput
 import matplotlib.pyplot as plt
-from sim.utils.tictoc import tictoc
 from sim.robots.bind_robot import bind_robot
 from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.tuning.AutoTuning import AutoTuning
-from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.robots.scalear_leg.Pybullet import Pybullet
-from sim.robots.bind.kinematic_model.KinematicModel import KinematicModel
+from sim.bind.kinematic_model.KinematicModel import KinematicModel
 import numpy as np
 
 PRINT = True

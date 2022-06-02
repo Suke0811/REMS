@@ -2,7 +2,7 @@ import time
 import logging
 import ray
 
-from sim.job_background.RayJobHandler import JobHandler
+from sim.job_background.RayJobHandler import RayJobHandler as JobHandler
 from sim.robot_actor.RobotActor import RobotActor
 from sim.robot_actor.definition_queue import *
 from ray.util.queue import Queue, Empty

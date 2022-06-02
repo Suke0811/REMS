@@ -1,8 +1,8 @@
 from sim.robots import RobotBase
-from sim.robots.bind.webots.WebotsDrive import WebotsDrive
-from sim.robots.bind.webots.WebotsSense import WebotsSense
+from sim.bind.webots.WebotsDrive import WebotsDrive
+from sim.bind.webots.WebotsSense import WebotsSense
 from sim.type.definitions import *
-from controller import Robot, Motor, Supervisor
+from controller import Supervisor
 
 
 class WebotsBinder(RobotBase):

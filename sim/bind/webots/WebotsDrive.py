@@ -1,4 +1,4 @@
-from sim.robots.bind import DriveBaseBasic
+from sim.bind import DriveBaseBasic
 from sim.type import DefDict
 from sim.type import definitions as DEF
 

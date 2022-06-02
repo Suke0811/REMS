@@ -1,13 +1,10 @@
-from sim.robots.bind.Dynamixel.DynamixelTable import *
 from sim.robots.DeviceBase import DeviceBase
 from sim.type import DefDict
 from sim.type import definitions as DEF
-import time
+from sim.bind.Dynamixel.DynamixelTable import DynamiexX
+import logging, time
+import numpy as np
 import dynamixel_sdk as x
-from serial.serialutil import SerialException
-import logging
-from sim.utils.tictoc import tictoc
-import time
 
 DEFAULT_SPEED = 2
 DEFAULT_ACC = 3
@@ -46,7 +43,6 @@ class Dynamixel(DeviceBase):
             self._sync_write(self.motors, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
             self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
             self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
-            self.homing()
 
     def open(self):
         if not self.port.is_open:

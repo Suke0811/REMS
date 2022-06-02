@@ -1,4 +1,4 @@
-from sim.robots.bind import BasicDeviceBase
+from sim.bind import BasicDeviceBase
 
 
 class ObserveStateBaseBasic(BasicDeviceBase):

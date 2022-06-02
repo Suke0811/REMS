@@ -1,5 +1,5 @@
 from sim.robots.RunConfig import RunConfig
-from sim.robots.bind.BasicDeviceBase import BasicDeviceBase
+from sim.bind.BasicDeviceBase import BasicDeviceBase
 from sim.robots.RobotDefBase import RobotDefBase
 
 
