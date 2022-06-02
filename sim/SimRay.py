@@ -1,9 +1,10 @@
-from time import perf_counter as time
 import logging
 import asyncio
 from sim.job_background.RayJobHandler import JobHandler
 import numpy as np
 from sim.utils.tictoc import tictoc
+from sim.SimActor import SimActor
+import ray, time
 
 ROUND = 2
 
@@ -24,6 +25,7 @@ class Sim:
         self.jHandler = JobHandler()
         self.realtime = False
         self.DT = DT
+        self.futs = []
 
 
     def set_input(self, input_system):
@@ -36,22 +38,24 @@ class Sim:
         :param robot: robot to simulate (child of RobotSystem)
         :param outputs: tuple of outputs (child of OutputSystem)
         """
-        self._robots.append([robot.inpt, robot, outputs])
         run = robot.run
         if run.DT is None:
             run.DT = self.DT      # if the robot does not have a specific DT, then provide self.DT
         self.realtime += run.realtime
+        r = SimActor.options(name=robot.run.name).remote(robot)
+        self._robots.append((robot.inpt, robot, r, outputs))
 
     def add_process(self, process):
         self._processes.append(process)
 
     def init_robot(self):
-        for inpt, robot, outputs in self._robots:
-            robot.init()
+        for inpt, robot, robot_actor, outputs in self._robots:
+            init = robot_actor.init.remote()
+        ray.get(init)
 
     def reset_robot(self):
-        for inpt, robot, outputs in self._robots:
-            robot.reset()
+        for inpt, robot, robot_actor, outputs in self._robots:
+            robot_actor.reset.remote()
     @tictoc
     def run(self, max_duration, realtime=True):
         """Run robots with the given settings for max_duration seconds
@@ -66,9 +70,11 @@ class Sim:
         self.reset_robot()
 
         while t < max_duration and not self._input_system.quite:
-            asyncio.run(self.create_tasks(t))   # run the robots asynchronously
+            st = time.perf_counter()
+            self.run_robot(t)   # run the robots asynchronously
             self.process()
             t += self.DT
+            print(time.perf_counter()-st)
         self.make_outputs()
 
     def process(self):
@@ -78,50 +84,44 @@ class Sim:
                 self.jHandler.find_job(rets)
             self.jHandler.execute()
 
-    async def create_tasks(self, t):
-        sim_tasks = []  # list of tasks (threads)
-        for inpt, robot, outputs in self._robots:
+    def __del__(self):
+        [ray.cancel(f) for f in self.futs]
+
+    @tictoc
+    def run_robot(self, t):
+        rets= None
+        t_start = time.perf_counter()
+        if self.futs:
+            rets = ray.get(self.futs)
+            self.futs.clear()
+            print(f"get: {time.perf_counter() - t_start}")
+
+        for inpt, robot, robot_actor, outputs in self._robots:
             inpt.data = self._input_system.get_inputs(inpt, timestamp=t)
-            if robot.run.to_thread: # send the robot process to a separate thread
-                sim_tasks.append(asyncio.to_thread(self.step_forward, inpt, robot, outputs, t))
-            else:
-                sim_tasks.append(asyncio.wait_for(self.step_forward(inpt, robot, outputs, t), self.DT*0.8-self.DT_ERR))
+            self.futs.append(robot_actor.step_forward.remote(inpt, t, self.DT))
+        print(f"Remote call: {time.perf_counter() - t_start}")
+        if rets is not None:
+            for r, ret in zip(self._robots, rets):
+                inpt, robot, robot_actor, outputs = r
+                observe, state, info = ret
+                robot.outpt.data = observe
+                robot.state.data = state
+                robot.info = info
+                for out in outputs:
+                        out.process(state, inpt, observe, t, info)
 
-        if self.realtime:
-            sim_tasks.append(asyncio.sleep(self.DT*0.8-self.DT_ERR))
-        try:
-            await asyncio.wait_for((asyncio.gather(*sim_tasks, return_exceptions=True)), self.DT)  # awaits all threads are done
-        except asyncio.TimeoutError:
-            pass
-            #logging.info('timeout happened. DT of the actual simulation is bigger than specified DT') # forcing to time out for every DT. Still we get the return
+                if not self.suppress_info:
+                    logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
+                        robot.run.name,
+                        np.round(time.perf_counter() - t_start, 5), np.round(t, ROUND),
+                        {k: round(v, ROUND) for k, v in inpt.data.items()},
+                        {k: round(v, ROUND) for k, v in state.data.items()},
+                        {k: round(v, ROUND) for k, v in observe.data.items()},
+                    info.data))
 
-    def step_forward(self, inpt, robot, outputs, t_init):
-        t_start = time()
-        t=t_init
-        state = None
-        observe = None
-        info = None
-        while np.round(t - t_init, ROUND) < self.DT:
-            robot.drive(inpt, t)
-            observe = robot.sense()
-            state = robot.observe_state()
-
-            t = robot.clock(t)
-            info = robot.info
-        for out in outputs:
-                out.process(state, inpt, observe, t, info)
-
-        if not self.suppress_info:
-            logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
-                robot.run.name,
-                np.round(time() - t_start, 5), np.round(t, ROUND),
-                {k: round(v, ROUND) for k, v in inpt.data.items()},
-                {k: round(v, ROUND) for k, v in state.data.items()},
-                {k: round(v, ROUND) for k, v in observe.data.items()},
-            info.data))
 
     def make_outputs(self):
-        for inpt, robot, outputs in self._robots:
+        for inpt, robot, robot_actor, outputs in self._robots:
             robot.close()
             for out in outputs:
                 out.make_output()

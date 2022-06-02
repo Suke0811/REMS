@@ -2,11 +2,11 @@ from sim.robots.RobotBase import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
 from sim.type.definitions import *
 import time
+from scipy import signal
 
-class Pybullet(RobotBase):
+class Pybullet2(RobotBase):
     def __init__(self):
         super().__init__()
-
         urdf_filename = '/home/alexander/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
         self.my_sim = pyb_sim(urdf_filename=urdf_filename, DoFnum=6, delta_t=self.run.DT)
         self.leg = 1
@@ -20,6 +20,14 @@ class Pybullet(RobotBase):
         self.joint_space.data = self.ik(self.inpt)
         self.joint_angles_other_leg = self.joint_space.data.as_list()
         self.auto_tuner = None
+        self.moving_average_dx = []
+        self.moving_average_dy = []
+        self.moving_average_total = 100
+
+        self.low_pass_filter_dx = []
+        self.low_pass_filter_dy = []
+        self.low_pass_filter_horizon = 100
+        self.b, self.a = signal.butter(2, 0.01)
 
     def drive(self, inpts, timestamp):
         #inputs: desired motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 legs
@@ -61,6 +69,37 @@ class Pybullet(RobotBase):
         dx = (curr_state[0] - pre_state[0]) / self.run.DT
         dy = (curr_state[1] - pre_state[1]) / self.run.DT
         dz = (curr_state[2] - pre_state[2]) / self.run.DT
-        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+        inpt = self.inpt.data.as_list()
+        # add neural network result
+        NN_input = np.array([(inpt[0]+2.0)/10.0,(inpt[1]+2.0)/10.0,(dx+2.0)/10.0,(dy+2.0)/10.0])
+        NN_output, _ = self.auto_tuner.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
+        dx = dx + NN_output[0][0] + 0.4
+        dy = dy + NN_output[1][0] - 0.4
+        """
+        self.low_pass_filter_dx.append(dx)
+        self.low_pass_filter_dy.append(dy)
 
+        if len(self.low_pass_filter_dx) == self.low_pass_filter_horizon:
+            del self.low_pass_filter_dx[0]
+            self.low_pass_filter_dx.append(dx)
+            dx = signal.lfilter(self.b, self.a, self.low_pass_filter_dx)[-1]
+
+        if len(self.low_pass_filter_dy) == self.low_pass_filter_horizon:
+            del self.low_pass_filter_dy[0]
+            self.low_pass_filter_dy.append(dy)
+            dy = signal.lfilter(self.b, self.a, self.low_pass_filter_dy)[-1]
+
+        self.moving_average_dx.append(dx)
+        self.moving_average_dy.append(dy)
+
+        if len(self.moving_average_dx) > self.moving_average_total:
+            self.moving_average_dx.pop(0)
+            self.moving_average_dy.pop(0)
+            dx = sum(self.moving_average_dx) / len(self.moving_average_dx)
+            dy = sum(self.moving_average_dy) / len(self.moving_average_dy)
+
+        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+        """
+
+        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 

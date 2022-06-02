@@ -17,7 +17,7 @@ class RayJobHandler(JobHandler):
         self.jobs.clear()
 
     @staticmethod
-    @ray.remote
+    @ray.remote(num_cpus=1)
     def task(job):
         ret = job.job()
         if isinstance(ret, job_return_type):

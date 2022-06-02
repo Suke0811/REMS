@@ -7,7 +7,7 @@ class RobotDefBase:
         self.inpt: DefDict = None
         self.state: DefDict = None
         self.outpt: DefDict = None
-        self.info = {}
+        self.info = []
         self.joint_space: DefDict = None
         self.task_space: DefDict = None
         self.jacobian: DefDict = None

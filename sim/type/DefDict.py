@@ -145,12 +145,16 @@ class DefDict:
 
 
 if __name__ == '__main__':
+    # defined anything I want like below
     store = DefDict(dict(a=float, b=float, c=float))
     print(store.data)
     l = {'a':2.0,'v':4.0}
     a=np.array([2,6])
-    store.data = a
+    store.data = l
     print(store.data.as_list())
     store.assert_data()
-
+    #a.data
+    #{'j.0': 0.0, 'j.1': 0.0, 'j.2': 0.0, 'j.3': 0.0, 'j.4': 0.0, 'j.5': 0.0}
+    #a.data = [1,2,3,4,5,6]
+    #a.data['j.2'] =459459
 
