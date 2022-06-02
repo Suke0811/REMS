@@ -60,5 +60,9 @@ class SimActor:
         dt_actual = time.perf_counter() - st
         return observe.data.as_list(), state.data.as_list(), info.data.as_list(), dt_actual
 
+    def set_DT(self, DT):
+        if self.robot.run.DT is None:
+            self.robot.run.DT = DT
+
     def close(self):
         self.robot.close()

@@ -9,6 +9,7 @@ from sim.SimActor import SimActor
 import ray, time, signal
 from sim.ray import ProcessActor
 from sim.outputs import FileOutput
+from sim.Config import SimConfig
 
 ROUND = 2
 
@@ -16,7 +17,7 @@ class Sim:
     DT_ERR = 0.01
     DT_DEFAULT = 0.25
 
-    def __init__(self, suppress_info=False, DT=DT_DEFAULT):
+    def __init__(self, suppress_info=False):
         """
         :param suppress_info: no log outputs to console
         """
@@ -27,7 +28,8 @@ class Sim:
         self._processes = []
         self.jHandler = JobHandler()
         self.realtime = False
-        self.DT = DT
+        self.runconfig = None
+        self.DT = None
         self.futs = []
         self.robot_actors = []
         self.futs_time = []
@@ -53,8 +55,6 @@ class Sim:
         :param inpt: InputSystem specific to the robot. Default to system wide Inputsystem
         """
         run = robot.run
-        if run.DT is None:
-            run.DT = self.DT      # if the robot does not have a specific DT, then provide self.DT
         self.realtime += run.realtime
         if outputs is None:     # in no output is specified, then do file outputs
             (outputs,) = FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv')
@@ -92,25 +92,37 @@ class Sim:
         done = ray.get(futs)
         time.sleep(0.5)
 
+    def set_dt(self, DT):
+        self.DT = DT
+        futs = []
+        for r in self.robot_actors:
+            futs.append(r.set_DT.remote(self.DT))
+        done = ray.get(futs)
+
+
+
     @tictoc
-    def run(self, max_duration, realtime=True):
+    def run(self, config: SimConfig):
         """Run robots with the given settings for max_duration seconds
         :param max_duration: the maximum duration of test
         """
-        self.realtime += realtime
-        t = 0
+        self.runconfig = config
+        self.set_dt( config.dt)
+        self.realtime += config.realtime
+
+        t = config.start_time
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init()
         self.reset(t)
         st = time.perf_counter()
         next_time = time.perf_counter()
-        while t <= max_duration and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
+        while not config.if_time(t) and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
             if self.realtime is False or time.perf_counter() >= next_time:
                 self.run_robot(t)
                 self.process()
                 t += self.DT
-                next_time += self.DT
+                next_time += self.DT / config.run_speed     # manipulate run speed
 
         print(f"loop time {time.perf_counter()-st}")
         self.make_outputs()
