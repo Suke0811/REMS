@@ -57,7 +57,7 @@ class Sim:
         run = robot.run
         self.realtime += run.realtime
         if outputs is None:     # in no output is specified, then do file outputs
-            (outputs,) = FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv')
+            outputs = (FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv'), )
 
         r = SimActor.options(name=run.name+str(time.time()), max_concurrency=2).remote(robot)
         self._robots.append((inpt, robot, r, outputs))
@@ -129,7 +129,6 @@ class Sim:
         self.close()
         print(f"close {time.perf_counter() - st}")
 
-    @tictoc
     def process(self):
         return
         if self._processes:
@@ -141,17 +140,18 @@ class Sim:
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote())
 
-
     def run_robot(self, t):
         self.get_ret()
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                robot.inpt.data = self._input_system.get_inputs(robot.inpt, timestamp=t)
+                i = self._input_system.get_inputs(robot.inpt, timestamp=t)
             else:
-                robot.inpt.data = inpt.get_inputs(robot.inpt, timestamp=t)
-            self.futs.append(robot_actor.step_forward.remote(robot.inpt, t, self.DT))
+                i = inpt.get_inputs(robot.inpt, timestamp=t)
+            #######
+            self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
             self.futs_time.append(t)
             self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
+            ####### ~0.0001s
 
     def get_ret(self):
         if self.futs:
@@ -180,7 +180,6 @@ class Sim:
                 {k: round(v, ROUND) for k, v in robot.state.data.items()},
                 {k: round(v, ROUND) for k, v in robot.outpt.data.items()},
             robot.info.data))
-
 
     def make_outputs(self):
         for inpt, robot, robot_actor, outputs in self._robots:

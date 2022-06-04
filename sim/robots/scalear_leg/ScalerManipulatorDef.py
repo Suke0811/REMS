@@ -8,7 +8,6 @@ from sim.robots.RobotBase import RobotBase
 
 class ScalerManipulator(RobotDefBase):
     NUM_JOINTS = 6
-    WHICH_LEG = 2
 
     def __init__(self):
         RobotDefBase.__init__(self)
@@ -16,8 +15,9 @@ class ScalerManipulator(RobotDefBase):
         self.unit = 1000.0
         self.rule = DefBindRule(POS_3D, lambda *xs: [x / self.unit for x in xs], POS_3D)
         self.rule_inv = DefBindRule(POS_3D, lambda *xs: [x * self.unit for x in xs], POS_3D)
+        self.which_leg = 3
 
-    def define(self):
+    def define(self, *args, **kwargs):
         # input is 2D pos
         self.inpt = DefDict(POS_3D)
         # state is joint pos and vel
@@ -32,21 +32,21 @@ class ScalerManipulator(RobotDefBase):
         self.jacobian = None
         self.info = DefDict({'h2_norm':0, 'h2_norm_x':0, 'h2_norm_y':0})
 
-    def fk(self, jointspace: DefDict):
+    def fk(self, jointspace: DefDict, *args, **kwargs):
 
-        d = self.kin.scalar_forward_kinematics(which_leg=self.WHICH_LEG,
+        d = self.kin.scalar_forward_kinematics(which_leg=self.which_leg,
                                                joint_angles=self.joint_space.format_data(jointspace).data.as_list())
         t = self.task_space.format_data(Tmat2dict_rule.bind(d))
         t.data = self.rule.bind(t)
         return t
 
-    def ik(self, taskspace: DefDict):
+    def ik(self, taskspace: DefDict, *args, **kwargs):
         self.task_space.data = dict(r11=1, r22=-1, r33=-1,
                                     r12=0, r13=0, r21=0, r23=0, r31=0, r32=0)
         t = self.task_space.format_data(taskspace)
         t.data = self.rule_inv.bind(t)
         return self.joint_space.format_data(
-            self.kin.scalar_inverse_kinematics(which_leg=self.WHICH_LEG,
+            self.kin.scalar_inverse_kinematics(which_leg=self.which_leg,
                                                T_shi_wrist3=t.ruled_get(),
                                                prev_angles=self.joint_space.data.as_list()))
 

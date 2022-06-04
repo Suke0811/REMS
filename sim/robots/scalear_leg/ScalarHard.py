@@ -3,7 +3,7 @@ import time
 from sim.robots.RobotBase import RobotBase
 from sim.bind.Dynamixel.Dynamixel import Dynamixel
 from sim.type import DefBindRule as rule
-from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
+from sim.robots.scalear_leg.kinematics.wrap_to_pi import *
 import numpy as np
 import ray
 
@@ -42,6 +42,7 @@ class ScalerHard(RobotBase):
         self.run.to_thread = False
         self.sense_ref = []
         self.arm_id = arm_id
+        self.which_leg = arm_id
 
 
 
@@ -66,6 +67,7 @@ class ScalerHard(RobotBase):
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
+
 
     def reset(self, inpt=None, t=None):
         if inpt is not None:
@@ -117,7 +119,7 @@ class DynamiexlActor:
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
         self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
-                              lambda *vals: wrap_to_2pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
+                              lambda *vals: wrap_to_pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamixel.init()
         return True
 

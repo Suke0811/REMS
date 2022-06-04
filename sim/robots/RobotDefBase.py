@@ -13,7 +13,7 @@ class RobotDefBase:
         self.jacobian: DefDict = None
 
 
-    def define(self):
+    def define(self, *args, **kwargs):
         """Definitions of the robot"""
         raise NotImplementedError
 
@@ -21,11 +21,11 @@ class RobotDefBase:
         """run controller assigned to the robot"""
         raise NotImplementedError
 
-    def fk(self, jointspace: DefDict):
+    def fk(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 
-    def ik(self, taskspace: DefDict):
+    def ik(self, taskspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 
-    def jb(self, jointspace: DefDict):
+    def jb(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError

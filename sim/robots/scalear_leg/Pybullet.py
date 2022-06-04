@@ -9,8 +9,8 @@ urdf_filename = '/home/yusuke/PycharmProjects/pySiLVIA_lib/AbstractedRobot/sim/r
 class Pybullet(RobotBase):
     def __init__(self):
         super().__init__()
-        self.leg = 1
-        self.other_leg = 0
+        self.leg = 0
+        self.other_leg = 1
 
 
     def init(self, *args):
@@ -45,7 +45,7 @@ class Pybullet(RobotBase):
         state = self.state
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state)
-
+        print(self.outpt.data)
         return self.state
 
     def clock(self, t):
@@ -59,7 +59,6 @@ class Pybullet(RobotBase):
 
     def calc_vel(self, pre_state, curr_state):
         prev_state = pre_state.data_as(POS_3D).data.as_list()
-        self.state.data = self.task_space
         next_state = curr_state.data_as(POS_3D).data.as_list()
         dx = (next_state[0] - prev_state[0]) / self.run.DT
         dy = (next_state[1] - prev_state[1]) / self.run.DT

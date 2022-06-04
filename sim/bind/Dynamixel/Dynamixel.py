@@ -79,8 +79,11 @@ class Dynamixel(DeviceBase):
                 logging.info('enabled {}'.format(self.enabled_ids))
                 return True
             else:
-                if enable:  logging.info('Could not enabled {}'.format(self.enabled_ids))
-                else:       logging.info('Disabled')
+                if enable:
+                    logging.info('Could not enabled {}'.format(self.enabled_ids))
+                    raise ConnectionError(f"Dynamixel could not enabled")
+                else:
+                    logging.info('Disabled')
         return False
 
     def drive(self, inpt: DefDict, timestamp):
