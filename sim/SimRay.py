@@ -123,11 +123,10 @@ class Sim:
                 self.process()
                 t += self.DT
                 next_time += self.DT / config.run_speed     # manipulate run speed
-
-        print(f"loop time {time.perf_counter()-st}")
+        logging.info(f"loop time {time.perf_counter()-st}")
         self.make_outputs()
         self.close()
-        print(f"close {time.perf_counter() - st}")
+
 
     def process(self):
         return

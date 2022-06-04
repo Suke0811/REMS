@@ -1,48 +1,38 @@
 from sim.robots.RobotBase import RobotBase
-from sim.bind.Dynamixel.Dynamixel import Dynamixel
-from sim.type import DefBindRule as rule
-import numpy as np
+from sim.utils.neural_network import NeuralNetwork
+from sim.type.definitions import *
 
-
-
+from sim.inputs import FileInput
 
 class NopRobot(RobotBase):
-    ID_LIST =[str(n) for n in [10,11,12,22,23,24]]
-    ID_LIST_SLAVE =[str(n) for n in [110, 111, 112]]
+    def __init__(self, file_inpt):
+        super().__init__()
+        self.run.name = 'Nop'
+        self.run.realtime = False
+        self.run.to_thread = True
+        self.file_inpt: FileInput = file_inpt
 
-    SLAVE_PREFIX = '1'
-
-    HOME_POSITION = [0.0 for _ in ID_LIST]
-    DIR = np.array([1, 1, -1, 1, -1, 1])
-    OFFSET = np.array([0, np.pi / 2, -np.pi / 2, 0, 0, 0])
-
-    def __init__(self, dynamiex_port, *args, **kwargs):
-        """init with a specific initial stat) """
-        super().__init__(*args, **kwargs)
-        self.dynamiex_port = dynamiex_port
-        self.run.to_thread = False
-
-    def init(self, init_state=None):
-        """Initialization necessary for the robot. call all binded objects' init
-        """
-        # binding rule
-        # joint and main ids are positional match
-        self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
-        # slave joints are coupled to certain servos
-        self.JOINT_SLAVE_ID_BIND = rule(self.ID_LIST, lambda *vals: [i for i in vals], self.ID_LIST_SLAVE)
-
-        self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
 
     def drive(self, inpt, timestamp):
-        # TODO: implement auto binding mechanism to remove this part
-        dynamixel_inpt = self.dynamixel.motors
-        # TODO: binding for offsets
-        joint = self.ik(inpt).data.as_numpy() * self.DIR + self.OFFSET
-        self.joint_space.data = joint
-        dynamixel_inpt.data = self.joint_space.data.as_list()
-        dynamixel_inpt.data = self.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
+        self.inpt.data = self.file_inpt.get_inputs(self.inpt, timestamp)
+        self.joint_space.data = self.ik(self.inpt)
+        self.outpt = self.joint_space
+
+        state = self.state.data.as_list()
+        self.state.set_data(self.fk(self.outpt))
+        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
+
+        return self.state.data_as(VEL_POS_3D).data.as_list()
 
     def sense(self):
-#        s = self.dynamixel.sense()
-        #self.outpt.data #= s.data.as_list()
-        pass
+        return self.outpt
+
+    def observe_state(self):
+        return self.state
+
+    def calc_vel(self, pre_state, curr_state):
+        dx = (curr_state[0] - pre_state[0]) / self.run.DT
+        dy = (curr_state[1] - pre_state[1]) / self.run.DT
+        dz = (curr_state[2] - pre_state[2]) / self.run.DT
+
+        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}

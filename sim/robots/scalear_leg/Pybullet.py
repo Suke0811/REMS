@@ -35,7 +35,7 @@ class Pybullet(RobotBase):
 
     def sense(self):
         # Return current motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 leg
-        joint_angles_legs  = self.my_sim.getJointAngles()
+        joint_angles_legs = self.my_sim.getJointAngles()
         joint_angles_leg = joint_angles_legs[6*self.leg:6*self.leg+6]
         self.outpt.data = joint_angles_leg
 
@@ -45,7 +45,6 @@ class Pybullet(RobotBase):
         state = self.state
         self.state.set_data(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state)
-        print(self.outpt.data)
         return self.state
 
     def clock(self, t):

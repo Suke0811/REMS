@@ -68,7 +68,7 @@ for n in range(N):
 # add process
 #s.add_process(at_process)
 
-s.run(SimConfig(max_duration=100, dt=0.02, realtime=True, start_time=10, run_speed=2))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=100, dt=0.02, realtime=False, start_time=10, run_speed=2))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)
