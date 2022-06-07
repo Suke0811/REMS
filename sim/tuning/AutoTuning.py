@@ -67,9 +67,9 @@ class AutoTuning(TuningSystem):
     def process(self):
         """Process is called every time step"""
         # access to target/reference robot info
-        target_state = self.target_robot.state.data.as_list()
-        ref_state = self.ref_robot.state.data.as_list()
-        inpt = self.ref_robot.inpt.data.as_list()
+        target_state = self.target_robot.state.data.list()
+        ref_state = self.ref_robot.state.data.list()
+        inpt = self.ref_robot.inpt.data.list()
 
         # update state history
         self.states_sim = self._nparray_push(self.states_sim, ref_state)

@@ -63,7 +63,7 @@ class JoystickInput(InputBase):
         pygame.event.pump()
         for name, joystick in self._joysticks.items():
             axes = []
-            deadzone = self.axes_deadzone[name].data.as_list()
+            deadzone = self.axes_deadzone[name].data.list()
             buttons = []
             # capture joystick values
             num_axes = joystick.get_numaxes()

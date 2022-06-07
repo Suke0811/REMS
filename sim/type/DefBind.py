@@ -37,13 +37,13 @@ class DefBindRule:
             if bind_to is not None:
                 self.bind_to = DefDict(bind_to, Any)
         if self.bind_func is None:
-            self.bind_to.data = self.bind_from.data.as_list()
+            self.bind_to.data = self.bind_from.data.list()
         else:
             if self.bind_to is not None:
-                self.bind_to.data = self.bind_func(*self.bind_from.data.as_list())
+                self.bind_to.data = self.bind_func(*self.bind_from.data.list())
                 return self.bind_to.data
             else:
-                return self.bind_func(*self.bind_from.data.as_list())
+                return self.bind_func(*self.bind_from.data.list())
 
 
 if __name__ == '__main__':

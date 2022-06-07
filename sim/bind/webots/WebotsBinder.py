@@ -29,9 +29,9 @@ class WebotsBinder(RobotBase):
 
     def reset(self, state):
         rot = DefDict(ROT_2D)
-        self._trans_field.setSFVec3f(DefDict(POS_3D).data_as(state).as_list())  # move robot to the init state
+        self._trans_field.setSFVec3f(DefDict(POS_3D).data_as(state).list())  # move robot to the init state
         self._rotation_field.setSFRotation([0, 1, 0, rot])
-        self._robot_node.setVelocity(DefDict(VEL_POS_3D.update(VEL_ROT_3D)).data_as(state).as_list())
+        self._robot_node.setVelocity(DefDict(VEL_POS_3D.update(VEL_ROT_3D)).data_as(state).list())
         self._robot_node.resetPhysics()  # reset physics
 
     def drive(self, inpts, timestamp):

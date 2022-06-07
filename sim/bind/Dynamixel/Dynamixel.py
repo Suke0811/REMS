@@ -14,7 +14,7 @@ def dynamixel_id(id_list, dtype, prefix=''):
 
 def dynamixel_sensor_def(driver_def: DefDict):
     d = DefDict(dict(j=DEF.angular_position, d_j=DEF.angular_velocity))
-    ret = DefDict(driver_def.data.as_list(), d)
+    ret = DefDict(driver_def.data.list(), d)
     return ret
 
 
@@ -106,7 +106,7 @@ class Dynamixel(DeviceBase):
     def _sync_write(self, values:DefDict, table, value_overwrite=None):
         # TODO use bulk instead (table def added when add params)
         write = x.GroupSyncWrite(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+        for id, val in zip(values.data.get_key_suffix(), values.data.list()):
             if value_overwrite is not None: val = value_overwrite
             write.addParam(int(id), table.from_unit(val))
         result = self.func_retry(write.txPacket, success_condition=x.COMM_SUCCESS)
@@ -115,11 +115,11 @@ class Dynamixel(DeviceBase):
     def _sync_read(self, values: DefDict, table):
         # TODO use bulk instead (table def added when add params)
         read = x.GroupSyncRead(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+        for id, val in zip(values.data.get_key_suffix(), values.data.list()):
             read.addParam(int(id))
         read.txRxPacket()
         #self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        for id, key in zip(values.data.get_key_suffix(), values.data.key_as_list()):
+        for id, key in zip(values.data.get_key_suffix(), values.data.list_keys()):
             result = read.isAvailable(int(id), table.ADDR, table.LEN)
             if result:
                 # Get Dynamixel present position value
@@ -129,13 +129,13 @@ class Dynamixel(DeviceBase):
 
     def _bulk_read(self, values, tables):
         for table in tables:
-            for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+            for id, val in zip(values.data.get_key_suffix(), values.data.list()):
                 self.read.addParam(int(id), table.ADDR, table.LEN)
             self.func_retry(self.read.txRxPacket, success_condition=x.COMM_SUCCESS)
         readt = time.perf_counter()
         # logging.info(f" read {readt - apt}")
         for table in tables:
-            for id, key in zip(values.data.get_key_suffix(), values.data.key_as_list()):
+            for id, key in zip(values.data.get_key_suffix(), values.data.list_keys()):
                 result = self.read.isAvailable(int(id), table.ADDR, table.LEN)
                 if result:
                     # Get Dynamixel present position value
@@ -185,7 +185,7 @@ if __name__ == '__main__':
     # d._sync_write(i, DynamiexX.LED)
     # d._sync_write(i.set_data([False, False]), DynamiexX.LED)
     # d._sync_write(i, DynamiexX.GOAL_POSITION)
-    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
+    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.list())
     N = 500
     st = time.perf_counter()
     time.sleep(1)
@@ -205,7 +205,7 @@ if __name__ == '__main__':
         d.sense()
 
     et = time.perf_counter()
-    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
+    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.list())
     print(et-st)
     print((et-st)/N)
     d.close()

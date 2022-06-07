@@ -58,12 +58,12 @@ for i in range(len(t)-1):
 
 # build list of joint angles
 j0,j1,j2,j3,j4,j5,dj0,dj1,dj2,dj3,dj4,dj5 = [],[],[],[],[],[],[],[],[],[],[],[]
-j0.append(prev_joints.data.as_list()[0])
-j1.append(prev_joints.data.as_list()[1])
-j2.append(prev_joints.data.as_list()[2])
-j3.append(prev_joints.data.as_list()[3])
-j4.append(prev_joints.data.as_list()[4])
-j5.append(prev_joints.data.as_list()[5])
+j0.append(prev_joints.data.list()[0])
+j1.append(prev_joints.data.list()[1])
+j2.append(prev_joints.data.list()[2])
+j3.append(prev_joints.data.list()[3])
+j4.append(prev_joints.data.list()[4])
+j5.append(prev_joints.data.list()[5])
 dj0.append(0)
 dj1.append(0)
 dj2.append(0)
@@ -75,8 +75,8 @@ joint_list = [0]*24
 for i in range(len(t)-2):
     cur_pos = [ref_state[i+1][0],ref_state[i+1][1],ref_state[i+1][2]]
     T_shi_wrist3 = T_mat_rule(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, cur_pos[0], cur_pos[1], cur_pos[2])
-    joint_list[which_leg*6:which_leg*6+6] = prev_joints.data.as_list()
-    joint_angles = scalerKin.scalar_inverse_kinematics(which_leg, T_shi_wrist3,  prev_angles=prev_joints.data.as_list())
+    joint_list[which_leg*6:which_leg*6+6] = prev_joints.data.list()
+    joint_angles = scalerKin.scalar_inverse_kinematics(which_leg, T_shi_wrist3, prev_angles=prev_joints.data.list())
     prev_joints.data = joint_angles
     j0.append(joint_angles[0])
     j1.append(joint_angles[1])
@@ -134,12 +134,12 @@ if add_line:
 
     # build list of joint angles
     j02, j12, j22, j32, j42, j52, dj02, dj12, dj22, dj32, dj42, dj52 = [], [], [], [], [], [], [], [], [], [], [], []
-    j02.append(prev_joints.data.as_list()[0])
-    j12.append(prev_joints.data.as_list()[1])
-    j22.append(prev_joints.data.as_list()[2])
-    j32.append(prev_joints.data.as_list()[3])
-    j42.append(prev_joints.data.as_list()[4])
-    j52.append(prev_joints.data.as_list()[5])
+    j02.append(prev_joints.data.list()[0])
+    j12.append(prev_joints.data.list()[1])
+    j22.append(prev_joints.data.list()[2])
+    j32.append(prev_joints.data.list()[3])
+    j42.append(prev_joints.data.list()[4])
+    j52.append(prev_joints.data.list()[5])
     dj02.append(0)
     dj12.append(0)
     dj22.append(0)
@@ -151,9 +151,9 @@ if add_line:
     for i in range(len(x_list) - 2):
         cur_pos = [ref_state[i + 1][0], ref_state[i + 1][1], ref_state[i + 1][2]]
         T_shi_wrist3 = T_mat_rule(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, cur_pos[0], cur_pos[1], cur_pos[2])
-        joint_list[which_leg * 6:which_leg * 6 + 6] = prev_joints.data.as_list()
+        joint_list[which_leg * 6:which_leg * 6 + 6] = prev_joints.data.list()
         joint_angles = scalerKin.scalar_inverse_kinematics(which_leg, T_shi_wrist3,
-                                                           prev_angles=prev_joints.data.as_list())
+                                                           prev_angles=prev_joints.data.list())
         prev_joints.data = joint_angles
         j02.append(joint_angles[0])
         j12.append(joint_angles[1])

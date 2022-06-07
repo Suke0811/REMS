@@ -18,11 +18,11 @@ class NopRobot(RobotBase):
         self.joint_space.data = self.ik(self.inpt)
         self.outpt = self.joint_space
 
-        state = self.state.data.as_list()
+        state = self.state.data.list()
         self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
+        self.calc_vel(pre_state=state, curr_state=self.state.data.list())
 
-        return self.state.data_as(VEL_POS_3D).data.as_list()
+        return self.state.data_as(VEL_POS_3D).data.list()
 
     def sense(self):
         return self.outpt

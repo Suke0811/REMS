@@ -18,11 +18,11 @@ class KinematicModel(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: PUT VELOCITY FUNCTION SAME AS OTHER FUNCTIONS HERE
         prev_joints = self.joint_space
-        prev_joints = prev_joints.data_as(joint_pos(6)).data.as_list()
+        prev_joints = prev_joints.data_as(joint_pos(6)).data.list()
 
         self.inpt = inpt
         self.joint_space.data = self.ik(self.inpt)
-        next_joints = self.joint_space.data.as_list()
+        next_joints = self.joint_space.data.list()
 
         # add neural network
         # convert param values from auto tuner format into the neural network format
@@ -36,10 +36,10 @@ class KinematicModel(RobotBase):
 
         self.outpt = self.joint_space
         self.task_space.data = self.fk(self.joint_space)
-        prev_state = self.state.data_as(POS_3D).data.as_list()
+        prev_state = self.state.data_as(POS_3D).data.list()
 
         self.state.data = self.task_space
-        next_state = self.state.data_as(POS_3D).data.as_list()
+        next_state = self.state.data_as(POS_3D).data.list()
 
 
         dx  = (next_state[0] - prev_state[0])/self.run.DT
@@ -56,7 +56,7 @@ class KinematicModel(RobotBase):
 
         self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 
-        return self.state.data_as(VEL_POS_3D).data.as_list()
+        return self.state.data_as(VEL_POS_3D).data.list()
 
     def sense(self):
         return self.outpt

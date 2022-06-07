@@ -15,14 +15,14 @@ class WebotsDrive(DriveBaseBasic):
             motor = self._robot.getDevice(motor_name)
 
     def enable(self, enable):
-        for type_, motor in zip(self._motors.DEF.as_list(), self._motors.data.as_list()):
+        for type_, motor in zip(self._motors.DEF.list(), self._motors.data.list()):
             if isinstance(type_, DEF.velocity):
                 self._set_velocity_mode(motor)
 
     def drive(self, inpt:DefDict, timestamp):
         self.inpt = inpt
         # send rotational velocity to each motor
-        for type_, value, motor in zip(self.inpt.DEF.as_list(), self.inpt.data.as_list(), self._motors.data):
+        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.data.list(), self._motors.data):
             if isinstance(type_, DEF.velocity):
                 self._set_velocity_mode(motor)
                 motor.setVelocity(value)

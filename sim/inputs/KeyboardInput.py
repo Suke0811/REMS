@@ -51,5 +51,5 @@ if __name__ == '__main__':
     k = KeyboardInput()
     while True:
         k.get_inputs()
-        print(any(k._keys.data.as_list()))
+        print(any(k._keys.data.list()))
         time.sleep(1)

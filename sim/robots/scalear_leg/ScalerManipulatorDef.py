@@ -35,7 +35,7 @@ class ScalerManipulator(RobotDefBase):
     def fk(self, jointspace: DefDict, *args, **kwargs):
 
         d = self.kin.scalar_forward_kinematics(which_leg=self.which_leg,
-                                               joint_angles=self.joint_space.format_data(jointspace).data.as_list())
+                                               joint_angles=self.joint_space.format_data(jointspace).data.list())
         t = self.task_space.format_data(Tmat2dict_rule.bind(d))
         t.data = self.rule.bind(t)
         return t
@@ -48,5 +48,5 @@ class ScalerManipulator(RobotDefBase):
         return self.joint_space.format_data(
             self.kin.scalar_inverse_kinematics(which_leg=self.which_leg,
                                                T_shi_wrist3=t.ruled_get(),
-                                               prev_angles=self.joint_space.data.as_list()))
+                                               prev_angles=self.joint_space.data.list()))
 
