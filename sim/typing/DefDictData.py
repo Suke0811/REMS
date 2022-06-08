@@ -1,9 +1,14 @@
 import numpy as np
-
+from sim.typing import DefDict
 SEPARATOR = '.'
 
 
 class DefDictData(dict):
+    def __init__(self, *args, **kwargs ):
+        super().__init__(*args, **kwargs)
+        self.suffixes = []
+        self.attrs = []
+
     def ndarray(self, reshape: tuple=None):
         data_list = self.list()
         return np.array(data_list).reshape(reshape)
@@ -35,8 +40,10 @@ class DefDictData(dict):
             keys = [keys]
         if not isinstance(keys, list):
             raise TypeError('keys must be either string, list, or dict')
-
-        return DefDictData({k: self.get(k) for k in keys})
+        d = DefDictData({k: self.get(k) for k in keys})
+        for s in self.suffixes:
+            d._add_suffix(s)
+        return d
 
     def filter_data(self, data):
         if isinstance(data, dict):
@@ -54,20 +61,6 @@ class DefDictData(dict):
 
         return DefDictData({keys[index]: vals[index] for index in found})
 
-    def get_key_suffix(self):
-        rets = []
-        keys = self.list_keys()
-        for k in keys:
-            rets.append(k.split('.')[-1])
-        return rets
-
-    def get_prefix(self):
-        rets = []
-        keys = self.list_keys()
-        for k in keys:
-            rets.append(k.split('.')[0])
-        return rets
-
     def remove_prefix(self, prefix=None):
         d = DefDictData()
         for k in self.list_keys():
@@ -81,26 +74,44 @@ class DefDictData(dict):
                 if prefix in k_seq:
                     k_seq.remove(prefix)
                     d.setdefault(SEPARATOR.join(k_seq), self.get(k))
+        for s in self.suffixes:
+            d._add_suffix(s)
         return d
 
-
     def _add_attr(self, name):
+        if name in self.attrs:
+            raise AttributeError('the prefix is already registered')
+        self.attrs.append(name)
         def method(self, ids=None):
             if ids is None:
                 return self.remove_prefix(name)
-            else:
-                return self.remove_prefix(name).filter(ids)
+            elif not isinstance(ids, list):
+                ids = [ids]
+            return self.remove_prefix(name).filter(list(map(str, ids)))
+
+        setattr(self, name, method.__get__(self))
+
+    def _add_suffix(self, name):
+        if name in self.suffixes:
+            raise AttributeError('the suffix is already registered')
+        self.suffixes.append(name)
+        def method(self):
+            data = DefDictData()
+            for k, v in self.items():
+                if isinstance(v, DefDict) or isinstance(v, dict):
+                    data[k] = v.get(name)
+            return data
 
         setattr(self, name, method.__get__(self))
 
 
-
-
 if __name__ == '__main__':
     d = DefDictData()
-    d['j.0'] = 1
-    d['j.2'] = 2
-    d['j.1'] = 4
+    d['j.0'] = {'pos': 43, 'vel': 100}
+    d['j.2'] = {'pos': 43, 'vel': 100}
+    d['j.1'] = {'pos': 43, 'vel': 100}
     d._add_attr('j')
-    print(d.j())
+    d._add_suffix('pos')
+    print(d.j([1]).pos())
+    print(d.pos)
     pass

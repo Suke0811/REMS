@@ -5,11 +5,12 @@ from sim.typing.DefDictData import DefDictData
 
 
 class DefDict:
-    def __init__(self, *definition, dtype=Any, rule=None, name=None, prefixes=None):
+    def __init__(self, *definition, dtype=Any, rule=None, name=None, prefixes=None, inherit=True):
         self._definition = DefDictData()
         self._data = DefDictData()
         self._name = name
         self.out_rule = rule
+        self.attrs = prefixes
 
         # if args dtype=type was not specified, here we figure out if the last element is type
         if isinstance(definition[-1], type) or definition[-1] is Any:
@@ -17,6 +18,11 @@ class DefDict:
             definition = definition[0:-1]
         for d in definition:    # add as many definition as you want
             self.add_definition(d, dtype)
+            if isinstance(d, DefDict) and inherit:
+                pass
+
+
+
         if prefixes is not None:
             self.add_prefix(prefixes)
 
@@ -24,7 +30,7 @@ class DefDict:
         if format is None:
             return self._data
         else:
-            self._data.filter(format)
+            return self._data.filter(format)
 
     def list(self, format=None):
         return self.get(format).list()
@@ -161,6 +167,7 @@ class DefDict:
         except TypeError:
             ret = value
         return ret    # Enforce type in the corresponding definition
+
 
     def bind_from(self, data, ignored_keys=None):
         pass
