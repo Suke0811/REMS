@@ -60,9 +60,9 @@ class ScalerHard(RobotBase):
         #self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
         # binding rule
         # joint and main ids are positional match
-        self.JOINT_ID_BIND = rule(self.joint_space.DEF.list_keys(), None, self.ID_LIST)
+        self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
         # Hardware offset rule (from frame to hardware value)
-        self.frame2hard = rule(self.joint_space.DEF.list_keys(),
+        self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
                                lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
@@ -89,9 +89,9 @@ class ScalerHard(RobotBase):
         return self.outpt
 
     def observe_state(self):
-        state = self.state.data.list()
+        state = self.state.data.as_list()
         self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state.data.list())
+        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
         return self.state
 
     def calc_vel(self, pre_state, curr_state):
@@ -118,7 +118,7 @@ class DynamiexlActor:
 
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
-        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.list_keys(),
+        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
                                lambda *vals: wrap_to_pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamixel.init()
         return True
@@ -141,7 +141,7 @@ class DynamiexlActor:
     def sense(self):
         s = self.dynamixel.sense()
         s.data = self.hard2frame.bind(s)
-        self.data.outpt.data = s.data.list()
+        self.data.outpt.data = s.data.as_list()
         return self.data.outpt#.data.as_list()
 
     def close(self):

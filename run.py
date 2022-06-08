@@ -24,15 +24,15 @@ s = Sim()    # Create instance of Robot testing system
 # You can only have one type of inputs per test
 #i = FileInput('sim/utils/target_robot_circle_line.csv', loop=True)
 
-i_video = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
-#i_helix = FileInput('trajectory/target_robot_circle_helix.csv', loop=True)
-i = FileInput('trajectory/r2k/ref_robot.csv', loop=False)
+#i_video = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
+i_helix = FileInput('trajectory/target_robot_circle_helix.csv', loop=True)
+#i = FileInput('trajectory/r2k/ref_robot.csv', loop=False)
 #i = KeyboardInput()
 #i = JoystickInput()
 
 
 
-s.set_input(i)  # specify inputs to run
+s.set_input(i_helix)  # specify inputs to run
 
 # Create instance of robots and corresponding omutput methods.
 # each robot can have multiple output system
@@ -55,14 +55,14 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 # add robots to simulation
 
 
-s.add_robot(ref_robot, (ref_csv,), i)
-s.add_robot(arm_2, (arm2_csv,),i_video)
+s.add_robot(ref_robot, (ref_csv,))
+s.add_robot(arm_2, (arm2_csv,))
 #s.add_robot(target_robot, (target_csv,))
 #s.add_robot(pybullet_robots,)
 
 #s.add_robot(pybullet_robots_2,)
 
-N = 0
+N = 1
 for n in range(N):
     s.add_robot(bind_robot(ScalerManipulator, Pybullet))
 

@@ -18,14 +18,14 @@ class Pybullet(RobotBase):
         self.other_leg_pos = [0.25, 0.0, -0.25]
         self.inpt.data = self.other_leg_pos
         self.joint_space.data = self.ik(self.inpt)
-        self.joint_angles_other_leg = self.joint_space.data.list()
+        self.joint_angles_other_leg = self.joint_space.data.as_list()
 
 
     def drive(self, inpts, timestamp):
         #inputs: desired motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 legs
         self.inpt = inpts
         self.joint_space.data = self.ik(self.inpt)
-        joint_angles_leg = self.joint_space.data.list()
+        joint_angles_leg = self.joint_space.data.as_list()
         joint_angles_legs = [0]*12
         joint_angles_legs[6*self.leg:6*self.leg+6] = joint_angles_leg
         joint_angles_legs[6*self.other_leg:6*self.other_leg+6] = joint_angles_leg
@@ -57,8 +57,8 @@ class Pybullet(RobotBase):
         self.my_sim.reset()
 
     def calc_vel(self, pre_state, curr_state):
-        prev_state = pre_state.data_as(POS_3D).data.list()
-        next_state = curr_state.data_as(POS_3D).data.list()
+        prev_state = pre_state.data_as(POS_3D).data.as_list()
+        next_state = curr_state.data_as(POS_3D).data.as_list()
         dx = (next_state[0] - prev_state[0]) / self.run.DT
         dy = (next_state[1] - prev_state[1]) / self.run.DT
         dz = (next_state[2] - prev_state[2]) / self.run.DT
