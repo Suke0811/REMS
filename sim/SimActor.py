@@ -19,7 +19,7 @@ class SimActor:
         self.robot.reset(inpt, t)
 
     def drive(self, inpt, timestamp):
-        self.inpt.data = inpt
+        self.inpt.set(inpt)
         self.robot.drive(inpt, timestamp)
 
     def sense(self):
@@ -42,7 +42,7 @@ class SimActor:
             t = self.robot.clock(t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st
-        return observe.data.list(), state.data.list(), info.data.list(), dt_actual
+        return observe.list(), state.list(), info.list(), dt_actual
 
     def step_forward(self, inpt, t_init, DT):
         st = time.perf_counter()
@@ -58,7 +58,7 @@ class SimActor:
             t = self.robot.clock(t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st
-        return observe.data.as_list(), state.data.as_list(), info.data.as_list(), dt_actual
+        return observe.list(), state.list(), info.list(), dt_actual
 
     def set_DT(self, DT):
         if self.robot.run.DT is None:

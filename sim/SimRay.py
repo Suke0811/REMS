@@ -78,9 +78,9 @@ class Sim:
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                robot.inpt.data = self._input_system.get_inputs(robot.inpt, timestamp=t)
+                robot.inpt.set(self._input_system.get_inputs(robot.inpt, timestamp=t))
             else:
-                robot.inpt.data = inpt.get_inputs(robot.inpt, timestamp=t)
+                robot.inpt.set(inpt.get_inputs(robot.inpt, timestamp=t))
             futs.append(robot_actor.reset.remote(robot.inpt, t))
         done = ray.get(futs)
         time.sleep(1)
@@ -165,9 +165,9 @@ class Sim:
     def return_handle(self, ret, t, ret_robot):
         inpt, robot, robot_actor, outputs = ret_robot
         observe, state, info, dt_actual = ret
-        robot.outpt.data = observe
-        robot.state.data = state
-        robot.info.data = info
+        robot.outpt.set(observe)
+        robot.state.set(state)
+        robot.info.set(info)
         for out in outputs:
             out.process(robot.state, robot.inpt, robot.outpt, t, robot.info)
 
@@ -175,10 +175,10 @@ class Sim:
             logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
                 robot.run.name,
                 np.round(dt_actual, 5), np.round(t, ROUND),
-                {k: round(v, ROUND) for k, v in inpt.data.items()},
-                {k: round(v, ROUND) for k, v in robot.state.data.items()},
-                {k: round(v, ROUND) for k, v in robot.outpt.data.items()},
-            robot.info.data))
+                {k: round(v, ROUND) for k, v in inpt.items()},
+                {k: round(v, ROUND) for k, v in robot.state.items()},
+                {k: round(v, ROUND) for k, v in robot.outpt.items()},
+            robot.info))
 
     def make_outputs(self):
         for inpt, robot, robot_actor, outputs in self._robots:

@@ -2,7 +2,7 @@ import time
 
 from sim.robots.RobotBase import RobotBase
 from sim.bind.Dynamixel.Dynamixel import Dynamixel
-from sim.type import DefBindRule as rule
+from sim.typing import BindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import *
 import numpy as np
 import ray
@@ -76,29 +76,25 @@ class ScalerHard(RobotBase):
 
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
-        self.inpt.data = inpt
-        self.dynamiexl_actor.drive.remote(inpt)
+        self.inpt.set(inpt)
+        self.dynamiexl_actor.drive.remote(self.inpt)
 
     def sense(self):
         # TODO: speedup this things
         if self.sense_ref:
             finished, self.sense_ref = ray.wait(self.sense_ref, num_returns=len(self.sense_ref))
             if finished:
-                self.outpt.data = ray.get(finished[-1])
+                self.outpt.set(ray.get(finished[-1]))
         self.sense_ref.append(self.dynamiexl_actor.sense.remote())
         return self.outpt
 
     def observe_state(self):
-        state = self.state.data.as_list()
-        self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state.data.as_list())
+        state = self.state.list()
+        self.state.set(self.fk(self.outpt))
+        self.calc_vel(pre_state=state, curr_state=self.state.list())
         return self.state
 
-    def calc_vel(self, pre_state, curr_state):
-        dx = (curr_state[0] - pre_state[0]) / self.run.DT
-        dy = (curr_state[1] - pre_state[1]) / self.run.DT
-        dz = (curr_state[2] - pre_state[2]) / self.run.DT
-        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+
 
     def close(self):
         self.dynamiexl_actor.close.remote()
@@ -113,8 +109,6 @@ class DynamiexlActor:
         self.data = data
         self.quite = False
         self.block = True
-        #self.queue_in = data.queue
-        # self.data_in = self.data.inpt
 
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
@@ -123,25 +117,20 @@ class DynamiexlActor:
         self.dynamixel.init()
         return True
 
-    def main_loop(self):
-        while not self.quite:
-            self.data_in.data = self.receive_data()
-            self.drive(self.data_in)
-
     def drive(self, inpt):
         # TODO: implement auto binding mechanism to remove this part
-        self.data.inpt = inpt
+        self.data.inpt.set(inpt)
         dynamixel_inpt = self.dynamixel.motors
         joint = self.data.frame2hard.bind(self.data.ik(inpt))
-        self.data.joint_space.data = joint
-        dynamixel_inpt.data = joint
-        dynamixel_inpt.data = self.data.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt)
+        self.data.joint_space.set(joint)
+        dynamixel_inpt.set(joint)
+        dynamixel_inpt.set(self.data.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt))
         self.dynamixel.drive(dynamixel_inpt, 0)
 
     def sense(self):
         s = self.dynamixel.sense()
-        s.data = self.hard2frame.bind(s)
-        self.data.outpt.data = s.data.as_list()
+        s.set(self.hard2frame.bind(s))
+        self.data.outpt.set(s.list())
         return self.data.outpt#.data.as_list()
 
     def close(self):

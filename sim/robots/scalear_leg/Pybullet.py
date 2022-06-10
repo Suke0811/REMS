@@ -1,6 +1,6 @@
 from sim.robots.RobotBase import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
-from sim.type.definitions import *
+from sim.typing.definitions import *
 import time
 
 urdf_filename = '/home/yusuke/PycharmProjects/pySiLVIA_lib/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
@@ -11,40 +11,39 @@ class Pybullet(RobotBase):
         super().__init__()
         self.leg = 0
         self.other_leg = 1
+        self.run.DT = 0.01
 
 
     def init(self, *args):
         self.my_sim = pyb_sim(urdf_filename=urdf_filename, DoFnum=6, delta_t=self.run.DT)
         self.other_leg_pos = [0.25, 0.0, -0.25]
-        self.inpt.data = self.other_leg_pos
-        self.joint_space.data = self.ik(self.inpt)
-        self.joint_angles_other_leg = self.joint_space.data.as_list()
+        self.inpt.set(self.other_leg_pos)
+        self.joint_space.set(self.ik(self.inpt))
+        self.joint_angles_other_leg = self.joint_space.list()
 
 
     def drive(self, inpts, timestamp):
         #inputs: desired motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 legs
-        self.inpt = inpts
-        self.joint_space.data = self.ik(self.inpt)
-        joint_angles_leg = self.joint_space.data.as_list()
+        self.inpt.set(inpts)
+        self.joint_space.set(self.ik(self.inpt))
+        joint_angles_leg = self.joint_space.list()
         joint_angles_legs = [0]*12
         joint_angles_legs[6*self.leg:6*self.leg+6] = joint_angles_leg
         joint_angles_legs[6*self.other_leg:6*self.other_leg+6] = joint_angles_leg
         self.my_sim.movetoPose(joint_angles_legs)
 
-        return self.state
-
     def sense(self):
         # Return current motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 leg
         joint_angles_legs = self.my_sim.getJointAngles()
         joint_angles_leg = joint_angles_legs[6*self.leg:6*self.leg+6]
-        self.outpt.data = joint_angles_leg
+        self.outpt.set(joint_angles_leg)
 
         return self.outpt
 
     def observe_state(self):
-        state = self.state
-        self.state.set_data(self.fk(self.outpt))
-        self.calc_vel(pre_state=state, curr_state=self.state)
+        state = self.state.list()
+        self.state.set(self.fk(self.outpt))
+        self.calc_vel(pre_state=state, curr_state=self.state.list())
         return self.state
 
     def clock(self, t):
@@ -55,12 +54,4 @@ class Pybullet(RobotBase):
 
     def reset(self, *args):
         self.my_sim.reset()
-
-    def calc_vel(self, pre_state, curr_state):
-        prev_state = pre_state.data_as(POS_3D).data.as_list()
-        next_state = curr_state.data_as(POS_3D).data.as_list()
-        dx = (next_state[0] - prev_state[0]) / self.run.DT
-        dy = (next_state[1] - prev_state[1]) / self.run.DT
-        dz = (next_state[2] - prev_state[2]) / self.run.DT
-        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
 

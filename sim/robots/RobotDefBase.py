@@ -1,4 +1,4 @@
-from sim.type import DefDict
+from sim.typing import DefDict
 
 
 class RobotDefBase:

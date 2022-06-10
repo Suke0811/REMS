@@ -56,7 +56,7 @@ EULER_3D = dict(a=euler, b=euler, c=euler)
 
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)
-ROT_MAT_3D = DefDictData(r11=float, r12=float, r13=float,
+ROT_MAT_3D = dict(r11=float, r12=float, r13=float,
                   r21=float, r22=float, r23=float,
                   r31=float, r32=float, r33=float,)
 
@@ -70,7 +70,7 @@ def T_mat_rule(r11, r12, r13,
                [0,0,0,1]])
 
 def Tmat2dict(row0,row1,row2,row3):
-    return DefDictData(r11=row0[0], r12=row0[1], r13=row0[2],
+    return dict(r11=row0[0], r12=row0[1], r13=row0[2],
                         r21=row1[0], r22=row1[1], r23=row1[2],
                         r31=row2[0], r32=row2[1], r33=row2[2],
                         x=row0[3], y=row1[3], z=row2[3])

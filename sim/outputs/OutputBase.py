@@ -1,5 +1,5 @@
-from sim.type.DefDict import DefDict
-from sim.utils.tictoc import tictoc
+from sim.typing import DefDict
+from sim.utils import tictoc
 
 class OutputBase:
     def __init__(self):
@@ -28,7 +28,7 @@ class OutputBase:
     def to_dict(self, data):
         ret = {}
         if isinstance(data, DefDict):
-            ret = data.data
+            ret = data.get()
         return ret
 
     def make_output(self):

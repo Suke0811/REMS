@@ -8,23 +8,21 @@ SEPARATOR = '.'
 
 class DefDict:
     reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
-    def __init__(self, definition, dtype=Any, rule=None, name=None, prefixes=None, suffixes=None):
+    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, ):
         self._definition = dict()
         self._data = dict()
         self._name = name
-        self.out_rule = rule
+        self.format_rule = format_rule
         self.suffixes = []
         self.prefixes = []
 
-        # if args dtype=type was not specified, here we figure out if the last element is type
-        # if isinstance(definition[-1], type) or definition[-1] is Any:
-        #     dtype=definition[-1]
-        #     definition = definition[0:-1]
-        # for d in definition:    # add as many definition as you want
-        #     self.add_definition(d, dtype)
-        #     if isinstance(d, DefDict) and suffixes:
-        #         self._add_suffix(d.list_keys())
-        self.add_definition(definition, dtype)
+        if isinstance(definition, tuple):
+            for d in definition:    # add as many definition as you want
+                self.add_definition(d, dtype)
+                if isinstance(d, DefDict) and suffixes:
+                    self._add_suffix(d.list_keys())
+        else:
+            self.add_definition(definition, dtype)
 
         if prefixes is not None:
             if isinstance(prefixes, dict):
@@ -67,9 +65,9 @@ class DefDict:
             return self.list_keys()
 
     def as_ruled(self):
-        if self.out_rule is None:
+        if self.format_rule is None:
             return self._data
-        return self.out_rule.bind(self._data)
+        return self.format_rule.bind(self._data)
 
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
@@ -150,6 +148,11 @@ class DefDict:
     def set(self, ndata):
         if ndata is None:
             return
+        if self.format_rule is not None:
+            try:
+                ndata = self.format_rule.inv_bind(ndata)
+            except:
+                pass
         if isinstance(ndata, DefDict):
             ndata = ndata.data
         if isinstance(ndata, dict):
@@ -243,7 +246,7 @@ class DefDict:
                 k, v = key
                 self._data[k] = self._enforce_type(self.DEF[k], v)
             else:
-                self._data[k] = self._enforce_type(self.DEF[k], data[i])
+                self._data[key] = self._enforce_type(self.DEF[key], data[i])
 
     def _enforce_type(self, d_type, value):
         if d_type is Any:   # If the type is Any, no enforcement

@@ -1,7 +1,7 @@
 from sim.robots.RobotBase import RobotBase
 from sim.utils.neural_network import NeuralNetwork
-from sim.type.definitions import *
-from sim.utils.tictoc import tictoc
+from sim.typing.definitions import *
+from sim.utils import tictoc
 
 class KinematicModel(RobotBase):
     def __init__(self):
@@ -18,11 +18,11 @@ class KinematicModel(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: PUT VELOCITY FUNCTION SAME AS OTHER FUNCTIONS HERE
         prev_joints = self.joint_space
-        prev_joints = prev_joints.data_as(joint_pos(6)).data.list()
+        prev_joints = prev_joints.format(joint_pos(6)).list()
 
-        self.inpt = inpt
-        self.joint_space.data = self.ik(self.inpt)
-        next_joints = self.joint_space.data.list()
+        self.inpt.set(inpt)
+        self.joint_space.set(self.ik(self.inpt))
+        next_joints = self.joint_space.list()
 
         # add neural network
         # convert param values from auto tuner format into the neural network format
@@ -35,11 +35,11 @@ class KinematicModel(RobotBase):
         dj5 = (next_joints[5] - prev_joints[5]) / self.run.DT
 
         self.outpt = self.joint_space
-        self.task_space.data = self.fk(self.joint_space)
-        prev_state = self.state.data_as(POS_3D).data.list()
+        self.task_space.set(self.fk(self.joint_space))
+        prev_state = self.state.format(POS_3D).list()
 
-        self.state.data = self.task_space
-        next_state = self.state.data_as(POS_3D).data.list()
+        self.state.set(self.task_space)
+        next_state = self.state.format(POS_3D).list()
 
 
         dx  = (next_state[0] - prev_state[0])/self.run.DT
@@ -54,9 +54,9 @@ class KinematicModel(RobotBase):
         dx = dx + NN_output[0]*self.run.DT
         dy = dy + NN_output[1]*self.run.DT
 
-        self.state.data = {'d_x': dx, 'd_y': dy, 'd_z': dz}
+        self.state.set({'d_x': dx, 'd_y': dy, 'd_z': dz})
 
-        return self.state.data_as(VEL_POS_3D).data.list()
+        return self.state.format(VEL_POS_3D).list()
 
     def sense(self):
         return self.outpt

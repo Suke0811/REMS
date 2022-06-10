@@ -1,6 +1,6 @@
 from sim.robots.DeviceBase import DeviceBase
-from sim.type import DefDict
-from sim.type import definitions as DEF
+from sim.typing import DefDict
+from sim.typing import definitions as DEF
 from sim.bind.Dynamixel.DynamixelTable import DynamiexX
 import logging, time
 import numpy as np
@@ -14,12 +14,12 @@ def dynamixel_id(id_list, dtype, prefix=''):
 
 def dynamixel_sensor_def(driver_def: DefDict):
     d = DefDict(dict(j=DEF.angular_position, d_j=DEF.angular_velocity))
-    ret = DefDict(driver_def.data.list(), d)
+    ret = DefDict(driver_def.list(), d)
     return ret
 
 
 class Dynamixel(DeviceBase):
-    def __init__(self, id_list, slave_ids=None, device_port='COM3'):
+    def __init__(self, id_list, slave_ids=None, device_port='/dev/ttyUSB0'):
         self.device_port = device_port
         self.packet = x.PacketHandler(DynamiexX.PROTOCOL_VERSION)
         self.ids = [int(i) for i in id_list]
@@ -27,10 +27,10 @@ class Dynamixel(DeviceBase):
             self.ids.extend([int(i) for i in slave_ids])
         self.motors = DefDict(dynamixel_id(self.ids, DEF.angular_position))
         # TODO chage to use nested DefDict?
-        self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'))
-        self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
-        self.motor_sensors = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'))
-        self.enabled_ids = {k: False for k, v in self.motors.data.items()}  # TODO: change to use DefDict
+        self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), prefixes='j')
+        self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'),prefixes='d_j')
+        self.motor_sensors = DefDict((dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.')),prefixes=['j','d_j'])
+        self.enabled_ids = {k: False for k, v in self.motors.items()}  # TODO: change to use DefDict
         self.read_vel = False
 
     def init(self):
@@ -96,8 +96,8 @@ class Dynamixel(DeviceBase):
             self._sync_read(self.motor_pos, DynamiexX.PRESENT_POSITION)
         else:
             self._sync_read(self.motor_vel, DynamiexX.PRESENT_VELOCITY)
-        self.motor_sensors.data = self.motor_pos
-        self.motor_sensors.data = self.motor_vel
+        self.motor_sensors.set(self.motor_pos)
+        self.motor_sensors.set(self.motor_vel)
         return self.motor_sensors
 
     def __del__(self):
@@ -106,7 +106,7 @@ class Dynamixel(DeviceBase):
     def _sync_write(self, values:DefDict, table, value_overwrite=None):
         # TODO use bulk instead (table def added when add params)
         write = x.GroupSyncWrite(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+        for id, val in zip(values.id().list_key(), values.list()):
             if value_overwrite is not None: val = value_overwrite
             write.addParam(int(id), table.from_unit(val))
         result = self.func_retry(write.txPacket, success_condition=x.COMM_SUCCESS)
@@ -115,31 +115,31 @@ class Dynamixel(DeviceBase):
     def _sync_read(self, values: DefDict, table):
         # TODO use bulk instead (table def added when add params)
         read = x.GroupSyncRead(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+        for id, val in zip(values.id().list_key(), values.list()):
             read.addParam(int(id))
         read.txRxPacket()
         #self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        for id, key in zip(values.data.get_key_suffix(), values.data.key_as_list()):
+        for id, key in zip(values.id().list_key(), values.list_keys()):
             result = read.isAvailable(int(id), table.ADDR, table.LEN)
             if result:
                 # Get Dynamixel present position value
-                values.data[key] = table.to_unit(read.getData(int(id), table.ADDR, table.LEN))
+                values[key] = table.to_unit(read.getData(int(id), table.ADDR, table.LEN))
         read.clearParam()
         return values
 
     def _bulk_read(self, values, tables):
         for table in tables:
-            for id, val in zip(values.data.get_key_suffix(), values.data.as_list()):
+            for id, val in zip(values.id().list_key(), values.list()):
                 self.read.addParam(int(id), table.ADDR, table.LEN)
             self.func_retry(self.read.txRxPacket, success_condition=x.COMM_SUCCESS)
         readt = time.perf_counter()
         # logging.info(f" read {readt - apt}")
         for table in tables:
-            for id, key in zip(values.data.get_key_suffix(), values.data.list_keys()):
+            for id, key in zip(values.id().list_key(), values.list_keys()):
                 result = self.read.isAvailable(int(id), table.ADDR, table.LEN)
                 if result:
                     # Get Dynamixel present position value
-                    values.data[key] = table.to_unit(self.read.getData(int(id), table.ADDR, table.LEN))
+                    values[key] = table.to_unit(self.read.getData(int(id), table.ADDR, table.LEN))
         self.read.clearParam()
         return values
         #self.read.

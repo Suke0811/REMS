@@ -55,13 +55,13 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 # add robots to simulation
 
 
-s.add_robot(ref_robot, (ref_csv,))
-s.add_robot(arm_2, (arm2_csv,))
+# s.add_robot(ref_robot, (ref_csv,))
+# s.add_robot(arm_2, (arm2_csv,))
 #s.add_robot(target_robot, (target_csv,))
 #s.add_robot(pybullet_robots,)
 #s.add_robot(pybullet_robots_2,)
 
-N = 4
+N = 1
 for n in range(N):
     s.add_robot(bind_robot(ScalerManipulator, Pybullet))
 

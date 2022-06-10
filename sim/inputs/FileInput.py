@@ -1,6 +1,6 @@
 from sim.inputs import InputBase
-from sim.type.definitions import *
-from sim.type import DefDict
+from sim.typing.definitions import *
+from sim.typing import DefDict
 import pandas as pd
 from sim.utils import tictoc
 
@@ -19,7 +19,7 @@ class FileInput(InputBase):
 
 
     def get_inputs(self, inpt: DefDict, timestamp=None):
-        inpt.set_data(self._find_input_by_timestamp(timestamp-self.timestamp_offset))
+        inpt.set(self._find_input_by_timestamp(timestamp-self.timestamp_offset))
         return inpt
 
     def if_exit(self):
@@ -33,7 +33,7 @@ class FileInput(InputBase):
         self.data = list(zip(*(df_dict[k] for k in rowNames.to_list())))  # zipping 2 lists to create list of tuple
         self._timestamps = list(df_dict[TIMESTAMP])
         # initiate _inpt with the first data
-        self._inpt.data = list(self.data[0])
+        self._inpt.set(list(self.data[0]))
 
 
     def _find_input_by_timestamp(self, timestamp):
@@ -42,7 +42,7 @@ class FileInput(InputBase):
         for t in _timestamps:
             if t > timestamp:
                 self.time_index = self._timestamps.index(t)
-                self._inpt.data = list(self.data[self.time_index])
+                self._inpt.set(list(self.data[self.time_index]))
                 return self._inpt
 
 
