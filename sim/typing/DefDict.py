@@ -54,7 +54,7 @@ class DefDict:
 
     def get(self, format=None, flatten=None):
         if format is None:
-            return self._data
+            return self.data
         else:
             return self.filter(format)
 
@@ -66,8 +66,8 @@ class DefDict:
 
     def as_ruled(self):
         if self.format_rule is None:
-            return self._data
-        return self.format_rule.bind(self._data)
+            return self.data
+        return self.format_rule.bind(self.data)
 
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
@@ -79,12 +79,12 @@ class DefDict:
             if prefix is None:
                 k_seq.pop(0)
                 d.add_definition({SEPARATOR.join(k_seq): self.DEF[k]})
-                d.set((SEPARATOR.join(k_seq), self.get(k)))
+                d._data[SEPARATOR.join(k_seq)] = self._data.get(k)
             else:
                 if prefix in k_seq:
                     k_seq.remove(prefix)
                     d.add_definition({SEPARATOR.join(k_seq): self.DEF[k]})
-                    d.set((SEPARATOR.join(k_seq), self.get(k)))
+                    d._data[SEPARATOR.join(k_seq)] = self._data.get(k)
         return d
 
     def _add_prefix(self, prefixes):
@@ -123,23 +123,19 @@ class DefDict:
             for k, v in self.items():
                 if isinstance(v, DefDict):
                     d.add_definition({k: v.DEF[name]})
-                    d.set((k, v.get(name)))
+                    d._data[k] = v._data.get(name)
                 elif isinstance(v, dict):
                     d.add_definition({k: v[name]})
-                    d.set((k, v.get(name)))
+                    d._data[k] = v.get(name)
                 elif k == name:
                     d.add_definition({k: self.DEF[k]})
-                    d.set((k, v))
+                    d._data[k] = v
             return d
         setattr(self, name, method.__get__(self))
 
     @property
     def data(self):
-        return self._data
-
-    @data.getter
-    def data(self):
-        return self.get()
+        return {k: v[0] for k, v in self._data.items()}
 
     @data.setter
     def data(self, ndata):
@@ -170,6 +166,7 @@ class DefDict:
         return self
 
     def format(self, ndata):
+        """format dose not change the stored data, but format the input into current definition"""
         d = copy.deepcopy(self)
         return d.set(ndata)
 
@@ -202,8 +199,8 @@ class DefDict:
                 if isinstance(v, type):
                     keys.append(k)
                 else:
-                    self._data[k] = v
-                    v = type(v)
+                    self._data[k] = [v]
+
             self._definition.update(ndef)
         elif isinstance(ndef, list):
             self._definition.update(dict.fromkeys(ndef, type_))
@@ -219,22 +216,22 @@ class DefDict:
         for k, v in self._definition.items():
             if k in keys:
                 try:
-                    self._data[k] = v()
+                    self._data[k] = [v()]
                 except TypeError:
-                    self._data[k] = None    # maybe a different way of initialization?
+                    self._data[k] = [v]   # maybe a different way of initialization?
 
     def _dict2dict(self, data: dict):
         extra_data = {}
         stored_data_keys = []
         for k, v in data.items():
             if k in self._data.keys():
-                self._data[k] = self._enforce_type(self.DEF[k], v)
+                self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
-                extra_data[k] = v
-        if not extra_data:
+                extra_data[k][0] = v
+        if extra_data:
             # TODO: binding implementation
-            pass
+            return
             self.bind_from(extra_data, stored_data_keys)
 
     def _list2dict(self, data):
@@ -244,22 +241,22 @@ class DefDict:
                 break
             if isinstance(key, tuple):
                 k, v = key
-                self._data[k] = self._enforce_type(self.DEF[k], v)
+                self._data[k][0] = self._enforce_type(self.DEF[k], v)
             else:
-                self._data[key] = self._enforce_type(self.DEF[key], data[i])
+                self._data[key][0] = self._enforce_type(self.DEF[key], data[i])
 
     def _enforce_type(self, d_type, value):
         if d_type is Any:   # If the type is Any, no enforcement
             ret = value
-        try:
-            ret = d_type(value)
-        except TypeError:
-            ret = value
+        else:
+            try:
+                ret = d_type(value)
+            except TypeError:
+                ret = value
         return ret    # Enforce type in the corresponding definition
 
-
-    def bind_from(self, data, ignored_keys=None):
-        pass
+    def bind(self, bind_rule):
+        self.set(bind_rule.bind(self.get()))
 
     def assert_data(self, data=None):
         if data is None:
@@ -267,13 +264,13 @@ class DefDict:
         else:
             data = dict(data)
         assert (len(data) == len(self.DEF))
-        assert (all(type(x) == y for x, y in zip(data.list(), self.DEF.list())))
+        assert (all(type(x) == y for x, y in zip(data.values(), self.DEF.values())))
 
     def filter(self, keys):
         if isinstance(keys, dict):
             keys = list(keys.keys())
         if isinstance(keys, str):
-            return self._data[keys]
+            return self._data[keys][0]
         if isinstance(keys, int):
             keys = [str(keys)]
         if not isinstance(keys, list):
@@ -283,7 +280,7 @@ class DefDict:
         d = copy.deepcopy(self)
         d.clear()
         d.add_definition({k: self.DEF[k] for k in keys})
-        d.set({k: self._data[k] for k in keys})
+        d.set({k: self._data[k][0] for k in keys})
         return d    #DefDict
 
     def filter_data(self, data):
@@ -303,7 +300,7 @@ class DefDict:
         return DefDict({keys[index]: vals[index] for index in found})
 
     def __str__(self):
-        return self._data.__str__()
+        return self.data.__str__()
 
 ###################################################################
     #dictionary methods
@@ -318,7 +315,7 @@ class DefDict:
 
     def items(self):  # real signature unknown; restored from __doc__
         """ D.items() -> a set-like object providing a view on D's items """
-        return self._data.items()
+        return self.data.items()
 
     def pop(self, keys, d=None):  # real signature unknown; restored from __doc__
         """
@@ -331,7 +328,7 @@ class DefDict:
             k = [keys]
         for k in keys:
             if k in self._data.keys():
-                rets.append(self._data.get(k))
+                rets.append(self._data.get(k)[0])
                 self.init_data(k)
             else:
                 rets.append(d)
@@ -362,13 +359,16 @@ class DefDict:
 
     def values(self):  # real signature unknown; restored from __doc__
         """ D.values() -> an object providing a view on D's values """
-        return self._data.values()
+        return self.data.values()
 
     def __setitem__(self, key, value):
         if key in self.DEF.keys():
-            self._data.__setitem__(key, value)
+            self._data.__setitem__(key, [value])
         else:
             raise KeyError(f'Key {key} is not in definition')
 
     def __getitem__(self, item):
-        return self._data.__getitem__(item)
+        return self._data.__getitem__(item)[0]
+
+
+

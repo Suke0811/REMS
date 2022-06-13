@@ -4,7 +4,7 @@ import ray
 @ray.remote
 class DeviceActor(DeviceBase):
     def __init__(self, device):
-        self.device = device
+        self.device = device()
 
     def init(self):
         self.open()
@@ -26,8 +26,4 @@ class DeviceActor(DeviceBase):
         return self.device.sense()
 
     def observe_state(self):
-        pass
-
-    def __del__(self):
-        self.enable(False)
-        self.close()
+        return self.device.observe_state()

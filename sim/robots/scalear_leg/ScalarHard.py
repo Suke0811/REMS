@@ -11,14 +11,14 @@ import ray
 class ScalerHard(RobotBase):
     ID_LISTs = []
     ID_LIST_SLAVEs = []
-    ID_LISTs.append([str(n) for n in [1, 2, 3, 13, 14, 15, ]])
-    ID_LIST_SLAVEs.append([str(n) for n in [101, 102, 103]])
-    ID_LISTs.append([str(n) for n in [4, 5, 6, 16, 17, 18, ]])
-    ID_LIST_SLAVEs.append([str(n) for n in [104, 105, 106]])
-    ID_LISTs.append([str(n) for n in [7, 8, 9, 19, 20, 21, ]])
-    ID_LIST_SLAVEs.append([str(n) for n in [107, 108, 109]])
-    ID_LISTs.append([str(n) for n in [10, 11, 12, 22, 23, 24, ]])
-    ID_LIST_SLAVEs.append([str(n) for n in [110, 111, 112]])
+    ID_LISTs.append([1, 2, 3, 13, 14, 15, ])
+    ID_LIST_SLAVEs.append([101, 102, 103])
+    ID_LISTs.append([4, 5, 6, 16, 17, 18, ])
+    ID_LIST_SLAVEs.append([104, 105, 106])
+    ID_LISTs.append([7, 8, 9, 19, 20, 21,])
+    ID_LIST_SLAVEs.append([107, 108, 109])
+    ID_LISTs.append([10, 11, 12, 22, 23, 24,])
+    ID_LIST_SLAVEs.append([110, 111, 112])
 
     ZERO_OFFSET = np.array([1.0 for _ in ID_LISTs[0]]) * np.pi
 
@@ -55,14 +55,12 @@ class ScalerHard(RobotBase):
         self.ID_LIST_SLAVE = self.ID_LIST_SLAVEs[self.arm_id]
         self.OFFSET = self.OFFSETs[self.arm_id]
         self.DIR = self.DIRs[self.arm_id]
-        # slave joints are coupled to certain servos
-        self.JOINT_SLAVE_ID_BIND = rule(self.ID_LIST, lambda *vals: [i for i in vals], self.ID_LIST_SLAVE)
-        #self.dynamixel = Dynamixel(self.ID_LIST, self.ID_LIST_SLAVE, self.dynamiex_port)
+
         # binding rule
         # joint and main ids are positional match
-        self.JOINT_ID_BIND = rule(self.joint_space.DEF.key_as_list(), None, self.ID_LIST)
+        self.JOINT_ID_BIND = rule(self.joint_space.list_keys(), None, self.ID_LIST)
         # Hardware offset rule (from frame to hardware value)
-        self.frame2hard = rule(self.joint_space.DEF.key_as_list(),
+        self.frame2hard = rule(self.joint_space.list_keys(),
                                lambda *vals: wrap_to_2pi((np.array(vals)+self.OFFSET) * self.DIR))
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
@@ -77,7 +75,7 @@ class ScalerHard(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.set(inpt)
-        self.dynamiexl_actor.drive.remote(self.inpt)
+        self.dynamiexl_actor.drive.remote(inpt)
 
     def sense(self):
         # TODO: speedup this things
@@ -93,8 +91,6 @@ class ScalerHard(RobotBase):
         self.state.set(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state.list())
         return self.state
-
-
 
     def close(self):
         self.dynamiexl_actor.close.remote()
@@ -112,7 +108,7 @@ class DynamiexlActor:
 
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
-        self.hard2frame = rule(self.dynamixel.motor_pos.DEF.key_as_list(),
+        self.hard2frame = rule(self.dynamixel.motors_outpt.list_keys(),
                                lambda *vals: wrap_to_pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamixel.init()
         return True
@@ -124,43 +120,15 @@ class DynamiexlActor:
         joint = self.data.frame2hard.bind(self.data.ik(inpt))
         self.data.joint_space.set(joint)
         dynamixel_inpt.set(joint)
-        dynamixel_inpt.set(self.data.JOINT_SLAVE_ID_BIND.bind(dynamixel_inpt))
-        self.dynamixel.drive(dynamixel_inpt, 0)
+        #self.dynamixel.drive(dynamixel_inpt, 0)
 
     def sense(self):
         s = self.dynamixel.sense()
-        s.set(self.hard2frame.bind(s))
-        self.data.outpt.set(s.list())
-        return self.data.outpt#.data.as_list()
+        #s.set(self.hard2frame.bind(s))
+        #self.data.outpt.set(s.list())
+        return self.data.outpt
 
     def close(self):
         self.dynamixel.close()
         return False
-
-if __name__ == '__main__':
-    from sim.robots.bind_robot import bind_robot
-    from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
-
-    d = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0')
-    d.init()
-    d.reset()
-    i = d.inpt
-
-    i.data = [0,0,-0.350]
-    c = True
-    N = 10000
-    for n in range(N):
-        if n % 100 == 0:
-            if c:
-                i.data = [0,0, -0.25]
-                c = False
-            else:
-                i.data = [0,0,-0.35]
-                c = True
-        d.drive(i, 0)
-        #t = d.clock(n)
-        time.sleep(0.1)
-        print(n)
-        #d.sense()
-
 

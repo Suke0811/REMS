@@ -38,7 +38,7 @@ s.set_input(i_helix)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB1', 3)
+#ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB1', 3)
 
 arm_2 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0', 2)
 target_robot = bind_robot(ScalerManipulator, KinematicModel)
@@ -56,12 +56,12 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 
 # s.add_robot(ref_robot, (ref_csv,))
-# s.add_robot(arm_2, (arm2_csv,))
+s.add_robot(arm_2, (arm2_csv,))
 #s.add_robot(target_robot, (target_csv,))
 #s.add_robot(pybullet_robots,)
 #s.add_robot(pybullet_robots_2,)
 
-N = 1
+N = 0
 for n in range(N):
     s.add_robot(bind_robot(ScalerManipulator, Pybullet))
 

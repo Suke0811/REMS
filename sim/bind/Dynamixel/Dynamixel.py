@@ -2,35 +2,47 @@ from sim.robots.DeviceBase import DeviceBase
 from sim.typing import DefDict
 from sim.typing import definitions as DEF
 from sim.bind.Dynamixel.DynamixelTable import DynamiexX
+from sim.typing import BindRule as rule
 import logging, time
 import numpy as np
 import dynamixel_sdk as x
 
 DEFAULT_SPEED = 2
 DEFAULT_ACC = 3
-ID = 'id'
+ID = 'ID'
 def dynamixel_id(id_list, dtype, prefix=''):
-    return DEF.define(prefix, id_list, dtype, separater='')
+    return DEF.define(prefix, id_list, dtype)
 
 def dynamixel_sensor_def(driver_def: DefDict):
     d = DefDict(dict(j=DEF.angular_position, d_j=DEF.angular_velocity))
     ret = DefDict(driver_def.list(), d)
-    return ret
+    return d
 
+MOTOR = DefDict(dict(pos=np.pi, vel=DEFAULT_SPEED, acc=DEFAULT_ACC, on=False))
+def define_motor(id_lists):
+    d = DEF.define(prefix=ID, num=id_lists, type_=MOTOR)
+    return DefDict(d, name='dynamixel', prefixes=ID, suffixes=MOTOR.list_keys())
+
+default_func = (None, None)
 
 class Dynamixel(DeviceBase):
-    def __init__(self, id_list, slave_ids=None, device_port='/dev/ttyUSB0'):
+    def __init__(self, id_lists, slave_ids=None, device_port='/dev/ttyUSB0', offset_func=default_func):
         self.device_port = device_port
         self.packet = x.PacketHandler(DynamiexX.PROTOCOL_VERSION)
-        self.ids = [int(i) for i in id_list]
+
+        self.ids = id_lists
         if slave_ids and slave_ids is not None:
-            self.ids.extend([int(i) for i in slave_ids])
-        self.motors = DefDict(dynamixel_id(self.ids, DEF.angular_position))
-        # TODO chage to use nested DefDict?
-        self.motor_pos = DefDict(dynamixel_id(id_list, DEF.angular_position,'j.'), prefixes='j')
-        self.motor_vel = DefDict(dynamixel_id(id_list, DEF.angular_velocity, 'd_j.'),prefixes='d_j')
-        self.motor_sensors = DefDict((dynamixel_id(id_list, DEF.angular_position,'j.'), dynamixel_id(id_list, DEF.angular_velocity, 'd_j.')),prefixes=['j','d_j'])
-        self.enabled_ids = {k: False for k, v in self.motors.items()}  # TODO: change to use DefDict
+            self.ids.extend(slave_ids)
+
+        # motor sensing is only for masters
+        self.motors_outpt = define_motor(id_lists)
+        # motor input is for all
+        self.motors_inpt = define_motor(id_lists)
+        self.slave_bind = rule(id_lists, None, slave_ids)
+
+        self.toDynamixel = rule(None, offset_func[0])
+        self.fromDynamixel = rule(self.motors_outpt.list_keys(), offset_func[1])
+
         self.read_vel = False
 
     def init(self):
@@ -38,17 +50,14 @@ class Dynamixel(DeviceBase):
         if self.open():
             self.restart()
             self.enable(enable=True)
-            self.read = x.GroupBulkRead(self.port, self.packet)
-            self._sync_write(self.motors, DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
-            self._sync_write(self.motors, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
-            self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
-            self._sync_write(self.motors, DynamiexX.PROFILE_ACCELERATION, DEFAULT_SPEED)
+            self._sync_write(self.motors_inpt.ID(), DynamiexX.OPERATING_MODE, DynamiexX.OPERATING_MODE.POS_MODE)
+            self._sync_write(self.motors_inpt.ID().vel(), DynamiexX.PROFILE_VELOCITY)
+            self._sync_write(self.motors_inpt.ID().acc(), DynamiexX.PROFILE_ACCELERATION)
 
     def open(self):
         if not self.port.is_open:
             self.port.openPort()
             self.port.setBaudRate(DynamiexX.BAUDRATE)
-
         if self.port.is_open:
             logging.info('Dynamixel Connected')
             return True
@@ -58,13 +67,12 @@ class Dynamixel(DeviceBase):
 
     def close(self):
         if self.port.is_open:
-            self.homing()
             self.enable(False)
             self.port.closePort()
             logging.info('Dynamixel port closed')
 
     def homing(self):
-        self._sync_write(self.motors, DynamiexX.GOAL_POSITION, np.pi)
+        self._sync_write(self.motors_inpt.ID().pos(), DynamiexX.GOAL_POSITION, np.pi)
         time.sleep(1)   # TODO: wait till the motor reach the target position
 
     def enable(self, enable):
@@ -74,13 +82,13 @@ class Dynamixel(DeviceBase):
                                          args=(self.port, id, DynamiexX.TORQUE_ENABLE.ADDR, enable),
                                          success_condition=x.COMM_SUCCESS)
                 if result == x.COMM_SUCCESS:
-                    self.enabled_ids[str(id)] = enable
-            if sum(self.enabled_ids.values()) == len(self.ids):
-                logging.info('enabled {}'.format(self.enabled_ids))
+                    self.motors_inpt.ID(str(id)).enabled().set(enable)
+            if sum(self.motors_inpt.enabled().list()) == len(self.ids):
+                logging.info(f'enabled {self.motors_inpt.enabled()}')
                 return True
             else:
                 if enable:
-                    logging.info('Could not enabled {}'.format(self.enabled_ids))
+                    logging.info(f'Could not enabled {self.motors_inpt.enabled()}')
                     raise ConnectionError(f"Dynamixel could not enabled")
                 else:
                     logging.info('Disabled')
@@ -88,17 +96,17 @@ class Dynamixel(DeviceBase):
 
     def drive(self, inpt: DefDict, timestamp):
         # TODO: change this so that each motor could have different mode
-        self._sync_write(inpt, DynamiexX.PROFILE_VELOCITY, DEFAULT_SPEED)
-        self._sync_write(inpt, DynamiexX.GOAL_POSITION)
+        self.motors_inpt.set(self.slave_bind.bind(inpt))
+        self._sync_write(self.motors_inpt.ID().vel(), DynamiexX.PROFILE_VELOCITY)
+        self._sync_write(self.motors_inpt.ID().pos().bind(self.toDynamixel), DynamiexX.GOAL_POSITION)
 
     def sense(self):
         if not self.read_vel:
-            self._sync_read(self.motor_pos, DynamiexX.PRESENT_POSITION)
+            self._sync_read(self.motors_outpt.ID().pos(), DynamiexX.PRESENT_POSITION)
+            self.motors_outpt.ID.pos().bind(self.fromDynamixel)
         else:
-            self._sync_read(self.motor_vel, DynamiexX.PRESENT_VELOCITY)
-        self.motor_sensors.set(self.motor_pos)
-        self.motor_sensors.set(self.motor_vel)
-        return self.motor_sensors
+            self._sync_read(self.motors_outpt.ID().vel(), DynamiexX.PRESENT_VELOCITY)
+        return self.motors_outpt
 
     def __del__(self):
         self.close()
@@ -106,7 +114,7 @@ class Dynamixel(DeviceBase):
     def _sync_write(self, values:DefDict, table, value_overwrite=None):
         # TODO use bulk instead (table def added when add params)
         write = x.GroupSyncWrite(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.id().list_key(), values.list()):
+        for id, val in zip(values.list_keys(), values.list()):
             if value_overwrite is not None: val = value_overwrite
             write.addParam(int(id), table.from_unit(val))
         result = self.func_retry(write.txPacket, success_condition=x.COMM_SUCCESS)
@@ -115,34 +123,17 @@ class Dynamixel(DeviceBase):
     def _sync_read(self, values: DefDict, table):
         # TODO use bulk instead (table def added when add params)
         read = x.GroupSyncRead(self.port, self.packet, table.ADDR, table.LEN)
-        for id, val in zip(values.id().list_key(), values.list()):
+        for id, val in zip(values.list_keys(), values.list()):
             read.addParam(int(id))
         read.txRxPacket()
         #self.func_retry(read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        for id, key in zip(values.id().list_key(), values.list_keys()):
+        for id, key in zip(values.list_keys(), values.list_keys()):
             result = read.isAvailable(int(id), table.ADDR, table.LEN)
             if result:
                 # Get Dynamixel present position value
                 values[key] = table.to_unit(read.getData(int(id), table.ADDR, table.LEN))
         read.clearParam()
         return values
-
-    def _bulk_read(self, values, tables):
-        for table in tables:
-            for id, val in zip(values.id().list_key(), values.list()):
-                self.read.addParam(int(id), table.ADDR, table.LEN)
-            self.func_retry(self.read.txRxPacket, success_condition=x.COMM_SUCCESS)
-        readt = time.perf_counter()
-        # logging.info(f" read {readt - apt}")
-        for table in tables:
-            for id, key in zip(values.id().list_key(), values.list_keys()):
-                result = self.read.isAvailable(int(id), table.ADDR, table.LEN)
-                if result:
-                    # Get Dynamixel present position value
-                    values[key] = table.to_unit(self.read.getData(int(id), table.ADDR, table.LEN))
-        self.read.clearParam()
-        return values
-        #self.read.
 
     def restart(self):
         # Try reboot
@@ -166,48 +157,4 @@ class Dynamixel(DeviceBase):
                 break
         return result
 
-
-if __name__ == '__main__':
-    import logging
-    l = logging.getLogger()
-    l.setLevel(logging.INFO)
-    d = Dynamixel([7, 8, 9, 19, 20, 21, ], device_port='/dev/ttyUSB0')
-    d.init()
-    i = DefDict({'10': float, '11': float, '12':float, '22':float, '23':float, '24':float})
-    i.data = [np.pi for _ in range(6)]
-    d.drive(i, 0)
-    import time
-
-    # time.sleep(2)
-    # d._sync_write(i, DynamiexX.PROFILE_VELOCITY, 5)
-    # print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
-    # i.data = [True, True]
-    # d._sync_write(i, DynamiexX.LED)
-    # d._sync_write(i.set_data([False, False]), DynamiexX.LED)
-    # d._sync_write(i, DynamiexX.GOAL_POSITION)
-    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
-    N = 500
-    st = time.perf_counter()
-    time.sleep(1)
-
-    i.data = [np.pi for _ in range(6)]
-    i.data = [3.13238716, 4.62341572, 4.33962942, 2.39147482, 3.1661347199999996, 3.1400570599999997]
-    c = True
-    for n in range(N):
-        if n % 50 == 0:
-            if c:
-                i.data = [3.13238716, 4.62341572, 4.33962942, 2.39147482, 3.1661347199999996, 3.1400570599999997]
-                c =False
-            else:
-                i.data = [np.pi for _ in range(6)]
-                c =True
-        d.drive(i, 0)
-        d.sense()
-
-    et = time.perf_counter()
-    print(d._sync_read(i, DynamiexX.PRESENT_POSITION).data.as_list())
-    print(et-st)
-    print((et-st)/N)
-    d.close()
-    pass
 

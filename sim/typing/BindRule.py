@@ -61,5 +61,4 @@ class BindRule:
                 self.bind_from.set(self.inv_bind_func(*self.bind_to.list()))
                 return self.bind_from.get()
             else:
-                print(*self.bind_to.list())
                 return self.inv_bind_func(*self.bind_to.list())
