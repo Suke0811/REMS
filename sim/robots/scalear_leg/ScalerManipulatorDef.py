@@ -22,7 +22,7 @@ class ScalerManipulator(RobotDefBase):
         # state is joint pos and vel
         self.state = DefDict((POS_3D, VEL_POS_3D))
         # sensors are joins pos and vel
-        self.outpt = DefDict(joint_pos(self.NUM_JOINTS), joint_vel(self.NUM_JOINTS), prefixes=['j','d_j'])
+        self.outpt = DefDict((joint_pos(self.NUM_JOINTS), joint_vel(self.NUM_JOINTS)), prefixes=['j', 'd_j'])
 
         self.joint_space = DefDict(joint_pos(self.NUM_JOINTS))
         # Task space is 3D position and quaternion

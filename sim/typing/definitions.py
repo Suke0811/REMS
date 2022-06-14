@@ -1,3 +1,5 @@
+import copy
+
 from sim.typing import DefDict, BindRule
 from typing import Any
 import numpy as np
@@ -100,11 +102,11 @@ def define(prefix, num, type_=Any, separater='.'):
     if isinstance(num, list):
         for n in num:
             key = prefix + separater + str(n)
-            ret[key] = type_
+            ret[key] = copy.deepcopy(type_)
     else:
         for i in range(num):
             key = prefix + separater + str(i)
-            ret[key] = type_
+            ret[key] = copy.deepcopy(type_)
     return ret
 
 def joint_pos(num):

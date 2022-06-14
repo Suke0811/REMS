@@ -31,20 +31,25 @@ class BindRule:
 
     def bind(self, data, bind_to=None):
         if self.bind_from is None:
-            return self.bind_func(*data)
+            bind_from = data
+        else:
+            bind_from = self.bind_from.set(data).list()
 
-        self.bind_from.set(data)
         if self.bind_to is None:
             if bind_to is not None:
                 self.bind_to = DefDict(bind_to, Any)
+
         if self.bind_func is None:
-            self.bind_to.set(self.bind_from.list())
+            if self.bind_to is None:
+                return bind_from
+            else:
+                return self.bind_to.set(bind_from)
         else:
             if self.bind_to is not None:
-                self.bind_to.set(self.bind_func(*self.bind_from.list()))
+                self.bind_to.set(self.bind_func(*bind_from))
                 return self.bind_to.get()
             else:
-                return self.bind_func(*self.bind_from.list())
+                return self.bind_func(*bind_from)
 
     def inv_bind(self, data, bind_from=None):
         if self.bind_to is None:

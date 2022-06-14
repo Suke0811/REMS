@@ -27,7 +27,7 @@ class DefDict:
         if prefixes is not None:
             if isinstance(prefixes, dict):
                 prefixes = list(prefixes.keys())
-            self._add_prefix(prefixes)
+            self._add_prefixes(prefixes)
         if suffixes is not None:
             if isinstance(suffixes, dict):
                 suffixes = list(suffixes.keys())
@@ -87,24 +87,26 @@ class DefDict:
                     d._data[SEPARATOR.join(k_seq)] = self._data.get(k)
         return d
 
-    def _add_prefix(self, prefixes):
+    def _add_prefixes(self, prefixes):
         if not isinstance(prefixes, list):
             prefixes = [prefixes]
         for name in prefixes:
-            if name in self.reserved:
-                raise AttributeError(f'the prefix {name} is reserved for DefDict')
-            if name in self.prefixes:
-                raise AttributeError(f'the prefix {name} is already registered')
-            self.prefixes.append(name)
+            self._add_prefix(name)
 
-            def method(self, ids=None):
-                if ids is None:
-                    return self.remove_prefix(name)
-                elif not isinstance(ids, list):
-                    ids = [ids]
-                return self.remove_prefix(name).filter(list(map(str, ids)))
+    def _add_prefix(self, name):
+        if name in self.reserved:
+            raise AttributeError(f'the prefix {name} is reserved for DefDict')
+        if name in self.prefixes:
+            raise AttributeError(f'the prefix {name} is already registered')
+        self.prefixes.append(name)
 
-            setattr(self, name, method.__get__(self))
+        def method(self, ids=None):
+            if ids is None:
+                return self.remove_prefix(name)
+            elif not isinstance(ids, list):
+                ids = [ids]
+            return self.remove_prefix(name).filter(ids)
+        setattr(self, name, method.__get__(self))
 
     def _add_suffixes(self, suffixes):
         if not isinstance(suffixes, list):
@@ -192,21 +194,22 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
-    def add_definition(self, ndef, type_=float):
+    def add_definition(self, ndef, dtype=Any):
         keys = []
         if isinstance(ndef, dict):
             for k, v in ndef.items():
-                if isinstance(v, type):
+                if isinstance(v, type) or v is Any:
+                    self._definition[k] = dtype
                     keys.append(k)
                 else:
+                    self._definition[k] = type(v)
                     self._data[k] = [v]
 
-            self._definition.update(ndef)
         elif isinstance(ndef, list):
-            self._definition.update(dict.fromkeys(ndef, type_))
+            self._definition.update(dict.fromkeys(ndef, dtype))
             keys.extend(ndef)
         elif isinstance(ndef, str):
-            self._definition[ndef] = type_
+            self._definition[ndef] = dtype
             keys.append(ndef)
         else:
             raise TypeError('You can only add str, dict, or list')
@@ -215,10 +218,13 @@ class DefDict:
     def init_data(self, keys):
         for k, v in self._definition.items():
             if k in keys:
-                try:
-                    self._data[k] = [v()]
-                except TypeError:
-                    self._data[k] = [v]   # maybe a different way of initialization?
+                if v is Any:
+                    self._data[k] = [float()] # what should be the init value?
+                else:
+                    try:
+                        self._data[k] = [v()]
+                    except TypeError:
+                        self._data[k] = [v]   # maybe a different way of initialization?
 
     def _dict2dict(self, data: dict):
         extra_data = {}
@@ -228,7 +234,8 @@ class DefDict:
                 self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
-                extra_data[k][0] = v
+                pass
+                #extra_data[k][0] = v
         if extra_data:
             # TODO: binding implementation
             return
@@ -251,12 +258,15 @@ class DefDict:
         else:
             try:
                 ret = d_type(value)
-            except TypeError:
+            except (TypeError, AttributeError):
                 ret = value
+            if not isinstance(ret, d_type):
+                raise TypeError(f'{ret} is not type of {d_type}')
         return ret    # Enforce type in the corresponding definition
 
     def bind(self, bind_rule):
         self.set(bind_rule.bind(self.get()))
+        return self
 
     def assert_data(self, data=None):
         if data is None:
@@ -270,7 +280,7 @@ class DefDict:
         if isinstance(keys, dict):
             keys = list(keys.keys())
         if isinstance(keys, str):
-            return self._data[keys][0]
+            keys = [keys]
         if isinstance(keys, int):
             keys = [str(keys)]
         if not isinstance(keys, list):
@@ -279,12 +289,12 @@ class DefDict:
         keys = map(str, keys)
         d = copy.deepcopy(self)
         d.clear()
-        d.add_definition({k: self.DEF[k] for k in keys})
-        d.set({k: self._data[k][0] for k in keys})
+        d.add_definition({k: self._data[k][0] for k in keys})
+        for k in keys:
+            d._data[k] = self._data[k]
         return d    #DefDict
 
     def filter_data(self, data):
-        raise NotImplemented
         if isinstance(data, dict):
             data = list(data.values())
         if not isinstance(data, list):
@@ -297,7 +307,12 @@ class DefDict:
                     found.append(i)
         keys = list(self.keys())
         vals = list(self.values())
-        return DefDict({keys[index]: vals[index] for index in found})
+        d = copy.deepcopy(self)
+        d.clear()
+        for index in found:
+            d.add_definition({keys[index]: vals[index]})
+            d._data[keys[index]] = vals[index]
+        return d
 
     def __str__(self):
         return self.data.__str__()
@@ -363,7 +378,7 @@ class DefDict:
 
     def __setitem__(self, key, value):
         if key in self.DEF.keys():
-            self._data.__setitem__(key, [value])
+            self._data[key][0] = value
         else:
             raise KeyError(f'Key {key} is not in definition')
 

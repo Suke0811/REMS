@@ -65,6 +65,9 @@ class ScalerHard(RobotBase):
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
+        motor = ray.get(self.dynamiexl_actor.get.remote('dynamixel', 'motors_outpt'))
+        self.hard2frame = rule(motor.list_keys()[0:6],
+                               lambda *vals: wrap_to_pi(np.array(vals) * self.DIR - self.OFFSET))
 
 
     def reset(self, inpt=None, t=None):
@@ -75,14 +78,18 @@ class ScalerHard(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.set(inpt)
-        self.dynamiexl_actor.drive.remote(inpt)
+        joint = self.frame2hard.bind(self.ik(inpt))
+        self.joint_space.set(joint)
+        self.dynamiexl_actor.drive.remote(joint)
 
     def sense(self):
         # TODO: speedup this things
         if self.sense_ref:
             finished, self.sense_ref = ray.wait(self.sense_ref, num_returns=len(self.sense_ref))
             if finished:
-                self.outpt.set(ray.get(finished[-1]))
+                ret = ray.get(finished[-1])
+                self.outpt.j().set(self.hard2frame.bind(ret.pos()))
+                self.outpt.d_j().set(ret.vel().list())
         self.sense_ref.append(self.dynamiexl_actor.sense.remote())
         return self.outpt
 
@@ -106,27 +113,25 @@ class DynamiexlActor:
         self.quite = False
         self.block = True
 
+    def get(self, *name):
+        attr = self
+        for n in name:
+            attr = getattr(attr, n)
+        return attr
+
     def init(self):
         self.dynamixel = Dynamixel(self.data.ID_LIST, self.data.ID_LIST_SLAVE, self.data.dynamiex_port)
-        self.hard2frame = rule(self.dynamixel.motors_outpt.list_keys(),
-                               lambda *vals: wrap_to_pi(np.array(vals) * self.data.DIR - self.data.OFFSET))
         self.dynamixel.init()
         return True
 
     def drive(self, inpt):
         # TODO: implement auto binding mechanism to remove this part
-        self.data.inpt.set(inpt)
-        dynamixel_inpt = self.dynamixel.motors
-        joint = self.data.frame2hard.bind(self.data.ik(inpt))
-        self.data.joint_space.set(joint)
-        dynamixel_inpt.set(joint)
-        #self.dynamixel.drive(dynamixel_inpt, 0)
+        dynamixel_inpt = self.dynamixel.motors_inpt
+        dynamixel_inpt.pos().set(inpt)
+        self.dynamixel.drive(dynamixel_inpt, 0)
 
     def sense(self):
-        s = self.dynamixel.sense()
-        #s.set(self.hard2frame.bind(s))
-        #self.data.outpt.set(s.list())
-        return self.data.outpt
+        return self.dynamixel.sense()
 
     def close(self):
         self.dynamixel.close()

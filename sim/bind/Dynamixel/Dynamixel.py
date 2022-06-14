@@ -38,10 +38,12 @@ class Dynamixel(DeviceBase):
         self.motors_outpt = define_motor(id_lists)
         # motor input is for all
         self.motors_inpt = define_motor(id_lists)
-        self.slave_bind = rule(id_lists, None, slave_ids)
+        self.slave_bind = rule(DEF.define(prefix=ID, num=id_lists),
+                               None,
+                               DEF.define(prefix=ID, num=slave_ids))
 
         self.toDynamixel = rule(None, offset_func[0])
-        self.fromDynamixel = rule(self.motors_outpt.list_keys(), offset_func[1])
+        self.fromDynamixel = rule(self.motors_outpt.pos().list_keys(), offset_func[1])
 
         self.read_vel = False
 
@@ -82,14 +84,14 @@ class Dynamixel(DeviceBase):
                                          args=(self.port, id, DynamiexX.TORQUE_ENABLE.ADDR, enable),
                                          success_condition=x.COMM_SUCCESS)
                 if result == x.COMM_SUCCESS:
-                    self.motors_inpt.ID(str(id)).enabled().set(enable)
-            if sum(self.motors_inpt.enabled().list()) == len(self.ids):
-                logging.info(f'enabled {self.motors_inpt.enabled()}')
+                    self.motors_inpt.ID(id).on().set(enable)
+            if sum(self.motors_inpt.on().list()) == len(self.ids):
+                logging.info(f'enabled {self.motors_inpt.on()}')
                 return True
             else:
                 if enable:
-                    logging.info(f'Could not enabled {self.motors_inpt.enabled()}')
-                    raise ConnectionError(f"Dynamixel could not enabled")
+                    logging.info(f'Could not enabled {self.motors_inpt.on()}')
+                    raise ConnectionError(f"Dynamixel could not enabled {self.motors_inpt.on()}")
                 else:
                     logging.info('Disabled')
         return False
@@ -98,14 +100,16 @@ class Dynamixel(DeviceBase):
         # TODO: change this so that each motor could have different mode
         self.motors_inpt.set(self.slave_bind.bind(inpt))
         self._sync_write(self.motors_inpt.ID().vel(), DynamiexX.PROFILE_VELOCITY)
-        self._sync_write(self.motors_inpt.ID().pos().bind(self.toDynamixel), DynamiexX.GOAL_POSITION)
+        self._sync_write(self.motors_inpt.pos().bind(self.toDynamixel).ID(), DynamiexX.GOAL_POSITION)
 
     def sense(self):
         if not self.read_vel:
             self._sync_read(self.motors_outpt.ID().pos(), DynamiexX.PRESENT_POSITION)
-            self.motors_outpt.ID.pos().bind(self.fromDynamixel)
+            self.motors_outpt.pos().bind(self.fromDynamixel)
+            self.read_vel = True
         else:
             self._sync_read(self.motors_outpt.ID().vel(), DynamiexX.PRESENT_VELOCITY)
+            self.read_vel = False
         return self.motors_outpt
 
     def __del__(self):

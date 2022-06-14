@@ -120,7 +120,7 @@ class Sim:
         while not config.if_time(t) and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
             if self.realtime is False or time.perf_counter() >= next_time:
                 self.run_robot(t)
-                self.process()
+                self.process(t)
                 t += self.DT
                 next_time += self.DT / config.run_speed     # manipulate run speed
         logging.info(f"loop time {time.perf_counter()-st}")
@@ -128,7 +128,7 @@ class Sim:
         self.close()
 
 
-    def process(self):
+    def process(self, t):
         return
         if self._processes:
             if self._processes_refs:
@@ -137,7 +137,7 @@ class Sim:
                     rets = (ray.get(finished[-1]))
 
             for pro in self._processes:
-                self._processes_refs.append(pro.process.remote())
+                self._processes_refs.append(pro.process.remote(t))
 
     def run_robot(self, t):
         self.get_ret()
