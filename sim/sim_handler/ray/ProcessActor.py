@@ -1,5 +1,5 @@
 import ray
-from sim.job_background import JobHandler
+
 
 @ray.remote(num_cpus=1)
 class ProcessActor:

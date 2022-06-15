@@ -1,8 +1,8 @@
 from sim.tuning import TuningSystem
 from sim.tuning import AutoTuner, AutoTuner2
 from sim.utils.neural_network import NeuralNetwork
-from sim.job_background.job_type import job_type
-from sim.job_background.job_return_type import job_return_type
+from sim.sim_handler.job_background.job_type import job_type
+from sim.sim_handler.job_background import job_return_type
 import numpy as np
 HORIZON = 1
 INIT_COV = 0.1 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet

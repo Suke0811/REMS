@@ -1,3 +1,3 @@
 from .BasicDeviceBase import BasicDeviceBase
-from .DriveBase import DriveBaseBasic
-from .SenseBase import SenseBaseBasic
+from .DriveBase import DriveBase
+from .SenseBase import SenseBase

@@ -1,7 +1,7 @@
 from time import perf_counter as time
 import logging
 import asyncio
-from sim.job_background.RayJobHandler import RayJobHandler as JobHandler
+from sim.sim_handler.job_background import RayJobHandler as JobHandler
 import numpy as np
 from sim.utils.tictoc import tictoc
 import signal

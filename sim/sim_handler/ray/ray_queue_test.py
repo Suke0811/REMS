@@ -1,8 +1,8 @@
 import ray
 from ray.util.queue import Queue, Empty
 import time
-from sim.type import DefDict
-from sim.type.definitions import *
+from sim.typing import DefDict
+from sim.typing.definitions import *
 from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.robots.bind_robot import bind_robot

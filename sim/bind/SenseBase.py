@@ -1,7 +1,7 @@
 from sim.bind import BasicDeviceBase
 
 
-class SenseBaseBasic(BasicDeviceBase):
+class SenseBase(BasicDeviceBase):
     def __init__(self):
         super().__init__()
         self.sensors = {}

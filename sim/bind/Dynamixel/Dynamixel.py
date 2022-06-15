@@ -41,7 +41,6 @@ class Dynamixel(DeviceBase):
         self.slave_bind = rule(DEF.define(prefix=ID, num=id_lists),
                                None,
                                DEF.define(prefix=ID, num=slave_ids))
-
         self.toDynamixel = rule(None, offset_func[0])
         self.fromDynamixel = rule(self.motors_outpt.pos().list_keys(), offset_func[1])
 

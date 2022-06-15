@@ -1,10 +1,9 @@
 import numpy as np
 
 from sim.process import ProcessSystem
-from sim.job_background.job_type import job_type
-from sim.job_background.job_return_type import job_return_type
-import time
-import numpy
+from sim.sim_handler.job_background.job_type import job_type
+from sim.sim_handler.job_background import job_return_type
+
 
 class TestProcess(ProcessSystem):
     def __init__(self):

@@ -2,7 +2,7 @@ from sim.inputs import InputBase
 import logging
 import pygame
 from sim.inputs.map.JOYSTICK_KEYMAP import *
-from sim.type import DefDict
+from sim.typing import DefDict
 
 
 class JoystickInput(InputBase):
@@ -12,12 +12,13 @@ class JoystickInput(InputBase):
         # for pygame
         self._joysticks = {}
         self.stick_name = []
-        self.buttons = {}
-        self.axes = {}
-        self.axes_deadzone = {}
+        self.buttons = None
+        self.axes = None
+        self.axes_deadzone = None
+
 
     def init(self, input_def=None):
-        super().init(input_def)
+        super().init()
         pygame.init()
         pygame.joystick.init()
         count = pygame.joystick.get_count()
@@ -46,13 +47,18 @@ class JoystickInput(InputBase):
     def __del__(self):
         pygame.quit()
 
-    def get_inputs(self, inpt_defDict: DefDict, timestamp=None):
+    def get_inputs(self, inpt_defDict: DefDict=None, timestamp=None):
         if not self.stick_name:
             self.init()
         self._capture_joystick()
+
         main_stick = self.stick_name[0]
-        inpt_defDict.data = self.axes[main_stick]
-        inpt_defDict.data = self.buttons[main_stick]
+
+        if inpt_defDict is None:
+            return self.axes[main_stick].get().update(self.buttons[main_stick])
+
+        inpt_defDict.set(self.axes[main_stick])
+        inpt_defDict.set(self.buttons[main_stick])
         return inpt_defDict
 
     def if_exit(self):
@@ -63,7 +69,7 @@ class JoystickInput(InputBase):
         pygame.event.pump()
         for name, joystick in self._joysticks.items():
             axes = []
-            deadzone = self.axes_deadzone[name].data.list()
+            deadzone = self.axes_deadzone[name].list()
             buttons = []
             # capture joystick values
             num_axes = joystick.get_numaxes()
@@ -74,8 +80,8 @@ class JoystickInput(InputBase):
             for i in range(num_button):
                 buttons.append(joystick.get_button(i))
 
-            self.axes[name].data = axes
-            self.buttons[name].data = buttons
+            self.axes[name].set(axes)
+            self.buttons[name].set(buttons)
 
     @staticmethod
     def _filter_stick(axis, deadzone):

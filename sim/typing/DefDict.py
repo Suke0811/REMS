@@ -328,6 +328,12 @@ class DefDict:
         """ D.copy() -> a shallow copy of D """
         return copy.copy(self)
 
+    def clone(self):
+        """
+        Deep copy of itself
+        """
+        return copy.deepcopy(self)
+
     def items(self):  # real signature unknown; restored from __doc__
         """ D.items() -> a set-like object providing a view on D's items """
         return self.data.items()

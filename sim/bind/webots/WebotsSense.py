@@ -1,8 +1,8 @@
-from sim.bind import SenseBaseBasic
-from sim.type import DefDict
+from sim.bind import SenseBase
+from sim.typing import DefDict
 import numpy as np
 
-class WebotsSense(SenseBaseBasic):
+class WebotsSense(SenseBase):
     def __init__(self, wb_robot, timestep, sensor_definition: DefDict):
         super().__init__()
         self._sensors = []

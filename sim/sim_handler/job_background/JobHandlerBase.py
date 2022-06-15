@@ -1,4 +1,4 @@
-from sim.job_background.job_type import job_type
+from sim.sim_handler.job_background.job_type import job_type
 
 class JobHandlerBase:
     def __init__(self):

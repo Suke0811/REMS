@@ -1,6 +1,5 @@
-from sim.job_background.job_type import job_type
-from sim.job_background.job_return_type import job_return_type
-from sim.job_background.JobHandlerBase import JobHandlerBase
+from sim.sim_handler.job_background.job_return_type import job_return_type
+from sim.sim_handler.job_background.JobHandlerBase import JobHandlerBase
 
 import ray
 

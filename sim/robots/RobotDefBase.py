@@ -17,10 +17,6 @@ class RobotDefBase:
         """Definitions of the robot"""
         raise NotImplementedError
 
-    def control(self, *args):
-        """run controller assigned to the robot"""
-        raise NotImplementedError
-
     def fk(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 

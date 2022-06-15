@@ -21,7 +21,7 @@ class X56THROTTLE(JOYSTIC_BASE):
               'Scroll_FWD', 'Scroll_BCK',
               'Ministick_Click'
               'SLD',
-              'M1', 'M2', 'S1'] #mode selection
+              'M1', 'M2', 'S1'] # mode selection
     axis = ['Left_Throttle', 'Right_Throttle', 'Rotary_F', 'Ministick_X', 'Ministick_Y', 'Rotary_G', 'Rotary_3', 'Rotary_4']
     axis_deadzone = [0.05 for i in axis]
 

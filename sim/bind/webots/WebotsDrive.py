@@ -1,9 +1,9 @@
-from sim.bind import DriveBaseBasic
-from sim.type import DefDict
-from sim.type import definitions as DEF
+from sim.bind import DriveBase
+from sim.typing import DefDict
+from sim.typing import definitions as DEF
 
 
-class WebotsDrive(DriveBaseBasic):
+class WebotsDrive(DriveBase):
     def __init__(self, wb_robot, motor_definition: DefDict):
         super().__init__()
         self._motors = motor_definition
@@ -20,9 +20,9 @@ class WebotsDrive(DriveBaseBasic):
                 self._set_velocity_mode(motor)
 
     def drive(self, inpt:DefDict, timestamp):
-        self.inpt = inpt
+        self.inpt.set(inpt)
         # send rotational velocity to each motor
-        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.data.list(), self._motors.data):
+        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.list(), self._motors.get()):
             if isinstance(type_, DEF.velocity):
                 self._set_velocity_mode(motor)
                 motor.setVelocity(value)

@@ -1,13 +1,11 @@
-import copy
 import logging
-import queue
 
-from sim.job_background import JobHandler as JobHandler
+from sim.sim_handler.job_background import JobHandler as JobHandler
 import numpy as np
 from sim.utils import tictoc, time_str
 from sim.SimActor import SimActor
 import ray, time, signal
-from sim.ray import ProcessActor
+from sim.sim_handler.ray import ProcessActor
 from sim.outputs import FileOutput
 from sim.Config import SimConfig
 
