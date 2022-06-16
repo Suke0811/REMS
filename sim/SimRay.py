@@ -3,12 +3,13 @@ import logging
 from sim.sim_handler.job_background import JobHandler as JobHandler
 import numpy as np
 from sim.utils import tictoc, time_str
-from sim.SimActor import SimActor
+from sim.sim_handler.ray.SimActor import SimActor
 import ray, time, signal
 from sim.sim_handler.ray import ProcessActor
 from sim.outputs import FileOutput
 from sim.Config import SimConfig
-
+from sim.robots.bind_robot import bind_robot
+from sim.sim_handler.ray import RobotRayWrapper as ray_robot
 ROUND = 2
 
 class Sim:
@@ -34,9 +35,11 @@ class Sim:
         self.futs_robots = []
         signal.signal(signal.SIGINT, self.handler_ctrl_c)
         self._processes_refs= []
+        self.made_outputs = False
 
     def handler_ctrl_c(self, signum, frame):
         """Ctrl+C termination handling"""
+        self.make_outputs()
         self.close()
         exit(1)
 
@@ -45,23 +48,29 @@ class Sim:
         :param input_system: input to be used (child of InputSystem)"""
         self._input_system = input_system
 
-    def add_robot(self, robot, outputs=None, inpt=None):
+    def add_robot(self, robot_def, robot, outputs=None, inpt=None):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
         :param outputs: tuple of outputs (child of OutputSystem)
         :param inpt: InputSystem specific to the robot. Default to system wide Inputsystem
         """
+
+        robot = bind_robot(robot_def, robot)
         run = robot.run
         self.realtime += run.realtime
         if outputs is None:     # in no output is specified, then do file outputs
-            outputs = (FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv'), )
+            outputs = FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv')
+        if not isinstance(outputs, tuple):
+            outputs = (outputs,)
 
-        r = SimActor.options(name=run.name+str(time.time()), max_concurrency=2).remote(robot)
+        r = ray_robot(robot, outputs)
+
         self._robots.append((inpt, robot, r, outputs))
         self.robot_actors.append(r)
         if self._input_system is None and inpt is not None:
             self._input_system = inpt
+        return r  # robot reference (virtually the same as the robot)
 
     def add_process(self, process):
         self._processes.append(ProcessActor.options(max_concurrency=2).remote(process))
@@ -69,7 +78,7 @@ class Sim:
     def init(self):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
-            futs.append(robot_actor.init.remote())
+            futs.append(robot_actor.init(block=False))
         done = ray.get(futs)
 
     def reset(self, t):
@@ -79,14 +88,14 @@ class Sim:
                 robot.inpt.set(self._input_system.get_inputs(robot.inpt, timestamp=t))
             else:
                 robot.inpt.set(inpt.get_inputs(robot.inpt, timestamp=t))
-            futs.append(robot_actor.reset.remote(robot.inpt, t))
+            futs.append(robot_actor.reset(robot.inpt, t, block=False))
         done = ray.get(futs)
         time.sleep(1)
 
     def close(self):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
-            futs.append(robot_actor.close.remote())
+            futs.append(robot_actor.close(block=False))
         done = ray.get(futs)
         time.sleep(0.5)
 
@@ -94,7 +103,7 @@ class Sim:
         self.DT = DT
         futs = []
         for r in self.robot_actors:
-            futs.append(r.set_DT.remote(self.DT))
+            futs.append(r.set_DT(self.DT, block=False))
         done = ray.get(futs)
 
 
@@ -105,7 +114,7 @@ class Sim:
         :param max_duration: the maximum duration of test
         """
         self.runconfig = config
-        self.set_dt( config.dt)
+        self.set_dt(config.dt)
         self.realtime += config.realtime
 
         t = config.start_time
@@ -117,7 +126,8 @@ class Sim:
         next_time = time.perf_counter()
         while not config.if_time(t) and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
             if self.realtime is False or time.perf_counter() >= next_time:
-                self.run_robot(t)
+                #self.run_robot(t)
+                self.step(t)
                 self.process(t)
                 t += self.DT
                 next_time += self.DT / config.run_speed     # manipulate run speed
@@ -125,9 +135,16 @@ class Sim:
         self.make_outputs()
         self.close()
 
+    def step(self, t):
+        for inpt, robot, robot_actor, outputs in self._robots:
+            if inpt is None:
+                i = self._input_system.get_inputs(robot.inpt, timestamp=t)
+            else:
+                i = inpt.get_inputs(robot.inpt, timestamp=t)
+            robot_actor.step(i, t, self.DT)
+            print(robot_actor.state)
 
     def process(self, t):
-        return
         if self._processes:
             if self._processes_refs:
                 finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
@@ -179,6 +196,11 @@ class Sim:
             robot.info))
 
     def make_outputs(self):
-        for inpt, robot, robot_actor, outputs in self._robots:
-            for out in outputs:
-                out.make_output()
+        # right now make outputs can be called only once
+        if not self.made_outputs:
+            for inpt, robot, robot_actor, outputs in self._robots:
+                for out in outputs:
+                    out.make_output()
+            self.made_outputs = True
+
+

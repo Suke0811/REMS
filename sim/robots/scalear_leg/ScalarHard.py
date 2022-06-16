@@ -105,6 +105,9 @@ class ScalerHard(RobotBase):
     def __del__(self):
         return
 
+    def print(self):
+        print('hi')
+
 
 @ray.remote#(num_cpus=1)#(max_restarts=5, max_task_retries=-1)
 class DynamiexlActor:

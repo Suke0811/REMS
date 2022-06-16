@@ -38,13 +38,9 @@ s.set_input(i_helix)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-#ref_robot = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB1', 3)
+#ref_robot = (ScalerManipulator, ScalerHard, '/dev/ttyUSB1', 3)
 
-arm_2 = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0', 2)
-target_robot = bind_robot(ScalerManipulator, KinematicModel)
-#at_process = AutoTuning(target_robot, ref_robot, real_to_sim=False)
-pybullet_robots = bind_robot(ScalerManipulator, Pybullet)
-pybullet_robots_2 = bind_robot(ScalerManipulator, Pybullet)
+
 
 out_dir = 'out/'
 target_csv = FileOutput(out_dir+'target_'+time_str()+'.csv')      # save to test.csv at the same dir as the
@@ -56,19 +52,20 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 
 # s.add_robot(ref_robot, (ref_csv,))
-s.add_robot(arm_2, (arm2_csv,))
+robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 #s.add_robot(target_robot, (target_csv,))
 #s.add_robot(pybullet_robots,)
 #s.add_robot(pybullet_robots_2,)
 
 N = 0
 for n in range(N):
-    s.add_robot(bind_robot(ScalerManipulator, Pybullet))
+    s.add_robot(ScalerManipulator, Pybullet)
 
+#at_process = AutoTuning(r, r, 0)
 # add processalse
 #s.add_process(at_process)
 
-s.run(SimConfig(max_duration=100, dt=0.02, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)
