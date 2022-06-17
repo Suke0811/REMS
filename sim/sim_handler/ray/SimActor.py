@@ -51,16 +51,18 @@ class SimActor:
 
     def _call_func(self, name, *args, **kwargs):
         return getattr(self.robot, name)(*args, **kwargs)
+
     # for communication
     def _get_variable(self, name):
         return getattr(self.robot, name)
+
 
     def _set_variable(self, name, val):
         #eval("self.robot."+name+"= val")
         setattr(self.robot, name, val)
         #getattr(self.robot, name)
 
-    def change_val(self,val):
-        self.robot.run.DT = val
+    def get_robot(self):
+        return self.robot
 
 

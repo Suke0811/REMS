@@ -6,7 +6,7 @@ from sim.robots.bind_robot import bind_robot
 import time
 import ray
 
-EXCLUDE = ['call_func', 'get_variable', 'set_variable']
+EXCLUDE = [] #['call_func', 'get_variable', 'set_variable']
 def get_methods(instance):
     rets = []
     for attr in dir(instance):
@@ -40,9 +40,7 @@ class RobotRayWrapper(object):
         for v in self._ray_vars:
             self._add_var(v)
 
-
     def _add_method(self, name, robot_method=True):
-        self.refs[name] = []
         if robot_method:
             func_str = "self._ray_robot._call_func.remote(name, *args, **kwargs)"
         else:
@@ -52,11 +50,6 @@ class RobotRayWrapper(object):
         def method(self, *args, **kwargs):
             #refs = self.refs[name]
             if 'block' in kwargs and not kwargs.pop('block'):
-                # if refs:
-                #     finished, refs = ray.wait(self.futs, num_returns=len(refs))
-                #     self.refs[name] = refs
-                #     ret = ray.get(finished[-1])
-                # refs.append(func(self, name, *args, **kwargs))
                 ret = func(self, name, *args, **kwargs)
             else:
                 ret = ray.get(func(self, name, *args, **kwargs))
@@ -65,18 +58,39 @@ class RobotRayWrapper(object):
         setattr(self, name, method.__get__(self))
 
     def _add_var(self, name):   # currently no caching
+        fget = lambda self: self.getter(name)
+        fset = lambda self, value: self.setter(name, value)
+        setattr(RobotRayWrapper, name, property(fget=fget, fset=fset, doc='test'))
 
-        def getter(self):
-            val = ray.get(self._ray_robot._get_variable.remote(name))
-            return val
+    def setter(self, name, val):
+        self._ray_robot._set_variable.remote(name, val)
 
-        def setter(self, val):
-            self._ray_robot._set_variable.remote(name, val)
+    def getter(self, name):
+        val = ray.get(self._ray_robot._get_variable.remote(str(name)))
+        return val
 
-        setattr(RobotRayWrapper, name, property(fget=getter, fset=setter).__get__(self))
+    def __getattr__(self, name):
+        if '_ray_vars' in self.__dict__:
+            if not name in self.__dict__['_ray_vars']:
+                if name in get_vars(self.get_robot()):
+                    self._add_var(name)
+                    self.__dict__['_ray_vars'].append(name)
+                    return getattr(self, name)
+        return super(RobotRayWrapper, self).__getattribute__(name)
 
-        #eval(f'RobotRayWrapper.{name} = property(fget=getter, fset=setter)')
-        #setattr(self, name, method.__get__(self))
+    def __setattr__(self, name, value):
+        if name not in self.__dict__.keys():
+            if 'get_robot' in self.__dict__ and name in get_vars(self.get_robot()):
+                self._add_var(name)
+                self.__dict__['_ray_vars'].append(name)
+        else:
+            self.__dict__[name] = value
+        return super(RobotRayWrapper, self).__setattr__(name, value)
+
+
+    def _reset_attr(self):
+        for v in self._ray_vars:
+            self._add_var(v)
 
 
 if __name__ == '__main__':
@@ -85,22 +99,24 @@ if __name__ == '__main__':
     ray.init(local_mode=False)
     r = RobotRayWrapper(s, (None,))
     r.set_DT(0.01)
-    r.run.DT = 1
-    print(r.run.DT)
+#    r.run.DT = 1
+    r._t_minus_1 += 3
+#    print(r.run.DT)
 
-    N =10000
+    N =1000
     st = time.perf_counter()
     for n in range(N):
-        r.state.set([1,2,3])
-        print(r.state)
+        r._t_minus_1 += 2
+        print(r._t_minus_1)
+
 
     total = time.perf_counter() - st
 
 
     st = time.perf_counter()
     for n in range(N):
-        s.state.set([1, 2, 3])
-        print(s.state)
+        s._t_minus_1 += 2
+        print(s._t_minus_1)
 
     total2 = time.perf_counter() - st
     print(total)

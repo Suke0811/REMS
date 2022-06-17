@@ -220,11 +220,10 @@ class DefDict:
             if k in keys:
                 if v is Any:
                     self._data[k] = [float()] # what should be the init value?
+                elif isinstance(v, type):
+                    self._data[k] = [v()]
                 else:
-                    try:
-                        self._data[k] = [v()]
-                    except TypeError:
-                        self._data[k] = [v]   # maybe a different way of initialization?
+                    self._data[k] = [v]   # maybe a different way of initialization?
 
     def _dict2dict(self, data: dict):
         extra_data = {}
@@ -289,9 +288,9 @@ class DefDict:
         keys = map(str, keys)
         d = copy.deepcopy(self)
         d.clear()
-        d.add_definition({k: self._data[k][0] for k in keys})
         for k in keys:
-            d._data[k] = self._data[k]
+            d.add_definition({k: self.DEF[k]})
+            d._data[k] = self._data.get(k)
         return d    #DefDict
 
     def filter_data(self, data):

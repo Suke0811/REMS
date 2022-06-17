@@ -7,9 +7,11 @@ from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.tuning.AutoTuning import AutoTuning
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.bind.kinematic_model.KinematicModel import KinematicModel
+from sim.bind.kinematic_model.KinematicModelNN import KinematicModel
 from sim.robots.scalear_leg.Pybullet import Pybullet
 from sim.utils import time_str
 from sim.Config import SimConfig
+import ray
 
 PRINT = True
 
@@ -18,6 +20,7 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
 if PRINT:
     logging.basicConfig(level=LOGLEVEL)
 
+ray.init(local_mode=False)
 s = Sim()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
@@ -52,7 +55,7 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 
 # s.add_robot(ref_robot, (ref_csv,))
-robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
+#robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 #s.add_robot(target_robot, (target_csv,))
 #s.add_robot(pybullet_robots,)
 #s.add_robot(pybullet_robots_2,)
@@ -61,11 +64,13 @@ N = 0
 for n in range(N):
     s.add_robot(ScalerManipulator, Pybullet)
 
-#at_process = AutoTuning(r, r, 0)
-# add processalse
-#s.add_process(at_process)
+robot = s.add_robot(ScalerManipulator, KinematicModel)
+robot2 = s.add_robot(ScalerManipulator, Pybullet)
 
-s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+# add processalse
+s.add_process(AutoTuning, robot, robot2, False)
+
+s.run(SimConfig(max_duration=10, dt=0.05, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)

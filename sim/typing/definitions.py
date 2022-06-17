@@ -39,13 +39,13 @@ TIMESTAMP = 'timestamp'
 
 
 
-POS_2D = dict(x=position, y=position)
-ROT_2D = dict(c=euler)
-POS_3D = dict(x=position, y=position, z=position)
+POS_2D = dict(x=float, y=float)
+ROT_2D = dict(c=float)
+POS_3D = dict(x=float, y=float, z=float)
 
 
 QUAT = dict(qx=float, qy=float, qz=float, qw=float)
-EULER_3D = dict(a=euler, b=euler, c=euler)
+EULER_3D = dict(a=float, b=float, c=float)
 
 ROT_MAT_2D = dict(r11=float, r12=float,
                   r21=float, r22=float)

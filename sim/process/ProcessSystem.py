@@ -3,7 +3,7 @@ from sim.sim_handler.job_background.job_type import job_type
 
 
 class ProcessSystem:
-    def process(self):
+    def process(self, t):
         """Called every timestep
         :return job_type, job to submit"""
         return [job_type(self.job)]

@@ -1,7 +1,6 @@
 from sim.robots.RobotBase import RobotBase
 from sim.utils.neural_network import NeuralNetwork
 from sim.typing.definitions import *
-from sim.utils import tictoc
 
 class KinematicModel(RobotBase):
     def __init__(self):
@@ -9,6 +8,8 @@ class KinematicModel(RobotBase):
         self.auto_tuner = None
         self.run.name = 'Kin'
         self.NN_normal = [1.0,1.0]
+        self.NN = None
+        self.PARAMS = None
 
     def init_NN(self, NN: NeuralNetwork):
         # initialize the NN architecture
@@ -17,46 +18,33 @@ class KinematicModel(RobotBase):
 
     def drive(self, inpt, timestamp):
         # TODO: PUT VELOCITY FUNCTION SAME AS OTHER FUNCTIONS HERE
-        prev_joints = self.joint_space
-        prev_joints = prev_joints.format(joint_pos(6)).list()
+        prev_joints = self.joint_space.ndarray()
 
         self.inpt.set(inpt)
         self.joint_space.set(self.ik(self.inpt))
-        next_joints = self.joint_space.list()
+        next_joints = self.joint_space.ndarray()
 
         # add neural network
         # convert param values from auto tuner format into the neural network format
         # neural network input includes the current states and the control output u
-        dj0 = (next_joints[0] - prev_joints[0]) / self.run.DT
-        dj1 = (next_joints[1] - prev_joints[1]) / self.run.DT
-        dj2 = (next_joints[2] - prev_joints[2]) / self.run.DT
-        dj3 = (next_joints[3] - prev_joints[3]) / self.run.DT
-        dj4 = (next_joints[4] - prev_joints[4]) / self.run.DT
-        dj5 = (next_joints[5] - prev_joints[5]) / self.run.DT
 
-        self.outpt = self.joint_space
+        self.outpt.set(self.joint_space)
         self.task_space.set(self.fk(self.joint_space))
-        prev_state = self.state.format(POS_3D).list()
-
+        prev_state = self.state.get(POS_3D).ndarray()
         self.state.set(self.task_space)
-        next_state = self.state.format(POS_3D).list()
-
-
-        dx  = (next_state[0] - prev_state[0])/self.run.DT
-        dy = (next_state[1] - prev_state[1])/self.run.DT
-        dz = (next_state[2] - prev_state[2])/self.run.DT
+        next_state = self.state.get(POS_3D).ndarray()
+        d_X = (next_state - prev_state)/self.run.DT
 
         params_values_NN = self.NN.Auto_to_Neural_Format(self.PARAMS)
         self.NN.params_values = params_values_NN
 
-        NN_input = np.array([dj0,dj1,dj2,dj3,dj4,dj5])
+        NN_input = (next_joints-prev_joints) / self.run.DT
         NN_output, _ = self.NN.full_forward_propagation(np.transpose(NN_input.reshape(1, NN_input.shape[0])))
-        dx = dx + NN_output[0]*self.run.DT
-        dy = dy + NN_output[1]*self.run.DT
+        NN_output*=self.run.DT
+        d_X += np.append(NN_output, 0.0)
 
-        self.state.set({'d_x': dx, 'd_y': dy, 'd_z': dz})
-
-        return self.state.format(VEL_POS_3D).list()
+        self.state.get(VEL_POS_3D).set(d_X)
+        return self.state.get(VEL_POS_3D).list()
 
     def sense(self):
         return self.outpt

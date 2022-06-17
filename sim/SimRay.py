@@ -72,8 +72,10 @@ class Sim:
             self._input_system = inpt
         return r  # robot reference (virtually the same as the robot)
 
-    def add_process(self, process):
-        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process))
+    def add_process(self, process, *args):
+        r, r2, t = args
+        print(r.state)
+        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
 
     def init(self):
         futs = []
@@ -126,7 +128,6 @@ class Sim:
         next_time = time.perf_counter()
         while not config.if_time(t) and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
             if self.realtime is False or time.perf_counter() >= next_time:
-                #self.run_robot(t)
                 self.step(t)
                 self.process(t)
                 t += self.DT
@@ -135,14 +136,16 @@ class Sim:
         self.make_outputs()
         self.close()
 
+    @tictoc
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
+            st = time.perf_counter()
             if inpt is None:
                 i = self._input_system.get_inputs(robot.inpt, timestamp=t)
             else:
                 i = inpt.get_inputs(robot.inpt, timestamp=t)
-            robot_actor.step(i, t, self.DT)
-            print(robot_actor.state)
+            robot_actor.step(i, t, self.DT, block=False)
+
 
     def process(self, t):
         if self._processes:
@@ -165,6 +168,7 @@ class Sim:
             self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
             self.futs_time.append(t)
             self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
+
             ####### ~0.0001s
 
     def get_ret(self):

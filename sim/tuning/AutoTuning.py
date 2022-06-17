@@ -16,7 +16,6 @@ class AutoTuning(TuningSystem):
         # initialize cost
         self.cost = [10.0,1.0]
         # initialize robot class
-        robot = self.target_robot
         self.states_sim = np.zeros((6,HORIZON))
         self.target_sim = np.zeros((6,HORIZON))
         self.inputs = np.zeros((3,HORIZON))
@@ -46,8 +45,8 @@ class AutoTuning(TuningSystem):
             else:
                 load_params = []
             NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
-            robot.init_NN(NN)
-            self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost)
+            self.target_robot.init_NN(NN)
+            self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, self.target_robot, self.cost)
         else:
             load_params = np.load('sim/controllers/NN_param.npy')
             NN2 = NeuralNetwork(NN_ARCHITECTURE, load_params)
@@ -57,19 +56,19 @@ class AutoTuning(TuningSystem):
                 except:
                     load_params = []
             NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
-            self.auto_tuner = AutoTuner2(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost, NN, NN2)
+            self.auto_tuner = AutoTuner2(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, self.target_robot, self.cost, NN, NN2)
             self.target_robot.auto_tuner = self.auto_tuner
 
         self.time_count = 0
         self.update = True
         self.calcH2norm = True
 
-    def process(self):
+    def process(self, t):
         """Process is called every time step"""
         # access to target/reference robot info
-        target_state = self.target_robot.state.data.list()
-        ref_state = self.ref_robot.state.data.list()
-        inpt = self.ref_robot.inpt.data.list()
+        target_state = self.target_robot.state.list()
+        ref_state = self.ref_robot.state.list()
+        inpt = self.ref_robot.inpt.list()
 
         # update state history
         self.states_sim = self._nparray_push(self.states_sim, ref_state)
@@ -93,7 +92,6 @@ class AutoTuning(TuningSystem):
 
         self.calculateH2Norm(self.states_sim_h2,self.target_sim_h2)
         self.target_robot.info.data = [self.h2_norm, self.h2_norm_x, self.h2_norm_y]
-        print(self.auto_tuner.sigmas.flags)
         self.time_count += 1
         if self.time_count % HORIZON == 0 and self.time_count != 0:  # only run the tuning every Horizon
             #self.target_robot.state.data = self.ref_robot.state

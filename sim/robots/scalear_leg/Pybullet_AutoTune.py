@@ -1,16 +1,14 @@
 from sim.robots.RobotBase import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
-from sim.type.definitions import *
+from sim.typing.definitions import *
+from sim.robots.scalear_leg.Pybullet import Pybullet as Base
 import time
 
-class Pybullet(RobotBase):
+class Pybullet(Base):
     def __init__(self):
         super().__init__()
-        urdf_filename = '/home/alexander/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
-        self.my_sim = pyb_sim(urdf_filename=urdf_filename, DoFnum=6, delta_t=self.run.DT)
         self.auto_tuner = None
         self.leg = 1
-        self.run.to_thread=False
 
         self.moving_average_dx = []
         self.moving_average_dy = []
@@ -20,28 +18,10 @@ class Pybullet(RobotBase):
         self.moving_average_out2 = []
         self.moving_average_total_NN = 100
 
-    def drive(self, inpts, timestamp):
-        #inputs: desired motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 legs
-        self.inpt = inpts
-        self.joint_space.data = self.ik(self.inpt)
-        joint_angles_leg = self.joint_space.data.list()
-        joint_angles_legs = [0]*12
-        joint_angles_legs[6*self.leg:6*self.leg+6] = joint_angles_leg
-        self.my_sim.movetoPose(joint_angles_legs)
-
-        return self.state
-
-    def sense(self):
-        # Return current motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 leg
-        joint_angles_legs  = self.my_sim.getJointAngles()
-        joint_angles_leg = joint_angles_legs[6*self.leg:6*self.leg+6]
-        self.outpt.data = joint_angles_leg
-
-        return self.outpt
 
     def observe_state(self):
         state = self.state
-        self.state.set_data(self.fk(self.outpt))
+        self.state.set(self.fk(self.outpt))
         self.calc_vel(pre_state=state, curr_state=self.state)
 
         # filter
