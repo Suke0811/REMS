@@ -1,11 +1,11 @@
 from sim.tuning import TuningSystem
 from sim.tuning import AutoTuner, AutoTuner2
 from sim.utils.neural_network import NeuralNetwork
-from sim.job_background.job_type import job_type
-from sim.job_background.job_return_type import job_return_type
+from sim.sim_handler.job_background.job_type import job_type
+from sim.sim_handler.job_background import job_return_type
 import numpy as np
-HORIZON = 20
-INIT_COV = 0.01 # 0.00001 for sim-to-kin for webots, 0.01 for real to sim, real-to-kin, real-to-sim , horizon 20
+HORIZON = 1
+INIT_COV = 0.1 # 0.00001 for sim-to-kin for webots, 0.001 seems BEST FOR SIM-to-KIN PYbullet
 LOAD_PARAM = False
 
 class AutoTuning(TuningSystem):
@@ -23,10 +23,10 @@ class AutoTuning(TuningSystem):
         N_horizon = self.states_sim.shape[1]
         # initialize the NN architecture
         NN_ARCHITECTURE = [
-                {"input_dim": 4, "output_dim": 10, "activation": "relu"},
-                {"input_dim": 10, "output_dim": 10, "activation": "relu"},
-                {"input_dim": 10, "output_dim": 2, "activation": "linear"}
-            ]
+            {"input_dim": 6, "output_dim": 10, "activation": "leakyRelu"},
+            {"input_dim": 10, "output_dim": 10, "activation": "leakyRelu"},
+            {"input_dim": 10, "output_dim": 2, "activation": "linear"}
+        ]
 
         # training objectives, is same shape as theta
         N_trainingObj = 2
@@ -46,8 +46,8 @@ class AutoTuning(TuningSystem):
             else:
                 load_params = []
             NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
-            robot.init_NN(NN)
-            self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost)
+            self.target_robot.init_NN(NN)
+            self.auto_tuner = AutoTuner(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, self.target_robot, self.cost)
         else:
             load_params = np.load('sim/controllers/NN_param.npy')
             NN2 = NeuralNetwork(NN_ARCHITECTURE, load_params)
@@ -57,19 +57,19 @@ class AutoTuning(TuningSystem):
                 except:
                     load_params = []
             NN = NeuralNetwork(NN_ARCHITECTURE, load_params)
-            self.auto_tuner = AutoTuner2(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, robot, self.cost, NN, NN2)
+            self.auto_tuner = AutoTuner2(INIT_COV, weight_a, weight_c, N_trainingObj, N_horizon, self.target_robot, self.cost, NN, NN2)
             self.target_robot.auto_tuner = self.auto_tuner
 
         self.time_count = 0
         self.update = True
         self.calcH2norm = True
 
-    def process(self):
+    def process(self, t):
         """Process is called every time step"""
         # access to target/reference robot info
-        target_state = self.target_robot.state.data.as_list()
-        ref_state = self.ref_robot.state.data.as_list()
-        inpt = self.ref_robot.inpt.data.as_list()
+        target_state = self.target_robot.state.list()
+        ref_state = self.ref_robot.state.list()
+        inpt = self.ref_robot.inpt.list()
 
         # update state history
         self.states_sim = self._nparray_push(self.states_sim, ref_state)
@@ -93,7 +93,6 @@ class AutoTuning(TuningSystem):
 
         self.calculateH2Norm(self.states_sim_h2,self.target_sim_h2)
         self.target_robot.info.data = [self.h2_norm, self.h2_norm_x, self.h2_norm_y]
-
         self.time_count += 1
         if self.time_count % HORIZON == 0 and self.time_count != 0:  # only run the tuning every Horizon
             #self.target_robot.state.data = self.ref_robot.state
@@ -109,17 +108,11 @@ class AutoTuning(TuningSystem):
         if not self.real_to_sim:
             self.auto_tuner.update_parameters(self.states_sim, self.inputs)  # auto tuning update
         else:
-            self.auto_tuner.update_parameters(self.states_sim, self.target_sim, self.inputs)
-            # initialize robot parameters to finalized parameter solution
-
+            self.auto_tuner.update_parameters(self.states_sim, self.target_sim)
         return job_return_type(self.done, **kwargs)  # pack and go
 
     def done(self, **kwargs):
         self.calcH2norm = True
-        if not self.real_to_sim:
-            self.target_robot.PARAMS = self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], )
-        else:
-            self.auto_tuner.NN.params_values = self.auto_tuner.NN.Auto_to_Neural_Format(self.auto_tuner.theta.reshape(self.auto_tuner.theta.shape[0], ))
 
     def calculateH2Norm(self,states_sim_h2,target_sim_h2):
         self.h2_norm = np.linalg.norm((states_sim_h2-target_sim_h2) ** 2)
@@ -139,21 +132,3 @@ class AutoTuning(TuningSystem):
 
         self.h2_norm_x = np.linalg.norm((self.h_act_list_x - self.y_k_list_x) ** 2)
         self.h2_norm_y = np.linalg.norm((self.h_act_list_y - self.y_k_list_y) ** 2)
-
-        # TODO: ADD covariance heuristics here
-
-        """
-        if self.h2_norm_x <= 0.1:
-            print('COST OF DX set to 0')
-            self.auto_tuner.cost[0] = 0.0001
-            self.auto_tuner.cost[1] = 2.0
-        if self.h2_norm_y <= 0.1:
-            print('COST OF DY set to 0')
-            self.auto_tuner.cost[0] = 2.0
-            self.auto_tuner.cost[1] = 0.0001
-            #self.auto_tuner.Co = np.eye(self.auto_tuner.N_theta)*0.000000001
-
-        if (self.h2_norm_x <= 0.1)  and (self.h2_norm_y <= 0.1):
-            print('CONVERGE!!')
-            self.auto_tuner.Co = np.eye(self.auto_tuner.N_theta) * 0.000000001
-        """

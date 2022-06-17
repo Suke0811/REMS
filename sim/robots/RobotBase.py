@@ -1,5 +1,5 @@
 from sim.robots.RunConfig import RunConfig
-from sim.robots.bind.BasicDeviceBase import BasicDeviceBase
+from sim.bind.BasicDeviceBase import BasicDeviceBase
 from sim.robots.RobotDefBase import RobotDefBase
 
 
@@ -25,7 +25,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         [d.init() and s.init() for d, s in zip(self.drivers, self.sensers)]
         pass
 
-    def reset(self, **kwargs):
+    def reset(self, inpt, t):
         """process necessary to reset the robot without restarting"""
         pass
 

@@ -1,4 +1,4 @@
-from sim.type import DefDict
+from sim.typing import DefDict
 
 
 class RobotDefBase:
@@ -13,19 +13,15 @@ class RobotDefBase:
         self.jacobian: DefDict = None
 
 
-    def define(self):
+    def define(self, *args, **kwargs):
         """Definitions of the robot"""
         raise NotImplementedError
 
-    def control(self, *args):
-        """run controller assigned to the robot"""
+    def fk(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 
-    def fk(self, jointspace: DefDict):
+    def ik(self, taskspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 
-    def ik(self, taskspace: DefDict):
-        raise NotImplementedError
-
-    def jb(self, jointspace: DefDict):
+    def jb(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError

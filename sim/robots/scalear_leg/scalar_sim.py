@@ -59,8 +59,8 @@ class pyb_sim(object):
         direction = 1
         freq = 100
         action_circle_time = 2
-        action_range = np.pi / 8
-        increment = action_range / (action_circle_time * freq / 2)
+        action_range = np.pi/8
+        increment = action_range/(action_circle_time*freq/2)
         pos = 0
         self.setTimestep(1.0 / freq)
         while 1:
@@ -177,5 +177,4 @@ class pyb_sim(object):
         p.stopStateLogging(self.recordId)
 
 
-#urdf_filename = '/home/alexander/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
-#my_sim = pyb_sim(urdf_filename=urdf_filename, DoFnum=6, delta_t=0.01)
+

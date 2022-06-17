@@ -55,9 +55,6 @@ class AutoTuner():
             nominal_values = np.array([self.ref_states[3,i]*self.cost[0],self.ref_states[4,i]*self.cost[1]]).reshape(self.N_trainingObj,)
             #if self.y_k.shape[1] == 1:
             #    nominal_values= nominal_values.reshape(self.N_trainingObj,1)
-            if self.y_k.shape == np.zeros((self.N_horizon * self.N_trainingObj,1)).shape:
-                nominal_values = nominal_values.reshape(self.N_trainingObj,1)
-
             self.y_k[i * self.N_trainingObj:i * self.N_trainingObj + self.N_trainingObj] = nominal_values
         self.y_k =self.y_k.reshape(self.N_trainingObj*self.N_horizon,1)
         # we first calculate our sigma points
@@ -124,7 +121,7 @@ class AutoTuner():
             for j in range(self.N_horizon):
                 # get initial states received from the simulated robot
                 inputs = self.inputs[:, j]
-                state_sim_cur = Robot.drive(Robot.inpt.set_data(inputs), 0.0)
+                state_sim_cur = Robot.drive(Robot.inpt.set(inputs), 0.0)
                 h_cost = np.array([state_sim_cur[0]*self.cost[0],state_sim_cur[1]*self.cost[1]]).reshape(self.N_trainingObj,)
                 self.h_est[(j) * self.N_trainingObj:(j) * self.N_trainingObj + self.N_trainingObj, i] = h_cost.reshape(self.N_trainingObj,)
 
@@ -190,7 +187,7 @@ class AutoTuner():
             self.theta = self.theta[:,0].reshape(self.theta.shape[0],1)
 
         # initialize robot parameters to finalized parameter solution
-        # self.Robot.PARAMS = self.theta.reshape(self.theta.shape[0], )
+        self.Robot.PARAMS = self.theta.reshape(self.theta.shape[0], )
 
 """
 # for testing and debugging

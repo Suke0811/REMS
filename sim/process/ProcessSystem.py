@@ -1,9 +1,9 @@
-from sim.job_background.job_return_type import job_return_type
-from sim.job_background.job_type import job_type
+from sim.sim_handler.job_background import job_return_type
+from sim.sim_handler.job_background.job_type import job_type
 
 
 class ProcessSystem:
-    def process(self):
+    def process(self, t):
         """Called every timestep
         :return job_type, job to submit"""
         return [job_type(self.job)]
@@ -15,3 +15,9 @@ class ProcessSystem:
 
     def done(self, **kwargs):
         """called when the job is done"""
+
+    def process_callback(self, *args, **kwargs):
+        """
+        callback for SimRay
+        """
+

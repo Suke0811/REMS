@@ -1,11 +1,13 @@
 from time import perf_counter as time
 import logging
 import asyncio
-from sim.job_background.RayJobHandler import JobHandler
+from sim.sim_handler.job_background import RayJobHandler as JobHandler
 import numpy as np
 from sim.utils.tictoc import tictoc
+import signal
 
 ROUND = 2
+
 
 class Sim:
     DT_ERR = 0.01
@@ -24,7 +26,12 @@ class Sim:
         self.jHandler = JobHandler()
         self.realtime = False
         self.DT = DT
+        signal.signal(signal.SIGINT, self.handler_ctrl_c)
 
+    def handler_ctrl_c(self, signum, frame):
+        print('prog exit')
+        self.close()
+        exit(1)
 
     def set_input(self, input_system):
         """set InputSystem
@@ -45,13 +52,18 @@ class Sim:
     def add_process(self, process):
         self._processes.append(process)
 
-    def init_robot(self):
+    def init(self):
         for inpt, robot, outputs in self._robots:
             robot.init()
 
-    def reset_robot(self):
+    def reset(self):
         for inpt, robot, outputs in self._robots:
             robot.reset()
+
+    def close(self):
+        for inpt, robot, outputs in self._robots:
+            robot.close()
+
     @tictoc
     def run(self, max_duration, realtime=True):
         """Run robots with the given settings for max_duration seconds
@@ -62,14 +74,15 @@ class Sim:
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
 
-        self.init_robot()
-        self.reset_robot()
+        self.init()
+        self.reset()
 
         while t < max_duration and not self._input_system.quite:
             asyncio.run(self.create_tasks(t))   # run the robots asynchronously
             self.process()
             t += self.DT
         self.make_outputs()
+        self.close()
 
     def process(self):
         if self._processes:

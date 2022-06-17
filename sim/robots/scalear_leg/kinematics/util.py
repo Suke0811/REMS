@@ -1,12 +1,6 @@
-import os
-import sys
-
-
 from .hardware_constants import consts, list_name_robots, division_factor
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-#data_name = glob.read_one_data(glob.mem_settings, 'robot_name')
-#robot_name = list_name_robots[int(data_name)]
 robot_name = 'SCALER_climbing_6DoF'
 robot_consts = consts[robot_name]
 

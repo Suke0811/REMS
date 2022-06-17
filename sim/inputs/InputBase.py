@@ -1,4 +1,4 @@
-from sim.type import DefDict
+from sim.typing import DefDict
 
 class StdKeyMap:
     pass
@@ -17,7 +17,7 @@ class InputBase:
         pass
 
     def get_inputs(self, inpt_def: DefDict, timestamp=None):
-        inpt_def = self._inputs
+        inpt_def.set(self._inputs)
         return inpt_def
 
     def get_command(self):
