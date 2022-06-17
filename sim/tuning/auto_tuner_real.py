@@ -39,7 +39,6 @@ class AutoTuner():
         # impose importance of cost on each variable
         self.cost = cost
         self.N_horizon = N_horizon
-        print(self.sigmas.flags)
 
     def update_parameters(self, ref_states, inputs):
         # ref_states are the reference states in task space (assume list of x,y and z, and dx,dy and dz) from simulator or real robot
@@ -58,7 +57,6 @@ class AutoTuner():
             #    nominal_values= nominal_values.reshape(self.N_trainingObj,1)
             self.y_k[i * self.N_trainingObj:i * self.N_trainingObj + self.N_trainingObj] = nominal_values
         self.y_k =self.y_k.reshape(self.N_trainingObj*self.N_horizon,1)
-        print(self.sigmas.flags)
         # we first calculate our sigma points
         self.calcSigmas()
         # calculate h over the trajectory
@@ -81,7 +79,6 @@ class AutoTuner():
             P_theta_chol = np.linalg.cholesky(P_theta_pos_def)
         # calculate the sigma points
         # initial sigma point is simply the current 'theta' values (or current gains)
-        print(self.sigmas.flags)
         self.sigmas[:,0] = self.theta.reshape(self.N_theta,)
         for i in range(self.N_theta):
             sigma_pos = self.theta + np.sqrt(self.N_theta / (1 - self.w_a0)) * P_theta_chol[:, i].reshape(self.N_theta, 1)

@@ -136,26 +136,26 @@ class Sim:
         self.make_outputs()
         self.close()
 
-    @tictoc
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
-            st = time.perf_counter()
             if inpt is None:
                 i = self._input_system.get_inputs(robot.inpt, timestamp=t)
             else:
                 i = inpt.get_inputs(robot.inpt, timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)
 
-
     def process(self, t):
         if self._processes:
-            if self._processes_refs:
-                finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
-                if finished:
-                    rets = (ray.get(finished[-1]))
 
+            #if self._processes_refs:
+            # this wait takes 0.04sec?
+                #finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
+                #if finished:
+                    #pass
+                    #rets = (ray.get(finished[-1]))
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote(t))
+
 
     def run_robot(self, t):
         self.get_ret()
