@@ -2,7 +2,6 @@ import logging, os
 from sim.SimRay import Sim
 from sim.inputs import FileInput
 from sim.outputs import FileOutput
-from sim.robots.bind_robot import bind_robot
 from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.tuning.AutoTuning import AutoTuning
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
@@ -54,11 +53,8 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 # add robots to simulation
 
 
-# s.add_robot(ref_robot, (ref_csv,))
-#robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-#s.add_robot(target_robot, (target_csv,))
-#s.add_robot(pybullet_robots,)
-#s.add_robot(pybullet_robots_2,)
+robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
+
 
 N = 0
 for n in range(N):
@@ -70,7 +66,7 @@ robot2 = s.add_robot(ScalerManipulator, Pybullet)
 # add processalse
 s.add_process(AutoTuning, robot, robot2, False)
 
-s.run(SimConfig(max_duration=10, dt=0.003, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)

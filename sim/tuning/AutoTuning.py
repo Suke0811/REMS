@@ -23,10 +23,10 @@ class AutoTuning(TuningSystem):
         N_horizon = self.states_sim.shape[1]
         # initialize the NN architecture
         NN_ARCHITECTURE = [
-                {"input_dim": 4, "output_dim": 10, "activation": "relu"},
-                {"input_dim": 10, "output_dim": 10, "activation": "relu"},
-                {"input_dim": 10, "output_dim": 2, "activation": "linear"}
-            ]
+            {"input_dim": 6, "output_dim": 10, "activation": "leakyRelu"},
+            {"input_dim": 10, "output_dim": 10, "activation": "leakyRelu"},
+            {"input_dim": 10, "output_dim": 2, "activation": "linear"}
+        ]
 
         # training objectives, is same shape as theta
         N_trainingObj = 2
