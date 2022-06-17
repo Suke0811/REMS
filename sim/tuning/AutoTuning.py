@@ -14,16 +14,17 @@ class AutoTuning(TuningSystem):
         # real to sim flag
         self.real_to_sim = real_to_sim
         # initialize cost
-        self.cost = [10.0,1.0]
+        self.cost = [1.0,1.0]
         # initialize robot class
+        robot = self.target_robot
         self.states_sim = np.zeros((6,HORIZON))
         self.target_sim = np.zeros((6,HORIZON))
         self.inputs = np.zeros((3,HORIZON))
         N_horizon = self.states_sim.shape[1]
         # initialize the NN architecture
         NN_ARCHITECTURE = [
-                {"input_dim": 6, "output_dim": 10, "activation": "leakyRelu"},
-                {"input_dim": 10, "output_dim": 10, "activation": "leakyRelu"},
+                {"input_dim": 4, "output_dim": 10, "activation": "relu"},
+                {"input_dim": 10, "output_dim": 10, "activation": "relu"},
                 {"input_dim": 10, "output_dim": 2, "activation": "linear"}
             ]
 

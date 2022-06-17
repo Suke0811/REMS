@@ -1,5 +1,5 @@
-from sim.typing import DefDict
-from sim.utils import tictoc
+from sim.typing.DefDict import DefDict
+
 
 class OutputBase:
     def __init__(self):

@@ -1,4 +1,4 @@
-from sim.robots.RobotBase import RobotBase
+from sim.robots import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
 from sim.typing.definitions import *
 import time
