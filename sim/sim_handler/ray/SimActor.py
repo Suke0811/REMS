@@ -65,4 +65,9 @@ class SimActor:
     def get_robot(self):
         return self.robot
 
+    def make_outputs(self):
+        # right now make outputs can be called only once
+        for out in self.outputs:
+            out.make_output()
+
 

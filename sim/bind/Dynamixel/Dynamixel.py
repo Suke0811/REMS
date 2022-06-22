@@ -1,4 +1,4 @@
-from sim.robots.DeviceBase import DeviceBase
+from sim.bind.DeviceBase import DeviceBase
 from sim.typing import DefDict
 from sim.typing import definitions as DEF
 from sim.bind.Dynamixel.DynamixelTable import DynamiexX

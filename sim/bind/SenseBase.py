@@ -6,7 +6,7 @@ class SenseBase(BasicDeviceBase):
         super().__init__()
         self.sensors = {}
 
-    def sense(self, inpt, timestamp):
+    def sense(self):
         pass
 
     def observe_state(self):

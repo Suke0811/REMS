@@ -11,7 +11,7 @@ class DeviceBase:
     def close(self):
         pass
 
-    def enable(self, enable):
+    def enable(self, enable:bool):
         pass
 
     def drive(self, inpt: DefDict, timestamp):

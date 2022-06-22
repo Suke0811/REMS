@@ -28,7 +28,7 @@ class WebotsSense(SenseBase):
             else:
                 sensor.disable()
 
-    def sense(self, inpt, timestamp):
+    def sense(self):
         sensor_value = []
         for sensor in self._sensors:
             try: # webots has two different functions of getValue()
