@@ -411,7 +411,6 @@ class DefDict:
             for k, o in zip(self.filter(other_defdict.keys()).list_keys(),
                             other_defdict.filter(other_defdict.list_keys()).list()):
                 self._data[k][0] += o
-
         return self
 
 
