@@ -12,9 +12,9 @@ class JoystickInput(InputBase):
         # for pygame
         self._joysticks = {}
         self.stick_name = []
-        self.buttons = None
-        self.axes = None
-        self.axes_deadzone = None
+        self.buttons = {}
+        self.axes = {}
+        self.axes_deadzone = {}
 
 
     def init(self, input_def=None):
@@ -37,7 +37,7 @@ class JoystickInput(InputBase):
 
                 self.buttons[name] = DefDict(MAP.button, dtype=bool)
                 self.axes[name] = DefDict(MAP.axis)
-                self.axes_deadzone[name] = DefDict(MAP.axis_deadzone)
+                self.axes_deadzone[name] = DefDict(MAP.axis).set(MAP.axis_deadzone)
 
                 logging.info("Joystick name: {}".format(self.stick_name))
             except ConnectionError:
@@ -55,7 +55,7 @@ class JoystickInput(InputBase):
         main_stick = self.stick_name[0]
 
         if inpt_defDict is None:
-            return self.axes[main_stick].get().update(self.buttons[main_stick])
+            return {**self.axes[main_stick], **self.buttons[main_stick]}
 
         inpt_defDict.set(self.axes[main_stick])
         inpt_defDict.set(self.buttons[main_stick])

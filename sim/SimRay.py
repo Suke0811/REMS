@@ -46,6 +46,7 @@ class Sim:
     def set_input(self, input_system):
         """set InputSystem
         :param input_system: input to be used (child of InputSystem)"""
+        input_system.init()
         self._input_system = input_system
 
     def add_robot(self, robot_def, robot, outputs=None, inpt=None):

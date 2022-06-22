@@ -145,7 +145,7 @@ class DefDict:
 
     def set(self, ndata):
         if ndata is None:
-            return
+            return self
         if self.format_rule is not None:
             try:
                 ndata = self.format_rule.inv_bind(ndata)
@@ -263,8 +263,10 @@ class DefDict:
                 raise TypeError(f'{ret} is not type of {d_type}')
         return ret    # Enforce type in the corresponding definition
 
-    def bind(self, bind_rule):
-        self.set(bind_rule.bind(self.get()))
+    def bind(self, bind_rule, val=None):
+        if val is None:
+            val = self.get()
+        self.set(bind_rule.bind(val))
         return self
 
     def assert_data(self, data=None):
@@ -275,7 +277,7 @@ class DefDict:
         assert (len(data) == len(self.DEF))
         assert (all(type(x) == y for x, y in zip(data.values(), self.DEF.values())))
 
-    def filter(self, keys):
+    def filter(self, keys): #ToDo support all iteratibe
         if isinstance(keys, dict):
             keys = list(keys.keys())
         if isinstance(keys, str):
@@ -389,6 +391,17 @@ class DefDict:
 
     def __getitem__(self, item):
         return self._data.__getitem__(item)[0]
+
+    def __add__(self, other):
+        other_defdict = self.clone()
+        other_defdict.init_data(other_defdict.list_keys())
+        other_defdict.set(other)
+        for k, o in zip(self.filter(other_defdict.keys()).list_keys(),
+                        other_defdict.filter(other_defdict.list_keys()).list()):
+            self._data[k][0] += o
+
+        return self
+
 
 
 

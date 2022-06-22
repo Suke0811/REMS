@@ -14,7 +14,6 @@ class FileOutput(OutputBase):
     def _save_2_file(self, *data):
         dfs = []
         for d in data:
-            print(len(d), d.__str__())
             dfs.append(pd.DataFrame.from_dict(d))
         df = pd.concat(dfs, axis=1)
         df.to_csv(self.filepath, index=False)
