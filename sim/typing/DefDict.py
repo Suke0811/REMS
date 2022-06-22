@@ -392,13 +392,25 @@ class DefDict:
     def __getitem__(self, item):
         return self._data.__getitem__(item)[0]
 
+##############################################################
+    # Math operations
+
     def __add__(self, other):
-        other_defdict = self.clone()
-        other_defdict.init_data(other_defdict.list_keys())
-        other_defdict.set(other)
-        for k, o in zip(self.filter(other_defdict.keys()).list_keys(),
-                        other_defdict.filter(other_defdict.list_keys()).list()):
-            self._data[k][0] += o
+        if np.isscalar(other):  # if scalar, then add the value to all elements
+            for k in self._data.keys():
+                self._data[k][0] += other
+        else:   # other wise element wise
+            if not isinstance(other, DefDict):
+                # if not DefDict, create one assuming
+                other_defdict = self.clone()
+                other_defdict.init_data(other_defdict.list_keys())
+                other_defdict.set(other)
+            else:
+                other_defdict = other
+            # sum for corresponding keys
+            for k, o in zip(self.filter(other_defdict.keys()).list_keys(),
+                            other_defdict.filter(other_defdict.list_keys()).list()):
+                self._data[k][0] += o
 
         return self
 
