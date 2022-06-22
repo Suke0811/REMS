@@ -13,7 +13,7 @@ class InputBase:
         self._estop = False
         self.estop_callback = estop_callback
 
-    def init(self):
+    def init(self, input_def=None):
         pass
 
     def get_inputs(self, inpt_def: DefDict, timestamp=None):

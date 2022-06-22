@@ -1,4 +1,4 @@
-from sim.robots.DeviceBase import DeviceBase, DefDict
+from sim.bind.DeviceBase import DeviceBase, DefDict
 import ray
 
 @ray.remote

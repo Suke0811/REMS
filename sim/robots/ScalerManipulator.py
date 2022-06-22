@@ -2,7 +2,7 @@ import time
 
 from sim.robots.RobotBase import RobotBase
 from sim.bind.Dynamixel.Dynamixel import Dynamixel
-from sim.type import DefBindRule as rule
+from sim.typing import BindRule as rule
 from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_2pi
 import numpy as np
 import ray

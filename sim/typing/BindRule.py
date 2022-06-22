@@ -46,7 +46,11 @@ class BindRule:
                 return self.bind_to.set(bind_from)
         else:
             if self.bind_to is not None:
-                self.bind_to.set(self.bind_func(*bind_from))
+
+                ret = self.bind_func(*bind_from)
+                if ret is None:
+                    return ret
+                self.bind_to.set(ret)
                 return self.bind_to.get()
             else:
                 return self.bind_func(*bind_from)

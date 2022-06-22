@@ -46,6 +46,7 @@ class Sim:
     def set_input(self, input_system):
         """set InputSystem
         :param input_system: input to be used (child of InputSystem)"""
+        input_system.init()
         self._input_system = input_system
 
     def add_robot(self, robot_def, robot, outputs=None, inpt=None):
@@ -202,9 +203,10 @@ class Sim:
     def make_outputs(self):
         # right now make outputs can be called only once
         if not self.made_outputs:
+            futs = []
             for inpt, robot, robot_actor, outputs in self._robots:
-                for out in outputs:
-                    out.make_output()
+                futs.append(robot_actor.make_outputs(block=False))
+            done = ray.get(futs)
             self.made_outputs = True
 
 
