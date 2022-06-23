@@ -45,6 +45,7 @@ class ScalerManipulator(RobotDefBase):
         return self.joint_space.format(
             self.kin.scalar_inverse_kinematics(which_leg=self.which_leg,
                                                T_shi_wrist3=t.as_ruled(),
+                                               is_first_ik=all([i == 0.0 for i in self.joint_space.list()]),
                                                prev_angles=self.joint_space.list()))
 
     def calc_vel(self, pre_state, curr_state):

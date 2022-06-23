@@ -67,7 +67,7 @@ robot2 = s.add_robot(ScalerManipulator, Pybullet)
 # add processalse
 #s.add_process(AutoTuning, robot, robot2, False)
 
-s.run(SimConfig(max_duration=1000, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=100, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)
