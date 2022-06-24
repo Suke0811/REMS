@@ -2,7 +2,7 @@ from sim.robots.RobotBase import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
 from sim.typing.definitions import *
 
-urdf_filename = '/home/yusuke/PycharmProjects/pySiLVIA_lib/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
+urdf_filename = '/home/yusuke/PycharmProjects/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
 
 
 class Pybullet(RobotBase):
