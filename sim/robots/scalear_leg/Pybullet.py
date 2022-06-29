@@ -1,9 +1,11 @@
 from sim.robots.RobotBase import RobotBase
 from sim.robots.scalear_leg.scalar_sim import pyb_sim
 from sim.typing.definitions import *
+from sim.utils.urdf_relative_path import urdf_filepath_resolver
+from pathlib import Path
 
-urdf_filename = '/home/yusuke/PycharmProjects/pySiLVIA_lib/AbstractedRobot/sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
-
+URDF_PATH= 'sim/robots/scalear_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
+MESH_DIR = 'sim/robots/scalear_leg/urdf_scalar_6DoF/meshes/'
 
 class Pybullet(RobotBase):
     def __init__(self):
@@ -14,6 +16,8 @@ class Pybullet(RobotBase):
 
 
     def init(self, *args):
+        full_path = Path.cwd().joinpath(URDF_PATH)
+        urdf_filename = urdf_filepath_resolver(full_path, MESH_DIR)
         self.my_sim = pyb_sim(urdf_filename=urdf_filename, DoFnum=6, delta_t=self.run.DT)
         self.other_leg_pos = [0.25, 0.0, -0.25]
         self.inpt.set(self.other_leg_pos)

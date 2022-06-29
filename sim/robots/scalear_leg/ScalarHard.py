@@ -78,8 +78,8 @@ class ScalerHard(RobotBase):
     def drive(self, inpt, timestamp):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.set(inpt)
-        joint = self.frame2hard.bind(self.ik(inpt))
-        self.joint_space.set(joint)
+        self.joint_space.set(self.ik(inpt))
+        joint = self.frame2hard.bind(self.joint_space)
         self.dynamiexl_actor.drive.remote(joint)
 
     def sense(self):

@@ -1286,7 +1286,7 @@ class Leg:
     def leg_ik_direct_calculation_3DoF(shoulder_2_toe_xyz, which_leg, is_first_ik = True, prev_angles=None):
         shoulder_angle = np.arctan2(shoulder_2_toe_xyz[1],shoulder_2_toe_xyz[0])
         if is_first_ik == False:
-            prev_shoulder_angle = prev_angles[6*which_leg]
+            prev_shoulder_angle = prev_angles[0]
             shoulder_angle2 = shoulder_angle
             if shoulder_angle<-np.pi/2:
                 shoulder_angle2 = shoulder_angle + np.pi
@@ -1326,8 +1326,8 @@ class Leg:
         if is_first_ik == True:
             sol = Leg.leg_ik_2DoF(P_A[1, 0], P_A[0, 0])
         else:
-            prev_q11_angle = prev_angles[6 * which_leg + 1]
-            prev_q21_angle = prev_angles[6 * which_leg + 2]
+            prev_q11_angle = prev_angles[1]
+            prev_q21_angle = prev_angles[2]
             prev_q11q21 = np.array([prev_q11_angle, prev_q21_angle])
 
             min_dist = 2147483647.0
@@ -1341,7 +1341,6 @@ class Leg:
                     min_dist = dist
                     sol = current_sol
                     dcase = i
-            print(dcase)
 
 
 
