@@ -394,12 +394,15 @@ class DefDict:
 
 ##############################################################
     # Math operations
-
-    def __add__(self, other):
+    def _math(self, other, func, immutable=True):
+        if immutable:
+            current = self.clone()
+        else:
+            current = self
         if np.isscalar(other):  # if scalar, then add the value to all elements
-            for k in self._data.keys():
-                self._data[k][0] += other
-        else:   # other wise element wise
+            for k in current._data.keys():
+                current._data[k][0] = func(current._data[k][0], other)
+        else:  # other wise element wise
             if not isinstance(other, DefDict):
                 # if not DefDict, create one assuming
                 other_defdict = self.clone()
@@ -408,10 +411,55 @@ class DefDict:
             else:
                 other_defdict = other
             # sum for corresponding keys
-            for k, o in zip(self.filter(other_defdict.keys()).list_keys(),
-                            other_defdict.filter(other_defdict.list_keys()).list()):
-                self._data[k][0] += o
-        return self
+            for k, o in zip(current.filter(other_defdict.keys()).list_keys(),
+                        other_defdict.filter(other_defdict.list_keys()).list()):
+                current._data[k][0] = func(current._data[k][0], o)
+        return current
+
+    def __add__(self, other):
+        return self._math(other, lambda v, o: v + o, immutable=True)
+
+    def __iadd__(self, other):
+        return self._math(other, lambda v, o: v + o, immutable=False)
+
+    def __sub__(self, other):
+        return self._math(other, lambda v, o: v - o, immutable=True)
+
+    def __isub__(self, other):
+        return self._math(other, lambda v, o: v - o, immutable=False)
+
+    def __mul__(self, other):
+        return self._math(other, lambda v, o: v * o, immutable=True)
+
+    def __imul__(self, other):
+        return self._math(other, lambda v, o: v * o, immutable=False)
+
+    def __floordiv__(self, other):
+        return self._math(other, lambda v, o: v // o, immutable=True)
+
+    def __ifloordiv__(self, other):
+        return self._math(other, lambda v, o: v // o, immutable=False)
+
+    def __truediv__(self, other):
+        return self._math(other, lambda v, o: v / o, immutable=True)
+
+    def __itruediv__(self, other):
+        return self._math(other, lambda v, o: v / o, immutable=False)
+
+    def __mod__(self, other):
+        return self._math(other, lambda v, o: v % o, immutable=True)
+
+    def __imod__(self, other):
+        return self._math(other, lambda v, o: v % o, immutable=True)
+
+    def __pow__(self, other, modulo=None):  #Todo: modulo implementation
+        return self._math(other, lambda v, o: v ** o, immutable=True)
+
+    def __ipow__(self, other, modulo=None):  #Todo: modulo implementation
+        return self._math(other, lambda v, o: v ** o, immutable=False)
+
+
+
 
 
 
