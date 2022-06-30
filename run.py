@@ -28,14 +28,14 @@ s = Sim()    # Create instance of Robot testing system
 #i = FileInput('sim/utils/target_robot_circle_line.csv', loop=True)
 
 #i_video = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
-#i_helix = FileInput('trajectory/target_robot_circle_helix.csv', loop=True)
-i = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
+i_helix = FileInput('trajectory/target_robot_circle_line.csv', loop=True)
+#i = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
 #i = KeyboardInput()
 #i = JoystickInput()
 
 
 
-s.set_input(i)  # specify inputs to run
+s.set_input(i_helix)  # specify inputs to run
 
 # Create instance of robots and corresponding omutput methods.
 # each robot can have multiple output system
