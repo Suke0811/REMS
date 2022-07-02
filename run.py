@@ -1,5 +1,5 @@
 import logging, os
-from sim.SimRay import Sim
+from sim import Simulation
 from sim.inputs import FileInput
 from sim.inputs.JoyManipulator import JoyManipulator
 from sim.outputs import FileOutput
@@ -7,21 +7,16 @@ from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.tuning.AutoTuning import AutoTuning
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.bind.kinematic_model.KinematicModel import KinematicModel
-from sim.bind.kinematic_model.KinematicModelNN import KinematicModel
 from sim.robots.scalear_leg.Pybullet import Pybullet
 from sim.utils import time_str
 from sim.Config import SimConfig
 import ray
 
-PRINT = True
 
-LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO').upper()
+logging.basicConfig(level=logging.INFO)
 
-if PRINT:
-    logging.basicConfig(level=LOGLEVEL)
-
-ray.init(local_mode=True)
-s = Sim()    # Create instance of Robot testing system
+ray.init(local_mode=False)
+s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -56,7 +51,7 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 
-
+Sim
 N = 1
 for n in range(N):
     s.add_robot(ScalerManipulator, Pybullet)
@@ -67,7 +62,7 @@ for n in range(N):
 # add processalse
 #s.add_process(AutoTuning, robot, robot2, False)
 
-s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=1, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)

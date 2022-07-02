@@ -25,4 +25,4 @@ class JobHandler(JobHandlerBase):
             ret.callback(**ret.kwargs)
 
     def __del__(self):
-        self.executor.shutdown(cancel_futures=True)
+        self.executor.shutdown()

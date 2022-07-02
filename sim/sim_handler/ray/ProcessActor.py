@@ -1,5 +1,5 @@
 import ray
-from sim.sim_handler.job_background import JobHandler
+from sim.sim_handler.job_background import JobHandler as JobHandler
 from sim.sim_handler.ray.RobotRayWrapper import RobotRayWrapper
 
 

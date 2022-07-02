@@ -1,7 +1,7 @@
 import logging, os, ray
 import time
 
-from sim.SimRay import Sim
+from sim import Simulation
 from sim.inputs import FileInput
 from sim.outputs import FileOutput
 from sim.robots.bind_robot import bind_robot
@@ -13,7 +13,7 @@ from sim.robots.scalear_leg.Pybullet import Pybullet
 
 ray.init(local_mode=True)
 
-pybullet_robots = bind_robot(ScalerManipulator, ScalerHard, '/dev/ttyUSB0', 2)
+pybullet_robots = bind_robot(ScalerManipulator, (ScalerHard, '/dev/ttyUSB0', 2))
 #pybullet_robots = bind_robot(ScalerManipulator, Pybullet)
 pybullet_robots.inpt.set(dict(x=0.0,y=0,z=-0.3))
 pybullet_robots.run.DT = 0.01
