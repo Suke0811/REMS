@@ -188,6 +188,7 @@ class pyb_sim(object):
             JointAngleList.append(p.getJointState(self.RobotId, self.jointNameToId[self.motorJointNameList[i]])[0])
         for i in range(self.N_leg):
             JointAngleList[i * self.DoFnum + 2] = JointAngleList[i * self.DoFnum + 2] + np.pi / 2
+        JointAngleList.insert(0, p.getJointState(self.RobotId, self.jointNameToId[self.bodyJointNameList[0]])[0])
         return JointAngleList
 
     def startRecordingVideo(self, video_path_name):
