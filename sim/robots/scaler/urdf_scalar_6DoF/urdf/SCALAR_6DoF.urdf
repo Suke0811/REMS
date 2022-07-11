@@ -1,0 +1,2154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="SCALAR_6DoF">
+  <link
+    name="BodyLeft_Link">
+    <inertial>
+      <origin
+        xyz="-0.12216 0.010219 -0.012529"
+        rpy="0 0 0" />
+      <mass
+        value="0.25854" />
+      <inertia
+        ixx="0.00012727"
+        ixy="1.0433E-07"
+        ixz="-4.6585E-07"
+        iyy="5.127E-05"
+        iyz="-1.2095E-09"
+        izz="0.00013035" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyLeft_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyLeft_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Shoulder_Link3">
+    <inertial>
+      <origin
+        xyz="0.00424366687759464 8.36633175516077E-07 -0.0796188418774041"
+        rpy="0 0 0" />
+      <mass
+        value="0.203750303511252" />
+      <inertia
+        ixx="5.4088754517146E-05"
+        ixy="-3.80051435182772E-11"
+        ixz="3.81987030578277E-06"
+        iyy="6.33464778033522E-05"
+        iyz="3.26989253460772E-11"
+        izz="5.7922233971089E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Shoulder_Joint3"
+    type="continuous">
+    <origin
+      xyz="-0.1355 0.14425 5E-05"
+      rpy="0 0 1.5708" />
+    <parent
+      link="BodyLeft_Link" />
+    <child
+      link="Shoulder_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="Shoulder_Link2">
+    <inertial>
+      <origin
+        xyz="0.00424366680874015 8.36638210183205E-07 -0.0796188418687182"
+        rpy="0 0 0" />
+      <mass
+        value="0.203750302663108" />
+      <inertia
+        ixx="5.40887544522172E-05"
+        ixy="-3.80034387164297E-11"
+        ixz="3.8198702728136E-06"
+        iyy="6.3346477697203E-05"
+        iyz="3.27488009572917E-11"
+        izz="5.79222339909088E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Shoulder_Joint2"
+    type="continuous">
+    <origin
+      xyz="-0.1355 -0.14425 0"
+      rpy="0 0 -1.5708" />
+    <parent
+      link="BodyLeft_Link" />
+    <child
+      link="Shoulder_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="BodyTopleft_Link">
+    <inertial>
+      <origin
+        xyz="0.0499965033355658 0.000591315666120695 0.00195000000000028"
+        rpy="0 0 0" />
+      <mass
+        value="0.0276340437564468" />
+      <inertia
+        ixx="2.20718150860065E-06"
+        ixy="-2.93662319028906E-07"
+        ixz="-1.94644226639724E-11"
+        iyy="2.70333172266635E-05"
+        iyz="-2.30207730263914E-13"
+        izz="2.84209672926098E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyTopleft_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyTopleft_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BodyTopleft_Joint"
+    type="continuous">
+    <origin
+      xyz="-0.049997 0.07424 0"
+      rpy="0 0 0" />
+    <parent
+      link="BodyLeft_Link" />
+    <child
+      link="BodyTopleft_Link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="BodyRight_Link">
+    <inertial>
+      <origin
+        xyz="0.0832867404495188 -0.0739704960165019 -0.0147463470633135"
+        rpy="0 0 0" />
+      <mass
+        value="0.22254618736472" />
+      <inertia
+        ixx="0.000121983905207345"
+        ixy="2.08653298222198E-07"
+        ixz="1.01291721051796E-06"
+        iyy="4.87178387085696E-05"
+        iyz="2.41876832790035E-09"
+        izz="0.000127723149906406" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyRight_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyRight_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BodyRight_Joint"
+    type="continuous">
+    <origin
+      xyz="0.099993 0.0011826 0"
+      rpy="0 0 0" />
+    <parent
+      link="BodyTopleft_Link" />
+    <child
+      link="BodyRight_Link" />
+    <axis
+      xyz="0 0 1" />
+    <mimic
+      joint="BodyTopleft_Joint"
+      multiplier="-1"
+      offset="0" />
+  </joint>
+  <link
+    name="Shoulder_Link0">
+    <inertial>
+      <origin
+        xyz="0.0042436668336383 8.36626782060867E-07 -0.0796188418783815"
+        rpy="0 0 0" />
+      <mass
+        value="0.203750302873461" />
+      <inertia
+        ixx="5.40887545389549E-05"
+        ixy="-3.79861569745728E-11"
+        ixz="3.81987028780758E-06"
+        iyy="6.334647776662E-05"
+        iyz="3.27441901780547E-11"
+        izz="5.79222340299616E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Shoulder_Joint0"
+    type="continuous">
+    <origin
+      xyz="0.0855 0.07001 0"
+      rpy="0 0 1.5708" />
+    <parent
+      link="BodyRight_Link" />
+    <child
+      link="Shoulder_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="Shoulder_Link1">
+    <inertial>
+      <origin
+        xyz="0.00424366681559094 8.36647932614398E-07 -0.0796188419008201"
+        rpy="0 0 0" />
+      <mass
+        value="0.203750302719754" />
+      <inertia
+        ixx="5.40887544683585E-05"
+        ixy="-3.80130040788451E-11"
+        ixz="3.8198703012397E-06"
+        iyy="6.33464777598383E-05"
+        iyz="3.27161575597468E-11"
+        izz="5.79222339432898E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/Shoulder_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Shoulder_Joint1"
+    type="continuous">
+    <origin
+      xyz="0.0855 -0.21849 0"
+      rpy="0 0 -1.5708" />
+    <parent
+      link="BodyRight_Link" />
+    <child
+      link="Shoulder_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="BodyBot_Link">
+    <inertial>
+      <origin
+        xyz="0.0499965033355658 0.000591315666120695 0.00195000000000028"
+        rpy="0 0 0" />
+      <mass
+        value="0.0276340437564468" />
+      <inertia
+        ixx="2.20718150860065E-06"
+        ixy="-2.93662319028906E-07"
+        ixz="-1.94644226639724E-11"
+        iyy="2.70333172266635E-05"
+        iyz="-2.30207730263914E-13"
+        izz="2.84209672926098E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyBot_Link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar/meshes/BodyBot_Link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="BodyBot_Joint"
+    type="continuous">
+    <origin
+      xyz="-0.049997 -0.07424 0"
+      rpy="0 0 0" />
+    <parent
+      link="BodyLeft_Link" />
+    <child
+      link="BodyBot_Link" />
+    <axis
+      xyz="0 0 1" />
+    <mimic
+      joint="BodyTopleft_Joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+
+  <link
+    name="A_Link0">
+    <inertial>
+      <origin
+        xyz="0.0491773437837706 -5.04530106582024E-09 -0.000505901051906482"
+        rpy="0 0 0" />
+      <mass
+        value="0.0172766220082783" />
+      <inertia
+        ixx="7.70463086806312E-07"
+        ixy="-4.97126422284062E-13"
+        ixz="-1.18414876964202E-09"
+        iyy="3.80418367126543E-06"
+        iyz="-1.74798560423757E-13"
+        izz="4.04275269676014E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="A_Joint0"
+    type="continuous">
+    <origin
+      xyz="-0.0105 0 -0.0712996592501486"
+      rpy="1.57079632679489 1.5707963267949 0" />
+    <parent
+      link="Shoulder_Link0" />
+    <child
+      link="A_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="B_Link0">
+    <inertial>
+      <origin
+        xyz="0.0710000000004331 3.48610029732299E-13 -2.15356501936936E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.0203158925212621" />
+      <inertia
+        ixx="5.55385009194578E-07"
+        ixy="-1.91191238734631E-12"
+        ixz="-2.73350722463823E-16"
+        iyy="1.49387673112499E-05"
+        iyz="-1.94147537264681E-18"
+        izz="1.49390323844287E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="B_Joint0"
+    type="continuous">
+    <origin
+      xyz="0.112999999945765 0 0"
+      rpy="2.8836471459536E-05 1.13266146554807E-05 1.19652276972355" />
+    <parent
+      link="A_Link0" />
+    <child
+      link="B_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link00">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint00"
+    type="fixed">
+    <origin
+      xyz="0.142000000000001 0 0"
+      rpy="0 0 0.768899902087833" />
+    <parent
+      link="B_Link0" />
+    <child
+      link="C_Link00" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="F_Link0">
+    <inertial>
+      <origin
+        xyz="0.0632748469767614 -1.58846685804903E-11 1.02938144119769E-10"
+        rpy="0 0 0" />
+      <mass
+        value="0.0228083677047994" />
+      <inertia
+        ixx="7.74097221505852E-07"
+        ixy="-2.11733803334857E-15"
+        ixz="-9.78347899932975E-16"
+        iyy="7.49118428014531E-06"
+        iyz="8.16394445710508E-11"
+        izz="7.57245012861994E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="F_Joint0"
+    type="continuous">
+    <origin
+      xyz="-0.0105000000000001 0 -0.099799659236471"
+      rpy="1.57082730798735 0 0" />
+    <parent
+      link="Shoulder_Link0" />
+    <child
+      link="F_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="E_Link0">
+    <inertial>
+      <origin
+        xyz="0.154269695183404 -0.000622437016925104 -3.71070647128824E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.145591757894412" />
+      <inertia
+        ixx="4.26591916331837E-05"
+        ixy="-4.57963917878939E-07"
+        ixz="2.33992923221733E-09"
+        iyy="5.06483884452448E-05"
+        iyz="-1.11652247600592E-10"
+        izz="4.42847050084789E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="E_Joint0"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="-2.38222617335157E-05 0 -1.17616998194172" />
+    <parent
+      link="F_Link0" />
+    <child
+      link="E_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link01">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint01"
+    type="fixed">
+    <origin
+      xyz="0.1333 -0.0347499999917915 0"
+      rpy="0 -2.38222617336941E-05 1.5707963267949" />
+    <parent
+      link="E_Link0" />
+    <child
+      link="C_Link01" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="wrist1_Link0">
+    <inertial>
+      <origin
+        xyz="-0.00438716610589873 -0.0313397598834307 0.000200152314880797"
+        rpy="0 0 0" />
+      <mass
+        value="0.0114059890218026" />
+      <inertia
+        ixx="4.854754792092E-06"
+        ixy="2.73578674497235E-09"
+        ixz="3.38661623366355E-10"
+        iyy="3.1686801684545E-06"
+        iyz="-7.58050743955702E-08"
+        izz="3.05529077743529E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist1_Joint0"
+    type="continuous">
+    <origin
+      xyz="0.217549999999999 -0.000125000001616304 0"
+      rpy="-1.57077250453316 0 0" />
+    <parent
+      link="E_Link0" />
+    <child
+      link="wrist1_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist2_Link0">
+    <inertial>
+      <origin
+        xyz="-2.052E-09 -0.032308 -0.032508"
+        rpy="0 0 0" />
+      <mass
+        value="0.088759" />
+      <inertia
+        ixx="2.3188E-05"
+        ixy="-6.0084E-13"
+        ixz="4.4589E-12"
+        iyy="1.7277E-05"
+        iyz="1.6996E-08"
+        izz="1.7277E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist2_Joint0"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.57079535489323 1.57079631189374 3.14159120135913" />
+    <parent
+      link="wrist1_Link0" />
+    <child
+      link="wrist2_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist3_Link0">
+    <inertial>
+      <origin
+        xyz="-0.012683376670432 -1.1845312153369E-06 0.0514799846332271"
+        rpy="0 0 0" />
+      <mass
+        value="0.009802321236509" />
+      <inertia
+        ixx="3.16491433126749E-06"
+        ixy="2.13446464407493E-10"
+        ixz="9.22361537950226E-08"
+        iyy="3.48745257153525E-06"
+        iyz="2.36508757716651E-10"
+        izz="1.15050670855822E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link0.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link0.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist3_Joint0"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707963267949 1.5707963267949 0" />
+    <parent
+      link="wrist2_Link0" />
+    <child
+      link="wrist3_Link0" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
+  <link
+    name="A_Link1">
+    <inertial>
+      <origin
+        xyz="0.0491773593155607 5.0443243748699E-09 0.000504377495588695"
+        rpy="0 0 0" />
+      <mass
+        value="0.017276622076872" />
+      <inertia
+        ixx="7.70463167538175E-07"
+        ixy="4.97225961456043E-13"
+        ixz="1.28552541310088E-09"
+        iyy="3.80418367892351E-06"
+        iyz="-1.74186371891065E-13"
+        izz="4.0427526282585E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="A_Joint1"
+    type="continuous">
+    <origin
+      xyz="-0.0105 0 -0.0712996592501487"
+      rpy="-3.14159265357949 1.57076534560722 1.5707963268052" />
+    <parent
+      link="Shoulder_Link1" />
+    <child
+      link="A_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="B_Link1">
+    <inertial>
+      <origin
+        xyz="0.0710000000004316 3.52710916029508E-13 -2.15356502075714E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.020315892521262" />
+      <inertia
+        ixx="5.55385009194579E-07"
+        ixy="-1.91191243041264E-12"
+        ixz="-2.73348641140579E-16"
+        iyy="1.49387673112499E-05"
+        iyz="-1.94090969407952E-18"
+        izz="1.49390323844287E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="B_Joint1"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 1.19652276956048" />
+    <parent
+      link="A_Link1" />
+    <child
+      link="B_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link10">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint10"
+    type="fixed">
+    <origin
+      xyz="0.142 0 0"
+      rpy="0 0 0.768899902087764" />
+    <parent
+      link="B_Link1" />
+    <child
+      link="C_Link10" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="F_Link1">
+    <inertial>
+      <origin
+        xyz="0.0632748469767613 1.58844881692488E-11 -1.02938185753132E-10"
+        rpy="0 0 0" />
+      <mass
+        value="0.0228083677047995" />
+      <inertia
+        ixx="7.74097221505856E-07"
+        ixy="2.11735447436665E-15"
+        ixz="9.78349693364145E-16"
+        iyy="7.49118428014532E-06"
+        iyz="8.16394445713066E-11"
+        izz="7.57245012861996E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="F_Joint1"
+    type="continuous">
+    <origin
+      xyz="-0.0105000000030603 0 -0.0997996592377116"
+      rpy="1.57082730798735 0 0" />
+    <parent
+      link="Shoulder_Link1" />
+    <child
+      link="F_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="E_Link1">
+    <inertial>
+      <origin
+        xyz="0.154269695183363 -0.000261822190624844 -3.69587828454032E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.145591757894417" />
+      <inertia
+        ixx="4.26591917225218E-05"
+        ixy="-3.7674447813992E-07"
+        ixz="2.35091773277839E-09"
+        iyy="5.06483884422214E-05"
+        iyz="-2.63299196848153E-10"
+        izz="4.42847051171403E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="E_Joint1"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 -1.17616998194154" />
+    <parent
+      link="F_Link1" />
+    <child
+      link="E_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link11">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint11"
+    type="fixed">
+    <origin
+      xyz="0.1333 -0.0347499999983488 0"
+      rpy="0 0 1.5707963267949" />
+    <parent
+      link="E_Link1" />
+    <child
+      link="C_Link11" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="wrist1_Link1">
+    <inertial>
+      <origin
+        xyz="-0.00438716604580061 0.0313397598730431 -0.000200152373259585"
+        rpy="0 0 0" />
+      <mass
+        value="0.0114059890379435" />
+      <inertia
+        ixx="4.85475480024295E-06"
+        ixy="-2.73579078739719E-09"
+        ixz="-3.3867448067015E-10"
+        iyy="3.16868018532831E-06"
+        iyz="-7.58050741927778E-08"
+        izz="3.05529079641904E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist1_Joint1"
+    type="continuous">
+    <origin
+      xyz="0.21755 -0.000124999998348826 0"
+      rpy="-1.57079632679489 0 0" />
+    <parent
+      link="E_Link1" />
+    <child
+      link="wrist1_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist2_Link1">
+    <inertial>
+      <origin
+        xyz="-4.74873133871068E-10 -0.0323082905083021 0.0325081757616932"
+        rpy="0 0 0" />
+      <mass
+        value="0.0887594985431726" />
+      <inertia
+        ixx="2.31877417687572E-05"
+        ixy="4.89758137956834E-12"
+        ixz="7.46417151687267E-13"
+        iyy="1.72768589607069E-05"
+        iyz="-1.70222949690679E-08"
+        izz="1.72768651644308E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist2_Joint1"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.57079535489323 1.57079631189374 3.14159120135913" />
+    <parent
+      link="wrist1_Link1" />
+    <child
+      link="wrist2_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist3_Link1">
+    <inertial>
+      <origin
+        xyz="0.01268337667044 1.1845312209019E-06 0.0514799846332216"
+        rpy="0 0 0" />
+      <mass
+        value="0.009802321236509" />
+      <inertia
+        ixx="3.16491433126747E-06"
+        ixy="2.1344646440768E-10"
+        ixz="-9.22361537950073E-08"
+        iyy="3.48745257153524E-06"
+        iyz="-2.36508757727292E-10"
+        izz="1.15050670855822E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist3_Joint1"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707963267949 1.5707963267949 0" />
+    <parent
+      link="wrist2_Link1" />
+    <child
+      link="wrist3_Link1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
+  <link
+    name="A_Link2">
+    <inertial>
+      <origin
+        xyz="0.0491773592473042 -5.06370456676564E-09 -0.000504377459628003"
+        rpy="0 0 0" />
+      <mass
+        value="0.0172766221215853" />
+      <inertia
+        ixx="7.70463170198879E-07"
+        ixy="-4.94194769127755E-13"
+        ixz="-1.28553142920133E-09"
+        iyy="3.8041836838317E-06"
+        iyz="-1.74563196945372E-13"
+        izz="4.04275263359754E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="A_Joint2"
+    type="continuous">
+    <origin
+      xyz="-0.0105 0 -0.0712996592501487"
+      rpy="-3.14159265358262 1.57076534560363 1.57079632680207" />
+    <parent
+      link="Shoulder_Link2" />
+    <child
+      link="A_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="B_Link2">
+    <inertial>
+      <origin
+        xyz="0.0709999999725704 9.38915611925495E-13 -2.15392170210826E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.0203158925293566" />
+      <inertia
+        ixx="5.55385009388845E-07"
+        ixy="-1.91187150339529E-12"
+        ixz="-2.88192723679716E-16"
+        iyy="1.49387673115589E-05"
+        iyz="-1.06108190461772E-16"
+        izz="1.49390323843916E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="B_Joint2"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 1.19652276956674" />
+    <parent
+      link="A_Link2" />
+    <child
+      link="B_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link20">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint20"
+    type="fixed">
+    <origin
+      xyz="0.142 0 0"
+      rpy="0 0 0.768899902061379" />
+    <parent
+      link="B_Link2" />
+    <child
+      link="C_Link20" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="F_Link2">
+    <inertial>
+      <origin
+        xyz="0.0632748470714142 4.33983127212656E-11 -2.29541663454569E-10"
+        rpy="0 0 0" />
+      <mass
+        value="0.0228083676541372" />
+      <inertia
+        ixx="7.74097224120634E-07"
+        ixy="-1.02416039968625E-15"
+        ixz="6.59642466286897E-16"
+        iyy="7.49118428664776E-06"
+        iyz="8.16420850781705E-11"
+        izz="7.57245012907263E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="F_Joint2"
+    type="continuous">
+    <origin
+      xyz="-0.0105000000000001 0 -0.0997996592364712"
+      rpy="1.57082730798735 0 0" />
+    <parent
+      link="Shoulder_Link2" />
+    <child
+      link="F_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="E_Link2">
+    <inertial>
+      <origin
+        xyz="0.154269695183301 -0.00062243710226606 -3.69587844376018E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.145591757894426" />
+      <inertia
+        ixx="4.26591918389026E-05"
+        ixy="-4.57963990378175E-07"
+        ixz="2.35087361178525E-09"
+        iyy="5.06483885168871E-05"
+        iyz="-2.63320846021494E-10"
+        izz="4.42847051904975E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="E_Joint2"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 -1.17616998196167" />
+    <parent
+      link="F_Link2" />
+    <child
+      link="E_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link21">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint21"
+    type="fixed">
+    <origin
+      xyz="0.13330000000003 -0.0347499999983501 0"
+      rpy="0 0 1.5707963267949" />
+    <parent
+      link="E_Link2" />
+    <child
+      link="C_Link21" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="wrist1_Link2">
+    <inertial>
+      <origin
+        xyz="-0.00438716610589551 -0.0313397598834285 0.000200152314880769"
+        rpy="0 0 0" />
+      <mass
+        value="0.0114059890218026" />
+      <inertia
+        ixx="4.854754792092E-06"
+        ixy="2.7357867449731E-09"
+        ixz="3.38661623363708E-10"
+        iyy="3.1686801684545E-06"
+        iyz="-7.58050743955664E-08"
+        izz="3.0552907774353E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist1_Joint2"
+    type="continuous">
+    <origin
+      xyz="0.217550000000031 -0.000124999998350635 0"
+      rpy="-1.57079632679489 0 0" />
+    <parent
+      link="E_Link2" />
+    <child
+      link="wrist1_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist2_Link2">
+    <inertial>
+      <origin
+        xyz="1.83144156784554E-09 -0.0323080949502701 -0.0325080948238568"
+        rpy="0 0 0" />
+      <mass
+        value="0.088758549992062" />
+      <inertia
+        ixx="2.318770377785E-05"
+        ixy="-4.96377618319782E-12"
+        ixz="5.80408883773937E-13"
+        iyy="1.72768066668343E-05"
+        iyz="1.69958874008351E-08"
+        izz="1.72768068091799E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist2_Joint2"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.57079535489323 1.57079631189374 3.14159120135913" />
+    <parent
+      link="wrist1_Link2" />
+    <child
+      link="wrist2_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist3_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0126833766704402 -1.18453121931289E-06 0.0514799846332219"
+        rpy="0 0 0" />
+      <mass
+        value="0.00980232123650898" />
+      <inertia
+        ixx="3.16491433126748E-06"
+        ixy="2.1344646440709E-10"
+        ixz="9.22361537950019E-08"
+        iyy="3.48745257153524E-06"
+        iyz="2.36508757725651E-10"
+        izz="1.15050670855821E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist3_Joint2"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.57079632679491 1.5707963267949 0" />
+    <parent
+      link="wrist2_Link2" />
+    <child
+      link="wrist3_Link2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
+  <link
+    name="A_Link3">
+    <inertial>
+      <origin
+        xyz="0.0491773592826825 5.06832686930636E-09 0.000504377476601758"
+        rpy="0 0 0" />
+      <mass
+        value="0.0172766220962013" />
+      <inertia
+        ixx="7.70463168566141E-07"
+        ixy="4.93662319787938E-13"
+        ixz="1.28552828630222E-09"
+        iyy="3.8041836810083E-06"
+        iyz="-1.74362313277701E-13"
+        izz="4.04275262989885E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/A_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="A_Joint3"
+    type="continuous">
+    <origin
+      xyz="-0.0104999999999999 0 -0.0712996592501488"
+      rpy="3.14159265358128 1.57076534560363 1.57079632678638" />
+    <parent
+      link="Shoulder_Link3" />
+    <child
+      link="A_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="B_Link3">
+    <inertial>
+      <origin
+        xyz="0.0710000000282937 -2.33701946683595E-13 -2.15392171321049E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.020315892529357" />
+      <inertia
+        ixx="5.55385009388849E-07"
+        ixy="-1.91187153673397E-12"
+        ixz="-2.58511516674251E-16"
+        iyy="1.4938767311559E-05"
+        iyz="1.02230591486451E-16"
+        izz="1.49390323843916E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/B_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="B_Joint3"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 1.19652276955359" />
+    <parent
+      link="A_Link3" />
+    <child
+      link="B_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link30">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint30"
+    type="fixed">
+    <origin
+      xyz="0.142 0 0"
+      rpy="0 0 0.768899902047162" />
+    <parent
+      link="B_Link3" />
+    <child
+      link="C_Link30" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="F_Link3">
+    <inertial>
+      <origin
+        xyz="0.0632748468642013 -9.86113968259872E-13 1.70310987535061E-12"
+        rpy="0 0 0" />
+      <mass
+        value="0.0228083677507354" />
+      <inertia
+        ixx="7.74097224786524E-07"
+        ixy="2.20781525626521E-18"
+        ixz="6.80199784810405E-21"
+        iyy="7.49118428243466E-06"
+        iyz="8.16381893814049E-11"
+        izz="7.57245013299218E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/F_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="F_Joint3"
+    type="continuous">
+    <origin
+      xyz="-0.0105000000000001 0 -0.099799659236471"
+      rpy="1.57082730798735 0 0" />
+    <parent
+      link="Shoulder_Link3" />
+    <child
+      link="F_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="E_Link3">
+    <inertial>
+      <origin
+        xyz="0.154269695185684 -0.000261822187904381 -3.69587830645335E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.145591757894419" />
+      <inertia
+        ixx="4.26591917116278E-05"
+        ixy="-3.76744386309951E-07"
+        ixz="2.35091010059322E-09"
+        iyy="5.06483884037384E-05"
+        iyz="-2.63248216513197E-10"
+        izz="4.42847051456564E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/E_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="E_Joint3"
+    type="continuous">
+    <origin
+      xyz="0.113 0 0"
+      rpy="0 0 -1.17616998198904" />
+    <parent
+      link="F_Link3" />
+    <child
+      link="E_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="C_Link31">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1.0E-07" />
+      <inertia
+        ixx="1.0E-10"
+        ixy="0"
+        ixz="0"
+        iyy="1.0E-10"
+        iyz="0"
+        izz="1.0E-10" />
+    </inertial>
+  </link>
+  <joint
+    name="C_Joint31"
+    type="fixed">
+    <origin
+      xyz="0.133300000002323 -0.0347499999960008 0"
+      rpy="0 0 1.5707963267949" />
+    <parent
+      link="E_Link3" />
+    <child
+      link="C_Link31" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="wrist1_Link3">
+    <inertial>
+      <origin
+        xyz="-0.00438716604579908 0.0313397598730401 -0.000200152373259987"
+        rpy="0 0 0" />
+      <mass
+        value="0.0114059890379434" />
+      <inertia
+        ixx="4.85475480024291E-06"
+        ixy="-2.73579078739654E-09"
+        ixz="-3.38674480680209E-10"
+        iyy="3.16868018532827E-06"
+        iyz="-7.58050741927936E-08"
+        izz="3.05529079641901E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist1_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist1_Joint3"
+    type="continuous">
+    <origin
+      xyz="0.217550000002322 -0.000124999996000685 0"
+      rpy="-1.57079632679489 0 0" />
+    <parent
+      link="E_Link3" />
+    <child
+      link="wrist1_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist2_Link3">
+    <inertial>
+      <origin
+        xyz="-4.74871919564634E-10 -0.0323082905083057 0.03250817576169"
+        rpy="0 0 0" />
+      <mass
+        value="0.0887594985431725" />
+      <inertia
+        ixx="2.31877417687572E-05"
+        ixy="4.8975813939679E-12"
+        ixz="7.46417152704007E-13"
+        iyy="1.72768589607069E-05"
+        iyz="-1.70222949690626E-08"
+        izz="1.72768651644308E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist2_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist2_Joint3"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707950355398 1.57079630572147 3.14159223609714" />
+    <parent
+      link="wrist1_Link3" />
+    <child
+      link="wrist2_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="wrist3_Link3">
+    <inertial>
+      <origin
+        xyz="0.012683376670435 1.18453122233131E-06 0.0514799846332219"
+        rpy="0 0 0" />
+      <mass
+        value="0.00980232123650903" />
+      <inertia
+        ixx="3.16491433126749E-06"
+        ixy="2.13446464415421E-10"
+        ixz="-9.22361537949996E-08"
+        iyy="3.48745257153525E-06"
+        iyz="-2.36508757728589E-10"
+        izz="1.15050670855822E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/home/max/ucla/scalar/AbstractedRobot/sim/robots/scaler/urdf_scalar_6DoF/meshes/wrist3_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wrist3_Joint3"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="1.5707963267949 1.5707963267949 0" />
+    <parent
+      link="wrist2_Link3" />
+    <child
+      link="wrist3_Link3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+</robot>
