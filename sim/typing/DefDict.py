@@ -52,11 +52,8 @@ class DefDict:
     def list_keys(self):
         return list(self._data.keys())
 
-    def get(self, format=None, flatten=None):
-        if format is None:
-            return self.data
-        else:
-            return self.filter(format)
+    def get(self, key, flatten=None):
+        return self._data[key][0]
 
     def keys(self, to_int=False):
         if to_int:
@@ -162,7 +159,7 @@ class DefDict:
             ndata = {k:v}
             self._dict2dict(ndata)
         elif isinstance(ndata, np.ndarray):
-            self._list2dict(ndata.flatten())
+            self._list2dict(ndata)
         else:
             self._list2dict([ndata])
         return self
@@ -230,7 +227,10 @@ class DefDict:
         stored_data_keys = []
         for k, v in data.items():
             if k in self._data.keys():
-                self._data[k][0] = self._enforce_type(self.DEF[k], v)
+                if issubclass(self.DEF[k], DefDict):
+                    self._data[k][0].set(v)
+                else:
+                    self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
                 pass
@@ -242,12 +242,11 @@ class DefDict:
 
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
-        for i, key in enumerate(self._data):
+        for i, key in enumerate(self._data.keys()):
             if i > length:
                 break
-            if isinstance(key, tuple):
-                k, v = key
-                self._data[k][0] = self._enforce_type(self.DEF[k], v)
+            if issubclass(self.DEF[key], DefDict):
+                self._data[key][0].set(data[i])
             else:
                 self._data[key][0] = self._enforce_type(self.DEF[key], data[i])
 
@@ -371,13 +370,13 @@ class DefDict:
         Insert key with a value of default if key is not in the dictionary.
         Return the value for key if key is in the dictionary, else default.
         """
-        self.set(ndata)
+        return self.set(ndata)
 
     def update(self, ndata):  # known special case of dict.update
         """
         same as set
         """
-        self.set(ndata)
+        return self.set(ndata)
 
     def values(self):  # real signature unknown; restored from __doc__
         """ D.values() -> an object providing a view on D's values """
@@ -461,6 +460,6 @@ class DefDict:
 
 
 
-
-
-
+if __name__ == '__main__':
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}),'leg.1':DefDict({'j.0':1, 'j.1':2})},prefixes=['leg'], suffixes=['j'])
+    pass
