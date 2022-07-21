@@ -327,6 +327,17 @@ class DefDict:
             d._data[keys[index]] = vals[index]
         return d
 
+    def flat_list(self):
+        ret = []
+        for elem in self.values():
+            try:
+                i = iter(elem)
+                for e in elem:
+                    ret.append(e)
+            except TypeError:
+                ret.append(elem)
+        return ret
+
     def __str__(self):
         return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
@@ -427,6 +438,9 @@ class DefDict:
                         other_defdict.filter(other_defdict.list_keys()).list()):
                 current._data[k][0] = func(current._data[k][0], o)
         return current
+
+    def __iter__(self):
+        return iter(self.values())
 
     def __add__(self, other):
         return self._math(other, lambda v, o: v + o, immutable=True)

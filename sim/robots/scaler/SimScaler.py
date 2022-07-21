@@ -27,10 +27,11 @@ class SimScaler(RobotBase):
         self.inpt.set(inpts)
         self.joint_space.set(self.ik(self.inpt))
 
-        self.my_sim.movetoPose(self.joint_space.as_ruled())
+        self.my_sim.movetoPose(self.joint_space.flat_list())
 
     def sense(self):
         # Return current motor angles in rad, order: (Shoulder, q11, q21, wrist1, wrist2, wrist3) * 4 for 4 leg
+
         joint_angles_legs = self.my_sim.getJointAngles()
         joint_angles_leg = joint_angles_legs[6*self.leg:6*self.leg+6]
         self.outpt.set(joint_angles_leg)

@@ -25,11 +25,9 @@ class ModeBase:
         return state
 
     def inpt(self):     # Legs and body joint angle
-        DEF = [define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(POS_3D))]
-        prefixes = [self.NAME_LEG]
+        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(POS_3D))]
+        prefixes = [self.NAME_BODY_JOINT, self.NAME_LEG]
 
-        DEF.append({self.NAME_BODY_JOINT: float})
-        prefixes.append(self.NAME_BODY_JOINT)
         inpt = DefDict(tuple(DEF), prefixes=prefixes, suffixes=POS_3D)
         return inpt
 
@@ -47,11 +45,9 @@ class ModeBase:
         return outpt
 
     def jointspace(self):   # Leg and j0-j6
-        DEF = [define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(joint_pos(self.DOF), prefixes='j'))]
-        prefixes = [self.NAME_LEG]
+        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(joint_pos(self.DOF), prefixes='j'))]
+        prefixes = [self.NAME_BODY_JOINT, self.NAME_LEG]
 
-        DEF.append({self.NAME_BODY_JOINT: float})
-        prefixes.append(self.NAME_BODY_JOINT)
         jointspace = DefDict(tuple(DEF), prefixes=prefixes)
         return jointspace
 
@@ -93,3 +89,4 @@ class ScalerMode:
             self.MOBILE = mobile
             super().__init__()
 
+pass

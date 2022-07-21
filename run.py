@@ -4,7 +4,6 @@ from sim.inputs import FileInput
 from sim.inputs.JoyManipulator import JoyManipulator
 from sim.outputs import FileOutput
 from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
-from sim.tuning.AutoTuning import AutoTuning
 from sim.robots.scalear_leg.ScalarHard import ScalerHard
 from sim.bind.kinematic_model.KinematicModel import KinematicModel
 from sim.robots.scalear_leg.Pybullet import Pybullet
@@ -57,7 +56,7 @@ for n in range(N):
     s.add_robot(ScalerManipulator, Pybullet)
 
 
-# add processalse
+# add process
 #s.add_process(AutoTuning, robot, robot2, False)
 
 s.run(SimConfig(max_duration=1, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.

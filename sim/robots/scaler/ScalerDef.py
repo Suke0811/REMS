@@ -37,9 +37,7 @@ class ScalerDef(RobotDefBase):
         else:
             j = self.joint_space.format(jointspace).leg(self.mode.ACTIVE_LEGs[0])
         t = self.task_space.clone()
-        for leg in self.mode.ACTIVE_LEGs:
-            t_leg = t.leg(leg).get()
-            j_leg = j.leg(leg).get()
+        for leg, t_leg, j_leg in zip(self.mode.ACTIVE_LEGs, t.leg(), j.leg()):
             t_leg.set(self.kin.scalar_forward_kinematics(which_leg=leg,
                                                joint_angles=j_leg.list(),
                                                    with_body=self.mode.BODY_JOINT,
@@ -54,9 +52,7 @@ class ScalerDef(RobotDefBase):
         else:
             t = self.task_space.format(taskspace).leg(self.mode.ACTIVE_LEGs[0])
         j = self.joint_space.clone()
-        for leg in self.mode.ACTIVE_LEGs:
-            t_leg = t.leg(leg).get()
-            j_leg = j.leg(leg).get()
+        for leg, t_leg, j_leg in zip(self.mode.ACTIVE_LEGs, t.leg(), j.leg()):
             t_leg.set(dict(r11=1, r22=-1, r33=-1,
                                     r12=0, r13=0, r21=0, r23=0, r31=0, r32=0))
             t_leg.inv_bind(self.rule)
