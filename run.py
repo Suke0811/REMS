@@ -14,7 +14,7 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=False)
+ray.init(local_mode=True)
 s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
@@ -59,7 +59,7 @@ for n in range(N):
 # add process
 #s.add_process(AutoTuning, robot, robot2, False)
 
-s.run(SimConfig(max_duration=1, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 
 #AutotunePlot(ref_csv.filepath, target_csv.filepath)

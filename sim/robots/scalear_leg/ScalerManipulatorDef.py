@@ -32,7 +32,6 @@ class ScalerManipulator(RobotDefBase):
         self.info = DefDict({'h2_norm':0, 'h2_norm_x':0, 'h2_norm_y':0})
 
     def fk(self, jointspace: DefDict, *args, **kwargs):
-
         d = self.kin.scalar_forward_kinematics(which_leg=self.which_leg,
                                                joint_angles=self.joint_space.format(jointspace).list())
         return self.rule.bind(self.task_space.format(d))

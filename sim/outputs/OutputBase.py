@@ -25,7 +25,7 @@ class OutputBase:
     def to_dict(self, data):
         ret = {}
         if isinstance(data, DefDict):
-            ret = data.get()
+            ret = data.dict()
         return ret
 
     def make_output(self):

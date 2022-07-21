@@ -489,4 +489,4 @@ class DefDict:
 
 if __name__ == '__main__':
     d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
-    pass
+    print(d)
