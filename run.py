@@ -51,13 +51,11 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 
-Sim
+
 N = 1
 for n in range(N):
     s.add_robot(ScalerManipulator, Pybullet)
 
-#robot = s.add_robot(ScalerManipulator, KinematicModel)
-#robot2 = s.add_robot(ScalerManipulator, Pybullet)
 
 # add processalse
 #s.add_process(AutoTuning, robot, robot2, False)

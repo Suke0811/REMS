@@ -52,8 +52,15 @@ class DefDict:
     def list_keys(self):
         return list(self._data.keys())
 
-    def get(self, key, flatten=None):
-        return self._data[key][0]
+    def get(self, key=None):
+        if key is None:
+            ret = self.list()[0]    # get the first element when no key has been specified
+        else:
+            ret = self._data[key][0]
+        return ret
+
+    def dict(self):
+        return self.data    # return dictionary
 
     def keys(self, to_int=False):
         if to_int:
@@ -227,7 +234,7 @@ class DefDict:
         stored_data_keys = []
         for k, v in data.items():
             if k in self._data.keys():
-                if issubclass(self.DEF[k], DefDict):
+                if self.DEF[k] is DefDict:
                     self._data[k][0].set(v)
                 else:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
@@ -245,7 +252,7 @@ class DefDict:
         for i, key in enumerate(self._data.keys()):
             if i > length:
                 break
-            if issubclass(self.DEF[key], DefDict):
+            if self.DEF[key] is DefDict:
                 self._data[key][0].set(data[i])
             else:
                 self._data[key][0] = self._enforce_type(self.DEF[key], data[i])
@@ -264,8 +271,14 @@ class DefDict:
 
     def bind(self, bind_rule, val=None):
         if val is None:
-            val = self.get()
+            val = self.dict()
         self.set(bind_rule.bind(val))
+        return self
+
+    def inv_bind(self, bind_rule, val=None):
+        if val is None:
+            val = self.dict()
+        self.set(bind_rule.inv_bind(val))
         return self
 
     def assert_data(self, data=None):
@@ -315,7 +328,7 @@ class DefDict:
         return d
 
     def __str__(self):
-        return self.data.__str__()
+        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
 ###################################################################
     #dictionary methods
@@ -461,5 +474,5 @@ class DefDict:
 
 
 if __name__ == '__main__':
-    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}),'leg.1':DefDict({'j.0':1, 'j.1':2})},prefixes=['leg'], suffixes=['j'])
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
     pass
