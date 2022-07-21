@@ -51,7 +51,7 @@ class BindRule:
                 if ret is None:
                     return ret
                 self.bind_to.set(ret)
-                return self.bind_to.get()
+                return self.bind_to.dict()
             else:
                 return self.bind_func(*bind_from)
 
@@ -68,6 +68,6 @@ class BindRule:
 
             if self.bind_from is not None:
                 self.bind_from.set(self.inv_bind_func(*self.bind_to.list()))
-                return self.bind_from.get()
+                return self.bind_from.dict()
             else:
                 return self.inv_bind_func(*self.bind_to.list())

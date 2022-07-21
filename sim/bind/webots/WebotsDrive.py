@@ -22,7 +22,7 @@ class WebotsDrive(DriveBase):
     def drive(self, inpt:DefDict, timestamp):
         self.inpt.set(inpt)
         # send rotational velocity to each motor
-        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.list(), self._motors.get()):
+        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.list(), self._motors.dict()):
             if isinstance(type_, DEF.velocity):
                 self._set_velocity_mode(motor)
                 motor.setVelocity(value)
