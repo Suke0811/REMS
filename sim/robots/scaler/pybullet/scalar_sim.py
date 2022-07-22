@@ -177,6 +177,7 @@ class pyb_sim(object):
             self.setTimestep(self.delta_t)
 
     def getBodyState(self):
+        #return the T matrix of body frame in world frame
         bodyDynamicsInfo = p.getDynamicsInfo(self.RobotId,-1)
         urdf_T_CoM = postion_quat_to_matrix([bodyDynamicsInfo[3], bodyDynamicsInfo[4]])
         
@@ -191,6 +192,7 @@ class pyb_sim(object):
 
 
     def fk_with_name(self, name):
+        #return the T matrix of any link frame in body frame
         #For 3 DOF scaler, the end effector name is 'Toe_Link'+index number, eg. leg 0 end effector is 'Toe_Link0', the end effector is defined at the tip of the ball
         #For 6 DOF scaler, the end effector name is 'wrist3_Joint'+index number, eg. leg 0 end effector is 'wrist3_Joint0', the end effector is defined at the intersection of the wrist motors' frames
         return self.fk_with_index(self.linkNameToId[name])
