@@ -6,9 +6,20 @@ import pybullet_data
 import numpy as np
 import math
 import time
+from scipy.spatial.transform import Rotation as R
 
 import os
 import sys
+
+
+def postion_quat_to_matrix(inpt):
+    #input -> [postion, quation]
+    #return matrix form
+    rot = R.from_quat(inpt[1])
+    res = np.eye(4, dtype=np.float32)
+    res[0:3,0:3] = rot.as_matrix()
+    res[0:3,3] = np.array(inpt[0])
+    return res
 
 
 class pyb_sim(object):
@@ -165,16 +176,33 @@ class pyb_sim(object):
         else:
             self.setTimestep(self.delta_t)
 
+    def getBodyState(self):
+        bodyDynamicsInfo = p.getDynamicsInfo(self.RobotId,-1)
+        urdf_T_CoM = postion_quat_to_matrix([bodyDynamicsInfo[3], bodyDynamicsInfo[4]])
+        
+        
+
+        bodyCoMinfo = p.getBasePositionAndOrientation(self.RobotId)
+        world_T_CoM = postion_quat_to_matrix(bodyCoMinfo)
+
+        CoM_T_urdf = np.linalg.inv(urdf_T_CoM)
+        return np.dot(world_T_CoM, CoM_T_urdf)
+        
+
+
     def fk_with_name(self, name):
+        #For 3 DOF scaler, the end effector name is 'Toe_Link'+index number, eg. leg 0 end effector is 'Toe_Link0', the end effector is defined at the tip of the ball
+        #For 6 DOF scaler, the end effector name is 'wrist3_Joint'+index number, eg. leg 0 end effector is 'wrist3_Joint0', the end effector is defined at the intersection of the wrist motors' frames
         return self.fk_with_index(self.linkNameToId[name])
 
     def fk_with_index(self, ind):
         trans = p.getLinkState(self.RobotId, ind)[4]
         orien = p.getLinkState(self.RobotId, ind)[5]
-        pos = np.dot(tf.transformations.translation_matrix(trans),
-                     tf.transformations.quaternion_matrix(orien))
+        world_T_Link = postion_quat_to_matrix([trans, orien])
+        world_T_body = self.getBodyState()
+        body_T_world = np.linalg.inv(world_T_body)
 
-        return np.dot(self.bodyTworld, pos)
+        return np.dot(body_T_world, world_T_Link)
 
     def step(self):
         p.stepSimulation()
@@ -197,6 +225,5 @@ class pyb_sim(object):
 
     def stopRecordingVideo(self):
         p.stopStateLogging(self.recordId)
-
 
 
