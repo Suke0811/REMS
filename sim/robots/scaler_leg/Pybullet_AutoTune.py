@@ -1,7 +1,7 @@
 from sim.robots.RobotBase import RobotBase
-from sim.robots.scalear_leg.scalar_sim import pyb_sim
+from sim.robots.scaler_leg.scalar_sim import pyb_sim
 from sim.typing.definitions import *
-from sim.robots.scalear_leg.Pybullet import Pybullet as Base
+from sim.robots.scaler_leg.Pybullet import Pybullet as Base
 import time
 
 class Pybullet(Base):

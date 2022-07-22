@@ -9,7 +9,7 @@ __status__ = "Prototype"
 import numpy as np
 
 from .utils_SCALER import ScalerStandardUtilMethods
-from sim.robots.scalear_leg.kinematics import util
+from sim.robots.scaler_leg.kinematics import util
 from .hardware_constants import consts
 from .wrap_to_pi import wrap_to_pi
 from scipy.optimize import fsolve

@@ -25,7 +25,7 @@ class ModeBase:
         return state
 
     def inpt(self):     # Legs and body joint angle
-        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(POS_3D))]
+        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, self.ACTIVE_LEGs, DefDict(POS_3D))]
         prefixes = [self.NAME_BODY_JOINT, self.NAME_LEG]
 
         inpt = DefDict(tuple(DEF), prefixes=prefixes, suffixes=POS_3D)
@@ -45,40 +45,50 @@ class ModeBase:
         return outpt
 
     def jointspace(self):   # Leg and j0-j6
-        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, len(self.ACTIVE_LEGs), DefDict(joint_pos(self.DOF), prefixes='j'))]
+        DEF = [{self.NAME_BODY_JOINT: float}, define(self.NAME_LEG, self.ACTIVE_LEGs, DefDict(joint_pos(self.DOF), prefixes='j'))]
         prefixes = [self.NAME_BODY_JOINT, self.NAME_LEG]
 
         jointspace = DefDict(tuple(DEF), prefixes=prefixes)
         return jointspace
 
     def taskspace(self):    # T_mat for each leg
-        taskspace = DefDict(define(self.NAME_LEG, len(self.ACTIVE_LEGs), T_MAT), prefixes=[self.NAME_LEG])
+        taskspace = DefDict(define(self.NAME_LEG, self.ACTIVE_LEGs, T_MAT), prefixes=[self.NAME_LEG])
         return taskspace
 
 class ScalerMode:
     class Walking(ModeBase):
         NAME = 'Walking'
-        URDF_PATH = 'sim/robots/scaler/urdf_scalar/urdf/SCALAR.urdf'
-        MESH_DIR = 'sim/robots/scaler/urdf_scalar/meshes/'
+        URDF_PATH = 'sim/robots/scaler/pybullet/urdf_scalar/urdf/scalar.urdf'
+        MESH_DIR = 'sim/robots/scaler/pybullet/urdf_scalar/meshes/'
+        DOF = 3
         def __init__(self, mobile=True):
             self.MOBILE = mobile
             super().__init__()
 
     class Manipulator(ModeBase):
         NAME = 'Manipulator'
-        URDF_PATH = 'sim/robots/scaler_leg/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
-        MESH_DIR = 'sim/robots/scaler_leg/urdf_scalar_6DoF/meshes/'
+        URDF_PATH = 'sim/robots/scaler/pybullet/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
+        MESH_DIR = 'sim/robots/scaler/pybullet/urdf_scalar_6DoF/meshes/'
         BODY_JOINT = False
+        MOBILE = False
         def __init__(self, sync_both_leg=True):    # if not sync_both_leg, then each leg needs input
-            self.ACTIVE_LEGs = [2, 3]
+            self.ACTIVE_LEGs = [0, 1, 2, 3]
             if sync_both_leg:
                 pass
             super().__init__()
 
+        def jointspace(self):  # Leg and j0-j6
+            DEF = [{self.NAME_BODY_JOINT: float},
+                   define(self.NAME_LEG, self.ACTIVE_LEGs, DefDict(joint_pos(self.DOF), prefixes='j'), link=True)]
+            prefixes = [self.NAME_BODY_JOINT, self.NAME_LEG]
+
+            jointspace = DefDict(tuple(DEF), prefixes=prefixes)
+            return jointspace
+
     class SixDoF(ModeBase):
         NAME = 'SixDoF'
-        URDF_PATH = 'sim/robots/scaler/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
-        MESH_DIR = 'sim/robots/scaler/urdf_scalar_6DoF/meshes/'
+        URDF_PATH = 'sim/robots/scaler/pybullet/urdf_scalar_6DoF/urdf/SCALAR_6DoF.urdf'
+        MESH_DIR = 'sim/robots/scaler/pybullet/urdf_scalar_6DoF/meshes/'
         def __init__(self, mobile=True):
             self.MOBILE = mobile
             super().__init__()

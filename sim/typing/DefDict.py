@@ -484,6 +484,10 @@ class DefDict:
     def __ipow__(self, other, modulo=None):  #Todo: modulo implementation
         return self._math(other, lambda v, o: v ** o, immutable=False)
 
+    def __round__(self, n=None):
+        d = self.clone()
+        for k, v in d.items():
+            d._data[k][0] = round(v, n)
 
 
 

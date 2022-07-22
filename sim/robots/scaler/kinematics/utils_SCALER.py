@@ -7,7 +7,7 @@ __version__ = "0.2.0"
 __status__ = "Prototype"
 
 
-from sim.robots.scalear_leg.kinematics import util
+from sim.robots.scaler_leg.kinematics import util
 from .hardware_constants import consts, list_name_robots
 import numpy as np
 from scipy.optimize import fsolve, root

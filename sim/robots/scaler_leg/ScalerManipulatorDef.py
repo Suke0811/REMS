@@ -1,7 +1,7 @@
 from sim.robots.RobotDefBase import RobotDefBase
 from sim.typing import DefDict, BindRule
 from sim.typing.definitions import *
-from sim.robots.scalear_leg.kinematics.SCALAR_kinematics import ScalerKinematics
+from sim.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
 
 class ScalerManipulator(RobotDefBase):
     NUM_JOINTS = 6

@@ -3,12 +3,14 @@ from sim import Simulation
 from sim.inputs import FileInput
 from sim.inputs.JoyManipulator import JoyManipulator
 from sim.outputs import FileOutput
-from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
-from sim.robots.scalear_leg.ScalarHard import ScalerHard
+from sim.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
+from sim.robots.scaler_leg.ScalarHard import ScalerHard
 from sim.bind.kinematic_model.KinematicModel import KinematicModel
-from sim.robots.scalear_leg.Pybullet import Pybullet
+from sim.robots.scaler_leg.Pybullet import Pybullet
 from sim.utils import time_str
 from sim.Config import SimConfig
+
+from sim.robots.scaler import ScalerMode, ScalerDef, SimScaler
 import ray
 
 
@@ -44,6 +46,7 @@ arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
 
 N = 1
 for n in range(N):
-    s.add_robot(ScalerManipulator, Pybullet)
+    s.add_robot((ScalerDef, ScalerMode.Walking()), SimScaler)
+    #s.add_robot(ScalerManipulator, Pybullet)
 
 s.run(SimConfig(max_duration=10, dt=0.02, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.

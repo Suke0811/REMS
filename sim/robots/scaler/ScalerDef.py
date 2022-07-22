@@ -32,7 +32,7 @@ class ScalerDef(RobotDefBase):
         #self.info = DefDict({'h2_norm':0, 'h2_norm_x':0, 'h2_norm_y':0})
 
     def fk(self, jointspace: DefDict, *args, **kwargs):
-        if self.mode.LEG in jointspace.prefixes:
+        if self.mode.NAME_LEG in jointspace.prefixes:
             j = self.joint_space.format(jointspace)
         else:
             j = self.joint_space.format(jointspace).leg(self.mode.ACTIVE_LEGs[0])
@@ -47,7 +47,7 @@ class ScalerDef(RobotDefBase):
 
 
     def ik(self, taskspace: DefDict, *args, **kwargs):
-        if self.mode.LEG in taskspace.prefixes:
+        if self.mode.NAME_LEG in taskspace.prefixes:
             t = self.task_space.format(taskspace)
         else:
             t = self.task_space.format(taskspace).leg(self.mode.ACTIVE_LEGs[0])

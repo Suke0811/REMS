@@ -1,7 +1,7 @@
 from .SCALER_v2_Leg_6DOF_gripper import Leg
 import numpy as np
-from sim.robots.scalear_leg.kinematics import util
-from sim.robots.scalear_leg.kinematics.wrap_to_pi import wrap_to_pi
+from sim.robots.scaler_leg.kinematics import util
+from sim.robots.scaler_leg.kinematics.wrap_to_pi import wrap_to_pi
 
 
 
