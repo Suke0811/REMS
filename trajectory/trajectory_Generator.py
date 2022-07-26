@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from sim.robots.scalear_leg.kinematics.SCALAR_kinematics import ScalerKinematics
+from sim.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
 from sim.typing import DefDict
 from sim.typing.definitions import *
 import pandas as pd
