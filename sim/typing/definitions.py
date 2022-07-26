@@ -40,7 +40,7 @@ TIMESTAMP = 'timestamp'
 
 
 POS_2D = dict(x=float, y=float)
-ROT_2D = dict(c=float)
+ROT_2D = dict(theta=float)
 POS_3D = dict(x=float, y=float, z=float)
 
 

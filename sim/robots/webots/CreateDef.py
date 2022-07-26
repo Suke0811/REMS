@@ -1,0 +1,18 @@
+from sim.robots.webots import DifferentialDriveDef
+from sim.robots.webots.DifferentialDriveDef import MOTOR
+
+SENSOR = {"bumper_left": bool, "bumper_right": bool,
+          "cliff_left": float, "cliff_front_left": float,
+          "cliff_front_right": float, "cliff_right": float}
+
+DRIVE = {"left wheel motor": MOTOR, "right wheel motor": MOTOR}
+
+class CreateDef(DifferentialDriveDef):
+    def __init__(self):
+        super().__init__(radius=0.031, length=0.135878*2)
+
+
+    def define(self, *args, **kwargs):
+        super().define(DRIVE, SENSOR)
+        self.run.name = 'IROBOT_CREATE'
+

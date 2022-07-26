@@ -8,13 +8,17 @@ SEPARATOR = '.'
 
 class DefDict:
     reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
-    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, ):
+    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None):
         self._definition = dict()
         self._data = dict()
         self._name = name
         self.format_rule = format_rule
+        self.shape = shape
         self.suffixes = []
         self.prefixes = []
+        if not isinstance(rules, list) and rules is not None:
+            rules = [rules]
+        self.rules = rules
 
         if isinstance(definition, tuple):
             for d in definition:    # add as many definition as you want
@@ -35,6 +39,8 @@ class DefDict:
 
     def ndarray(self, reshape: tuple = None):
         data_list = self.list()
+        if reshape is None:
+            reshape = self.shape
         return np.array(data_list).reshape(reshape)
 
     def ndsquare(self):
@@ -146,6 +152,10 @@ class DefDict:
     def set(self, ndata):
         if ndata is None:
             return self
+        if self.rules is not None:
+            ret = self._apply_rules(ndata)
+            if ret is not None:
+                ndata = ret
         if self.format_rule is not None:
             try:
                 ndata = self.format_rule.inv_bind(ndata)
@@ -158,13 +168,29 @@ class DefDict:
         elif isinstance(ndata, list):
             self._list2dict(ndata)
         elif isinstance(ndata, tuple):
-            k,v = ndata
-            ndata = {k:v}
-            self._dict2dict(ndata)
+            ndata = list(ndata)
+            self._list2dict(ndata)
         elif isinstance(ndata, np.ndarray):
             self._list2dict(ndata.flatten())
         else:
             self._list2dict([ndata])
+        return self
+
+    def _apply_rules(self, data):
+        ret = None
+        if isinstance(data, dict) or isinstance(data, DefDict):
+            for rule in self.rules:
+                if rule.bind_from is None:
+                    continue
+                keys = rule.bind_from.list_keys()
+                if all(elem in list(data.keys()) for elem in keys):
+                    ret = rule.bind(data)
+                    if ret is not None:
+                        break
+        return ret
+
+    def set_name(self, name):
+        self._name = name
         return self
 
     def format(self, ndata):
