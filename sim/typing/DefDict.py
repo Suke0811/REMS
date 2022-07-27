@@ -1,4 +1,5 @@
 import copy
+import logging
 
 import numpy as np
 from typing import Any
@@ -8,7 +9,7 @@ SEPARATOR = '.'
 
 class DefDict:
     reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
-    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None):
+    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
         self._definition = dict()
         self._data = dict()
         self._name = name
@@ -20,21 +21,24 @@ class DefDict:
             rules = [rules]
         self.rules = rules
 
+        if isinstance(suffixes, dict):
+            suffixes = list(suffixes.keys())
+        elif not isinstance(suffixes, list):
+            suffixes = [suffixes]
+
         if isinstance(definition, tuple):
             for d in definition:    # add as many definition as you want
-                self.add_definition(d, dtype)
+                suffixes.extend(self.add_definition(d, dtype, nested_def))
                 if isinstance(d, DefDict) and suffixes:
                     self._add_suffix(d.list_keys())
         else:
-            self.add_definition(definition, dtype)
+            suffixes.extend(self.add_definition(definition, dtype, nested_def))
 
         if prefixes is not None:
             if isinstance(prefixes, dict):
                 prefixes = list(prefixes.keys())
             self._add_prefixes(prefixes)
         if suffixes is not None:
-            if isinstance(suffixes, dict):
-                suffixes = list(suffixes.keys())
             self._add_suffixes(suffixes)
 
     def ndarray(self, reshape: tuple = None):
@@ -107,7 +111,8 @@ class DefDict:
         if name in self.reserved:
             raise AttributeError(f'the prefix {name} is reserved for DefDict')
         if name in self.prefixes:
-            raise AttributeError(f'the prefix {name} is already registered')
+            logging.debug(f'the prefix {name} is already registered')
+            return
         self.prefixes.append(name)
 
         def method(self, ids=None):
@@ -122,12 +127,14 @@ class DefDict:
         if not isinstance(suffixes, list):
             suffixes = [suffixes]
         for name in suffixes:
+            if name is None:
+                continue
             self._add_suffix(name)
-
 
     def _add_suffix(self, name):
         if name in self.suffixes:
-            raise AttributeError('the suffix is already registered')
+            logging.debug('the suffix is already registered')
+            return
         self.suffixes.append(name)
         def method(self):
             d = copy.deepcopy(self)
@@ -224,10 +231,14 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
-    def add_definition(self, ndef, dtype=Any):
+    def add_definition(self, ndef, dtype=Any, nested_dict=False):
         keys = []
+        suffixes = []
         if isinstance(ndef, dict):
             for k, v in ndef.items():
+                if isinstance(v, dict) and nested_dict:
+                    v = DefDict(v)
+                    suffixes.extend(v.list_keys())
                 if isinstance(v, type) or v is Any:
                     self._definition[k] = dtype
                     keys.append(k)
@@ -244,6 +255,7 @@ class DefDict:
         else:
             raise TypeError('You can only add str, dict, or list')
         self.init_data(keys)
+        return suffixes
 
     def init_data(self, keys):
         for k, v in self._definition.items():

@@ -1,11 +1,18 @@
 from sim.robots.webots import DifferentialDriveDef
 from sim.robots.webots.DifferentialDriveDef import MOTOR
+# sensor names and definitoins
+SENSOR = {
+    "bumper_left": bool, "bumper_right": bool,
+    "cliff_left": float, "cliff_front_left": float,
+    "cliff_front_right": float, "cliff_right": float
+}
 
-SENSOR = {"bumper_left": bool, "bumper_right": bool,
-          "cliff_left": float, "cliff_front_left": float,
-          "cliff_front_right": float, "cliff_right": float}
-
-DRIVE = {"right wheel motor": MOTOR.clone(), "left wheel motor": MOTOR.clone()}
+# Driver names and definitions
+# pos = inf means velocity control
+DRIVE = {
+    "right wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+    "left wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
+}
 
 
 class CreateDef(DifferentialDriveDef):

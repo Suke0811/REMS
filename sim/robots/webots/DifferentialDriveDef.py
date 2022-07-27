@@ -6,7 +6,6 @@ import numpy as np
 POS_2D = dict(x=float, y=float, theta=float)
 VEL_2D = dict(d_x=float, d_y=float, d_theta=float)
 MOTOR_PARAM = dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
-MOTOR = DefDict(MOTOR_PARAM)
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,
                 jb_w0=float, jb_w1=float)
@@ -20,7 +19,7 @@ class KeyMapRule:
             ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, target='keyboard')
         self.direct = BindRule(['q', 'e', 'a', 'd'], self.direct_drive, target='keyboard')
         self.joy_direct = BindRule(['X', 'Y'], self.direct_drive, target='joystick')
-        
+
     def get_rules(self):
         return [self.arrow]
 
