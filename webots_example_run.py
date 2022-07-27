@@ -35,4 +35,4 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 s.add_robot(CreateDef, WebotsBinder)
 
-s.run(SimConfig(max_duration=10, dt=0.1, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=100, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.

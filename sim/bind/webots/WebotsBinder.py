@@ -23,8 +23,13 @@ class WebotsBinder(RobotBase):
         self._timestep = int(self._robot.getBasicTimeStep())
         self.run.DT = self._timestep / 1000
         # add drivers and sensors
-        self.wb_driver = WebotsDrive(self._robot, self.inpt)
+        self.wb_driver = WebotsDrive(self._robot, self.joint_space)
         self.wb_sensor = WebotsSense(self._robot, self._timestep, self.outpt)
+        self.wb_driver.init()
+        self.wb_driver.open()
+        self.wb_sensor.init()
+        self.wb_sensor.open()
+
         self._robot.step(self._timestep)
 
     def reset(self, state, t):
@@ -33,6 +38,7 @@ class WebotsBinder(RobotBase):
         self._rotation_field.setSFRotation([0, 1, 0, rot.get()])
         self._robot_node.setVelocity(DefDict((VEL_POS_3D, VEL_ROT_3D)).format(state).list())
         self._robot_node.resetPhysics()  # reset physics
+        self.clock(0)
 
     def drive(self, inpts, timestamp):
         """drive the robot to the next state
@@ -49,3 +55,9 @@ class WebotsBinder(RobotBase):
         """generate the sensor reading"""
         self.outpt.set(self.wb_sensor.sense())
         return self.outpt
+
+    def clock(self, t):
+        """to update Webots"""
+        self._robot.step(self._timestep)
+        return t + self._timestep / 1000
+

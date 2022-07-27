@@ -5,8 +5,8 @@ import numpy as np
 class WebotsSense(SenseBase):
     def __init__(self, wb_robot, timestep, sensor_definition: DefDict):
         super().__init__()
-        self._sensors = []
-        self.outpt = sensor_definition
+        self._sensors = sensor_definition.clone()
+        self.outpt = sensor_definition.clone()
         self._robot = wb_robot
         self._timestep = timestep
 
@@ -15,7 +15,7 @@ class WebotsSense(SenseBase):
         self.enable(enable=True)
 
     def open(self):
-        for SENSOR in self.outpt.DEF.keys():
+        for SENSOR in self.outpt.keys():
             self._sensors[SENSOR] = self._robot.getDevice(SENSOR)
 
     def close(self):
@@ -35,7 +35,7 @@ class WebotsSense(SenseBase):
                 sensor_value.append(self._filter_nan(sensor.getValue()))
             except AttributeError: # then try getValues()
                 sensor_value.append(self._filter_nan(sensor.getValues()))
-        self.outpt.data = sensor_value
+        self.outpt.set(sensor_value)
         return self.outpt
 
     @staticmethod
