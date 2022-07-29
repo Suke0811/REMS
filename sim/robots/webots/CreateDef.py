@@ -1,5 +1,4 @@
 from sim.robots.webots import DifferentialDriveDef
-from sim.robots.webots.DifferentialDriveDef import MOTOR
 # sensor names and definitoins
 SENSOR = {
     "bumper_left": bool, "bumper_right": bool,

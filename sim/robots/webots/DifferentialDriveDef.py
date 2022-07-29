@@ -1,10 +1,11 @@
 from sim.typing import DefDict, BindRule
 from sim.robots import RobotDefBase
+from sim.inputs.map.JOYSTICK_KEYMAP import StdKeys
 import numpy as np
 
 # space definitions
-POS_2D = dict(x=float, y=float, theta=float)
-VEL_2D = dict(d_x=float, d_y=float, d_theta=float)
+POS_2D = dict(x=float, y=float, th_y=float)
+VEL_2D = dict(d_x=float, d_y=float, d_th_y=float)
 MOTOR_PARAM = dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,
@@ -27,6 +28,10 @@ class KeyMapRule:
         if l_b: l*-1
         elif r_b: r*-1
         return l*self.max_vel, r*self.max_vel
+
+    def joystick_drive(self):
+        pass
+
 
     def arrow_drive(self, page_up, page_down, right, left, up, down):
         ret = (0, 0)
@@ -54,17 +59,17 @@ class DifferentialDriveDef(RobotDefBase):
     def define(self, drive_names, sensor_names, *args, **kwargs):
         """Definitions of the robot"""
         self.inpt = DefDict(WHEEEL_VEL, rules=self.rule.get_rules())
-        self.state = DefDict((POS_2D, VEL_2D))
+        self.state = DefDict((POS_2D,))
         self.outpt = DefDict(sensor_names)
         self.joint_space = DefDict(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'])
         self.task_space = None
         self.jacobian = DefDict(JACOB_2D, shape=(3, 2))
+        super().define()
 
     def drive(self, inpt, timestamp):
         self.inpt.set(inpt)
         self.joint_space.vel().set(inpt.list())
         super().drive(self.joint_space, timestamp)
-
 
     def jb(self, theta: DefDict, *args, **kwargs):
         th = theta.get('theta')
@@ -74,5 +79,5 @@ class DifferentialDriveDef(RobotDefBase):
                              r*np.sin(th), r*np.sin(th),
                              -1/l, 1/l])
         return self.jacobian.format(jacobian)
-pass
+
 

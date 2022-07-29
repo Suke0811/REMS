@@ -45,7 +45,10 @@ class JoystickInput(InputBase):
                 self.close = True
 
     def __del__(self):
-        pygame.quit()
+        try:
+            pygame.quit()
+        except AttributeError:
+            pass
 
     def get_inputs(self, inpt_defDict: DefDict=None, timestamp=None):
         if not self.stick_name:
@@ -73,6 +76,9 @@ class JoystickInput(InputBase):
             buttons = []
             # capture joystick values
             num_axes = joystick.get_numaxes()
+            print([joystick.get_button(b) for b in range(joystick.get_numbuttons())])
+            print([joystick.get_axis(b) for b in range(joystick.get_numaxes())])
+            print([joystick.get_hat(b) for b in range(joystick.get_numhats())])
             for i in range(min(num_axes, len(deadzone))):
                 axes.append(self._filter_stick(joystick.get_axis(i), deadzone[i]))
 
@@ -95,5 +101,6 @@ if __name__ == "__main__":
     j = JoystickInput()
     while True:
         j.get_inputs()
-        print(j.axes[j.stick_name[0]].data)
+        #print(j.axes[j.stick_name[0]].data)
+        #print(j.buttons[j.stick_name[0]].data)
         time.sleep(1)

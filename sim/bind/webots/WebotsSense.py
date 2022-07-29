@@ -1,11 +1,12 @@
 from sim.bind import SenseBase
 from sim.typing import DefDict
 import numpy as np
+from controller import Node
 
 class WebotsSense(SenseBase):
     def __init__(self, wb_robot, timestep, sensor_definition: DefDict):
         super().__init__()
-        self._sensors = sensor_definition.clone()
+        self._sensors = DefDict(sensor_definition.list_keys())
         self.outpt = sensor_definition.clone()
         self._robot = wb_robot
         self._timestep = timestep
@@ -25,27 +26,33 @@ class WebotsSense(SenseBase):
         for sensor in self._sensors:
             if enable:
                 sensor.enable(self._timestep)
+                if sensor.getNodeType == Node.LIDAR:
+                    sensor.enablePointCloud()
             else:
                 sensor.disable()
 
     def sense(self):
-        sensor_value = []
-        for sensor in self._sensors:
-            try: # webots has two different functions of getValue()
-                sensor_value.append(self._filter_nan(sensor.getValue()))
-            except AttributeError: # then try getValues()
-                sensor_value.append(self._filter_nan(sensor.getValues()))
-        self.outpt.set(sensor_value)
+        for key, sensor in self._sensors.items():
+            if sensor.getNodeType() == Node.LIDAR:
+                self.outpt[key] = sensor.getRangeImage()
+            else:
+                try:  # webots has two different functions of getValue()
+                    self.outpt[key] = self._filter_nan(sensor.getValue())   # return a scalar value always
+                except AttributeError: # then try getValues()
+                    self.outpt[key] = self._filter_nan(sensor.getValues()) # return lists
         return self.outpt
 
     @staticmethod
     def _filter_nan(values):
-        if not isinstance(values, list):
-            return values
         if values is None:
             return 0.0
+        if not isinstance(values, list):
+            return values
+
+        ret = []
         for v in values:
-            if not np.isnan(v):
-                return v
-        return None
+            if np.isnan(v):
+                v = 0.0
+            ret.append(v)
+        return ret  # this case return list
 

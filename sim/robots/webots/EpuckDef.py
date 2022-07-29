@@ -1,10 +1,8 @@
 from sim.robots.webots import DifferentialDriveDef
-from sim.robots.webots.DifferentialDriveDef import MOTOR
 from sim.typing import DefDict
 import numpy as np
 
 SENSOR = {
-    "camera": np.ndarray,
     "accelerometer": dict(x=float, y=float, z=float),
     "gyro": dict(x=float, y=float, z=float),
     "ps0": float, "ps1": float, "ps2": float, "ps3": float, "ps4": float, "ps5": float, "ps6": float, "ps7": float,
@@ -12,8 +10,8 @@ SENSOR = {
 }
 
 DRIVE = {
-    "right wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
-    "left wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
+    "left wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+    "right wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
 }
 
 

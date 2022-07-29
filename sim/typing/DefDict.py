@@ -231,6 +231,10 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
+    def add_name(self, name):
+        self._name = name
+        return self
+
     def add_definition(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
@@ -327,7 +331,7 @@ class DefDict:
         assert (len(data) == len(self.DEF))
         assert (all(type(x) == y for x, y in zip(data.values(), self.DEF.values())))
 
-    def filter(self, keys): #ToDo support all iteratibe
+    def _to_key_list(self, keys):
         if isinstance(keys, dict):
             keys = list(keys.keys())
         if isinstance(keys, str):
@@ -336,11 +340,20 @@ class DefDict:
             keys = [str(keys)]
         if not isinstance(keys, list):
             raise TypeError('keys must be either string, int, list, or dict')
+        return keys
 
-        keys = map(str, keys)
+    def filter(self, keys): #ToDo support all iteratibe
+        key_list = []
+        if isinstance(keys, tuple):
+            for t in keys:
+                key_list.extend(self._to_key_list(t))
+        else:
+            key_list.extend(self._to_key_list(keys))
+
+        key_list = map(str, key_list)
         d = copy.deepcopy(self)
         d.clear()
-        for k in keys:
+        for k in key_list:
             d.add_definition({k: self.DEF[k]})
             d._data[k] = self._data.get(k)
         return d    #DefDict
@@ -446,7 +459,10 @@ class DefDict:
 
     def __setitem__(self, key, value):
         if key in self.DEF.keys():
-            self._data[key][0] = value
+            if isinstance(self._data[key][0], DefDict):  # for nested def dict
+                self._data[key][0].set(value)
+            else:
+                self._data[key][0] = value
         else:
             raise KeyError(f'Key {key} is not in definition')
 
@@ -526,7 +542,7 @@ class DefDict:
         d = self.clone()
         for k, v in d.items():
             d._data[k][0] = round(v, n)
-
+        return d
 
 
 if __name__ == '__main__':
