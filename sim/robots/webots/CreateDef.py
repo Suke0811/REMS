@@ -20,5 +20,5 @@ class CreateDef(DifferentialDriveDef):
 
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
-        self.run.name = 'IROBOT_CREATE'
+        self.run.name = 'Create'
 
