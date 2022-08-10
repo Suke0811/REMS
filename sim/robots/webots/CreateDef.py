@@ -9,8 +9,8 @@ SENSOR = {
 # Driver names and definitions
 # pos = inf means velocity control
 DRIVE = {
+    "left wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
     "right wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
-    "left wheel motor": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
 }
 
 

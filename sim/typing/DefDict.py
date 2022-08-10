@@ -282,7 +282,7 @@ class DefDict:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
-                pass
+                passWebotsDrive
                 #extra_data[k][0] = v
         if extra_data:
             # TODO: binding implementation

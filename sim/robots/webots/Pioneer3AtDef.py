@@ -1,5 +1,5 @@
 from sim.robots.webots import DifferentialDriveDef
-from sim.typing import DefDict
+from sim.typing import DefDict, BindRule
 import numpy as np
 
 SENSOR = {
@@ -10,7 +10,9 @@ SENSOR = {
 
 DRIVE = {
     "front left wheel": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
-    "front right wheel": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
+    "front right wheel": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+    "back left wheel": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+    "back right wheel": dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list)
 }
 
 
@@ -21,4 +23,6 @@ class Pioneer3AtDef(DifferentialDriveDef):
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
         self.run.name = 'Pioneer 3-AT'
+        rule = BindRule(self.inpt.list_keys(), lambda *v: [v[0], v[1], v[0], v[1]],)
+        self.joint_space.rules = [rule]
 
