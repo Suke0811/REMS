@@ -127,7 +127,7 @@ class Simulation:
         self.reset(t)
         st = time.perf_counter()
         next_time = time.perf_counter()
-        while not config.if_time(t) and not self._input_system.quite:   # TODO: should we listen to robot associated inputs?
+        while not config.if_time(t) and not self._input_system.quite:
             if self.realtime is False or time.perf_counter() >= next_time:
                 self.step(t)
                 self.process(t)

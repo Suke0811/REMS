@@ -1,8 +1,5 @@
 from sim.sim_handler.ray import autocounter
 from sim.sim_handler.ray.SimActor import SimActor
-from sim.utils.tictoc import tictoc
-from sim.robots.scalear_leg.ScalerManipulatorDef import ScalerManipulator
-from sim.robots.bind_robot import bind_robot
 import time
 import ray
 
@@ -91,40 +88,6 @@ class RobotRayWrapper(object):
     def _reset_attr(self):
         for v in self._ray_vars:
             self._add_var(v)
-
-
-if __name__ == '__main__':
-    from sim.robots.scalear_leg.ScalarHard import ScalerHard
-    s = bind_robot(ScalerManipulator,(ScalerHard,'/dev/MOTOR_0', 2))
-    ray.init(local_mode=False)
-    r = RobotRayWrapper(s, (None,))
-    r.set_DT(0.01)
-#    r.run.DT = 1
-    r._t_minus_1 += 3
-#    print(r.run.DT)
-
-    N =1000
-    st = time.perf_counter()
-    for n in range(N):
-        r._t_minus_1 += 2
-        print(r._t_minus_1)
-
-
-    total = time.perf_counter() - st
-
-
-    st = time.perf_counter()
-    for n in range(N):
-        s._t_minus_1 += 2
-        print(s._t_minus_1)
-
-    total2 = time.perf_counter() - st
-    print(total)
-    print(total / N)
-    print(total2)
-    print(total2 / N)
-    pass
-
 
 
 

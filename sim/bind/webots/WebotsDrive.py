@@ -6,28 +6,29 @@ from sim.typing import definitions as DEF
 class WebotsDrive(DriveBase):
     def __init__(self, wb_robot, motor_definition: DefDict):
         super().__init__()
-        self._motors = motor_definition
-        self.inpt = motor_definition
+        self._motors = DefDict(motor_definition.list_keys())
+        self.joint_space = motor_definition.clone()
         self._robot = wb_robot
 
     def open(self):
-        for motor_name, motor in self._motors.DEF.items():
+        for motor_name in self._motors.keys():
             motor = self._robot.getDevice(motor_name)
+            self._motors[motor_name] = motor
 
     def enable(self, enable):
-        for type_, motor in zip(self._motors.DEF.list(), self._motors.data.list()):
-            if isinstance(type_, DEF.velocity):
-                self._set_velocity_mode(motor)
+        for joint in self.joint_space:
+            joint['on'] = True
 
-    def drive(self, inpt:DefDict, timestamp):
-        self.inpt.set(inpt)
+
+    def drive(self, jointspace: DefDict, timestamp):
+        self.joint_space.set(jointspace)
         # send rotational velocity to each motor
-        for type_, value, motor in zip(self.inpt.DEF.list(), self.inpt.list(), self._motors.get()):
-            if isinstance(type_, DEF.velocity):
+        for joint, motor in zip(self.joint_space, self._motors):
+            if joint.get('pos') == float('inf'):
                 self._set_velocity_mode(motor)
-                motor.setVelocity(value)
+                motor.setVelocity(joint.get('vel'))
             else:
-                motor.setPosition(value)
+                motor.setPosition(joint.get('pos'))
 
     @staticmethod
     def _set_velocity_mode(motor):

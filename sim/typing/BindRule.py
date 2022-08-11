@@ -3,7 +3,7 @@ from typing import Any
 
 
 class BindRule:
-    def __init__(self, bind_from, bind_func=None, bind_to=None, inv_bind_func=None,dtype=Any):
+    def __init__(self, bind_from, bind_func=None, bind_to=None, inv_bind_func=None, dtype=Any, target=None):
         """
         Create a dict of binding rule
         key is definition of the input
@@ -11,11 +11,13 @@ class BindRule:
         :param bind_func (optional) is a function used to calculate the value: bind_to = func(bind_from). Default is 1-1 mapping
         :param bind_to (optional) indicates to which the calculated value should be applied. Default to key.
         :param dtype (optional) to define the value type. Default to float
+        :param target (optional) to specify the target DefDict name
         key
          └─ bind from
          └─ bind function
          └─ bind to
          └─ type
+         └─ target
         """
         if bind_to is None:
             self.bind_to = None
@@ -28,8 +30,12 @@ class BindRule:
         self.bind_func = bind_func
         self.inv_bind_func = inv_bind_func
         self.type_ = dtype
+        self.target = target
 
-    def bind(self, data, bind_to=None):
+    def bind(self, data, bind_to=None, name=None):
+        # if self.target is not None and self.target != name:
+        #     return # if not
+
         if self.bind_from is None:
             bind_from = data
         else:
@@ -51,7 +57,7 @@ class BindRule:
                 if ret is None:
                     return ret
                 self.bind_to.set(ret)
-                return self.bind_to.get()
+                return self.bind_to.dict()
             else:
                 return self.bind_func(*bind_from)
 
@@ -68,6 +74,6 @@ class BindRule:
 
             if self.bind_from is not None:
                 self.bind_from.set(self.inv_bind_func(*self.bind_to.list()))
-                return self.bind_from.get()
+                return self.bind_from.dict()
             else:
                 return self.inv_bind_func(*self.bind_to.list())

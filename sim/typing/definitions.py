@@ -4,6 +4,12 @@ from sim.typing import DefDict, BindRule
 from typing import Any
 import numpy as np
 
+DEFINITION = 'definition'
+DTYPE = 'dtype'
+NAME = 'name'
+PREFIXES = 'prefixes'
+SUFFIXES = 'suffixes'
+FORMAT_RULE = 'format_rule'
 
 class QUAT:
     qx = "qx"; qy = 'qy'; qz = 'qz'; qw = 'qw'
@@ -40,7 +46,7 @@ TIMESTAMP = 'timestamp'
 
 
 POS_2D = dict(x=float, y=float)
-ROT_2D = dict(c=float)
+ROT_2D = dict(theta=float)
 POS_3D = dict(x=float, y=float, z=float)
 
 
@@ -97,16 +103,24 @@ JACOB_3D = dict(J11=float, J12=float, J13=float, J14=float, J15=float, J16=float
                 J61=float, J62=float, J63=float, J64=float, J65=float, J66=float)
 
 
-def define(prefix, num, type_=Any, separater='.'):
-    ret = {}
+def define(prefix, num, dtype=Any, separater='.', link=False):
+    d = {}
     if isinstance(num, list):
         for n in num:
             key = prefix + separater + str(n)
-            ret[key] = copy.deepcopy(type_)
+            if link:
+                d[key] = copy.copy(dtype)
+            else:
+                d[key] = copy.deepcopy(dtype)
     else:
         for i in range(num):
             key = prefix + separater + str(i)
-            ret[key] = copy.deepcopy(type_)
+            if link:
+                d[key] = copy.copy(dtype)
+            else:
+                d[key] = copy.deepcopy(dtype)
+    #ret = {DEFINITION: d, DTYPE: dtype, PREFIXES: [prefix]}
+    ret = d
     return ret
 
 def joint_pos(num):

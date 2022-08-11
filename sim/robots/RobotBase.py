@@ -12,20 +12,20 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self.info = {}
         # Run settings
         self.drivers = []
-        self.sensers = []
+        self.sensors = []
         self.state_observers = []
         # Run settings
         self.run = RunConfig()
         self.home_position = self.joint_space
 
-    def init(self, init_state=None):
+    def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
         super().init()
-        [d.init() and s.init() for d, s in zip(self.drivers, self.sensers)]
+        [d.init() and s.init() for d, s in zip(self.drivers, self.sensors)]
         pass
 
-    def reset(self, inpt, t):
+    def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
         pass
 
@@ -41,7 +41,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
     def sense(self):
         """generate the sensor reading
         :return output"""
-        for s in self.sensers:
+        for s in self.sensors:
             self.outpt.data = s.sense()
         return self.outpt
 

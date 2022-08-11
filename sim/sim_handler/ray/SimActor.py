@@ -5,7 +5,7 @@ from sim.robots import RobotBase
 from sim.utils.tictoc import tictoc
 import logging
 ROUND = 2
-
+DISPLAY_MAX_ARRAY_LENGTH = 5
 
 @ray.remote
 class SimActor:
@@ -34,16 +34,17 @@ class SimActor:
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_init, DT)
         for out in self.outputs:
             out.process(state, inpt, outpt, t, info)
+        disp = []
+        for r in [inpt, state, outpt]:
+            try:
+                disp.append(round(r, ROUND))
+            except TypeError:
+                disp.append(r)
 
         #if not self.suppress_info:
         logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
             self.robot.run.name,
-            np.round(dt_actual, 5), np.round(t, ROUND),
-            {k: round(v, ROUND) for k, v in inpt.items()},
-            {k: round(v, ROUND) for k, v in state.items()},
-            {k: round(v, ROUND) for k, v in outpt.items()},
-            info))
-
+            np.round(dt_actual, 5), np.round(t, ROUND), disp[0], disp[1], disp[2], info))
 
     def set_DT(self, DT):
         if self.robot.run.DT is None:

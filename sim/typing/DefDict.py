@@ -1,5 +1,5 @@
 import copy
-
+import logging
 import numpy as np
 from typing import Any
 
@@ -8,33 +8,42 @@ SEPARATOR = '.'
 
 class DefDict:
     reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
-    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, ):
+    def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
         self._definition = dict()
         self._data = dict()
         self._name = name
         self.format_rule = format_rule
+        self.shape = shape
         self.suffixes = []
         self.prefixes = []
+        if not isinstance(rules, list) and rules is not None:
+            rules = [rules]
+        self.rules = rules
+
+        if isinstance(suffixes, dict):
+            suffixes = list(suffixes.keys())
+        elif not isinstance(suffixes, list):
+            suffixes = [suffixes]
 
         if isinstance(definition, tuple):
             for d in definition:    # add as many definition as you want
-                self.add_definition(d, dtype)
+                suffixes.extend(self.add_definition(d, dtype, nested_def))
                 if isinstance(d, DefDict) and suffixes:
                     self._add_suffix(d.list_keys())
         else:
-            self.add_definition(definition, dtype)
+            suffixes.extend(self.add_definition(definition, dtype, nested_def))
 
         if prefixes is not None:
             if isinstance(prefixes, dict):
                 prefixes = list(prefixes.keys())
             self._add_prefixes(prefixes)
         if suffixes is not None:
-            if isinstance(suffixes, dict):
-                suffixes = list(suffixes.keys())
             self._add_suffixes(suffixes)
 
     def ndarray(self, reshape: tuple = None):
         data_list = self.list()
+        if reshape is None:
+            reshape = self.shape
         return np.array(data_list).reshape(reshape)
 
     def ndsquare(self):
@@ -52,11 +61,15 @@ class DefDict:
     def list_keys(self):
         return list(self._data.keys())
 
-    def get(self, format=None, flatten=None):
-        if format is None:
-            return self.data
+    def get(self, key=None):
+        if key is None:
+            ret = self.list()[0]    # get the first element when no key has been specified
         else:
-            return self.filter(format)
+            ret = self._data[key][0]
+        return ret
+
+    def dict(self):
+        return self.data    # return dictionary
 
     def keys(self, to_int=False):
         if to_int:
@@ -97,7 +110,8 @@ class DefDict:
         if name in self.reserved:
             raise AttributeError(f'the prefix {name} is reserved for DefDict')
         if name in self.prefixes:
-            raise AttributeError(f'the prefix {name} is already registered')
+            logging.debug(f'the prefix {name} is already registered')
+            return
         self.prefixes.append(name)
 
         def method(self, ids=None):
@@ -112,12 +126,14 @@ class DefDict:
         if not isinstance(suffixes, list):
             suffixes = [suffixes]
         for name in suffixes:
+            if name is None:
+                continue
             self._add_suffix(name)
-
 
     def _add_suffix(self, name):
         if name in self.suffixes:
-            raise AttributeError('the suffix is already registered')
+            logging.debug('the suffix is already registered')
+            return
         self.suffixes.append(name)
         def method(self):
             d = copy.deepcopy(self)
@@ -146,6 +162,10 @@ class DefDict:
     def set(self, ndata):
         if ndata is None:
             return self
+        if self.rules is not None:
+            ret = self._apply_rules(ndata)
+            if ret is not None:
+                ndata = ret
         if self.format_rule is not None:
             try:
                 ndata = self.format_rule.inv_bind(ndata)
@@ -158,13 +178,39 @@ class DefDict:
         elif isinstance(ndata, list):
             self._list2dict(ndata)
         elif isinstance(ndata, tuple):
-            k,v = ndata
-            ndata = {k:v}
-            self._dict2dict(ndata)
+            ndata = list(ndata)
+            self._list2dict(ndata)
         elif isinstance(ndata, np.ndarray):
-            self._list2dict(ndata.flatten())
+            self._list2dict(ndata)
         else:
             self._list2dict([ndata])
+        return self
+
+    def _apply_rules(self, data):
+        ret = None
+        if isinstance(data, dict) or isinstance(data, DefDict):
+            for rule in self.rules:
+                if rule.bind_from is None:
+                    continue
+                keys = rule.bind_from.list_keys()
+                if all(elem in list(data.keys()) for elem in keys):
+                    ret = rule.bind(data)
+                    if ret is not None:
+                        break
+        return ret
+
+    def set_rule(self, rule):
+        if self.rules is None:
+            self.rules = []
+        self.rules.append(rule)
+        return self
+
+    def clear_rules(self):
+        self.rules = None
+        return self
+
+    def set_name(self, name):
+        self._name = name
         return self
 
     def format(self, ndata):
@@ -194,10 +240,18 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
-    def add_definition(self, ndef, dtype=Any):
+    def add_name(self, name):
+        self._name = name
+        return self
+
+    def add_definition(self, ndef, dtype=Any, nested_dict=False):
         keys = []
+        suffixes = []
         if isinstance(ndef, dict):
             for k, v in ndef.items():
+                if isinstance(v, dict) and nested_dict:
+                    v = DefDict(v)
+                    suffixes.extend(v.list_keys())
                 if isinstance(v, type) or v is Any:
                     self._definition[k] = dtype
                     keys.append(k)
@@ -214,6 +268,7 @@ class DefDict:
         else:
             raise TypeError('You can only add str, dict, or list')
         self.init_data(keys)
+        return suffixes
 
     def init_data(self, keys):
         for k, v in self._definition.items():
@@ -230,7 +285,10 @@ class DefDict:
         stored_data_keys = []
         for k, v in data.items():
             if k in self._data.keys():
-                self._data[k][0] = self._enforce_type(self.DEF[k], v)
+                if self.DEF[k] is DefDict:
+                    self._data[k][0].set(v)
+                else:
+                    self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
                 pass
@@ -242,12 +300,11 @@ class DefDict:
 
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
-        for i, key in enumerate(self._data):
+        for i, key in enumerate(self._data.keys()):
             if i > length:
                 break
-            if isinstance(key, tuple):
-                k, v = key
-                self._data[k][0] = self._enforce_type(self.DEF[k], v)
+            if self.DEF[key] is DefDict:
+                self._data[key][0].set(data[i])
             else:
                 self._data[key][0] = self._enforce_type(self.DEF[key], data[i])
 
@@ -265,8 +322,14 @@ class DefDict:
 
     def bind(self, bind_rule, val=None):
         if val is None:
-            val = self.get()
+            val = self.dict()
         self.set(bind_rule.bind(val))
+        return self
+
+    def inv_bind(self, bind_rule, val=None):
+        if val is None:
+            val = self.dict()
+        self.set(bind_rule.inv_bind(val))
         return self
 
     def assert_data(self, data=None):
@@ -277,7 +340,7 @@ class DefDict:
         assert (len(data) == len(self.DEF))
         assert (all(type(x) == y for x, y in zip(data.values(), self.DEF.values())))
 
-    def filter(self, keys): #ToDo support all iteratibe
+    def _to_key_list(self, keys):
         if isinstance(keys, dict):
             keys = list(keys.keys())
         if isinstance(keys, str):
@@ -286,11 +349,20 @@ class DefDict:
             keys = [str(keys)]
         if not isinstance(keys, list):
             raise TypeError('keys must be either string, int, list, or dict')
+        return keys
 
-        keys = map(str, keys)
+    def filter(self, keys): #ToDo support all iteratibe
+        key_list = []
+        if isinstance(keys, tuple):
+            for t in keys:
+                key_list.extend(self._to_key_list(t))
+        else:
+            key_list.extend(self._to_key_list(keys))
+
+        key_list = map(str, key_list)
         d = copy.deepcopy(self)
         d.clear()
-        for k in keys:
+        for k in key_list:
             d.add_definition({k: self.DEF[k]})
             d._data[k] = self._data.get(k)
         return d    #DefDict
@@ -315,8 +387,19 @@ class DefDict:
             d._data[keys[index]] = vals[index]
         return d
 
+    def flat_list(self):
+        ret = []
+        for elem in self.values():
+            try:
+                i = iter(elem)
+                for e in elem:
+                    ret.append(e)
+            except TypeError:
+                ret.append(elem)
+        return ret
+
     def __str__(self):
-        return self.data.__str__()
+        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
 ###################################################################
     #dictionary methods
@@ -371,13 +454,13 @@ class DefDict:
         Insert key with a value of default if key is not in the dictionary.
         Return the value for key if key is in the dictionary, else default.
         """
-        self.set(ndata)
+        return self.set(ndata)
 
     def update(self, ndata):  # known special case of dict.update
         """
         same as set
         """
-        self.set(ndata)
+        return self.set(ndata)
 
     def values(self):  # real signature unknown; restored from __doc__
         """ D.values() -> an object providing a view on D's values """
@@ -385,7 +468,10 @@ class DefDict:
 
     def __setitem__(self, key, value):
         if key in self.DEF.keys():
-            self._data[key][0] = value
+            if isinstance(self._data[key][0], DefDict):  # for nested def dict
+                self._data[key][0].set(value)
+            else:
+                self._data[key][0] = value
         else:
             raise KeyError(f'Key {key} is not in definition')
 
@@ -415,6 +501,9 @@ class DefDict:
                         other_defdict.filter(other_defdict.list_keys()).list()):
                 current._data[k][0] = func(current._data[k][0], o)
         return current
+
+    def __iter__(self):
+        return iter(self.values())
 
     def __add__(self, other):
         return self._math(other, lambda v, o: v + o, immutable=True)
@@ -458,9 +547,13 @@ class DefDict:
     def __ipow__(self, other, modulo=None):  #Todo: modulo implementation
         return self._math(other, lambda v, o: v ** o, immutable=False)
 
+    def __round__(self, n=None):
+        d = self.clone()
+        for k, v in d.items():
+            d._data[k][0] = round(v, n)
+        return d
 
 
-
-
-
-
+if __name__ == '__main__':
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
+    print(d)

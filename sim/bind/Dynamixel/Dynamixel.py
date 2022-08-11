@@ -20,7 +20,7 @@ def dynamixel_sensor_def(driver_def: DefDict):
 
 MOTOR = DefDict(dict(pos=np.pi, vel=DEFAULT_SPEED, acc=DEFAULT_ACC, on=False))
 def define_motor(id_lists):
-    d = DEF.define(prefix=ID, num=id_lists, type_=MOTOR)
+    d = DEF.define(prefix=ID, num=id_lists, dtype=MOTOR)
     return DefDict(d, name='dynamixel', prefixes=ID, suffixes=MOTOR.list_keys())
 
 default_func = (None, None)
