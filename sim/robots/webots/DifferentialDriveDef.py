@@ -61,14 +61,14 @@ class DifferentialDriveDef(RobotDefBase):
         self.inpt = DefDict(WHEEEL_VEL, rules=self.rule.get_rules())
         self.state = DefDict((POS_2D,))
         self.outpt = DefDict(sensor_names)
-        self.joint_space = DefDict(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'])
+        self.joint_space = DefDict(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'], rules=BindRule(WHEEEL_VEL, None,))
         self.task_space = None
         self.jacobian = DefDict(JACOB_2D, shape=(3, 2))
         super().define()
 
     def drive(self, inpt, timestamp):
         self.inpt.set(inpt)
-        self.joint_space.vel().set(inpt.list())
+        self.joint_space.vel().set(inpt)
         super().drive(self.joint_space, timestamp)
 
     def jb(self, theta: DefDict, *args, **kwargs):

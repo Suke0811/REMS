@@ -32,11 +32,3 @@ class RobotDefBase:
     def jb(self, jointspace: DefDict, *args, **kwargs):
         raise NotImplementedError
 
-    def inv_jb(self, theta: DefDict, *args, **kwargs):
-        raise NotImplementedError
-
-    def fdyn(self, jointspace: DefDict, *args, **kwargs):
-        raise NotImplementedError
-
-    def idyn(self, taskspace: DefDict, *args, **kwargs):
-        raise NotImplementedError

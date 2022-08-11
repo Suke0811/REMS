@@ -1,6 +1,5 @@
 import copy
 import logging
-
 import numpy as np
 from typing import Any
 
@@ -200,6 +199,16 @@ class DefDict:
                         break
         return ret
 
+    def set_rule(self, rule):
+        if self.rules is None:
+            self.rules = []
+        self.rules.append(rule)
+        return self
+
+    def clear_rules(self):
+        self.rules = None
+        return self
+
     def set_name(self, name):
         self._name = name
         return self
@@ -282,7 +291,7 @@ class DefDict:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
             else:
-                passWebotsDrive
+                pass
                 #extra_data[k][0] = v
         if extra_data:
             # TODO: binding implementation
