@@ -2,7 +2,7 @@ import logging, os
 from sim import Simulation
 from sim.inputs import FileInput
 from sim.inputs import KeyboardInput
-from sim.outputs import FileOutput
+from sim.outputs import FileOutput, AnimationOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
 from sim.robots.webots import CreateDef, EpuckDef, Pioneer3DxDef, Pioneer3AtDef
@@ -33,10 +33,11 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-s.add_robot(CreateDef, WebotsBinder)
+s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 #s.add_robot(EpuckDef, WebotsBinder)
 
 #s.add_robot(Pioneer3DxDef, WebotsBinder)
 #s.add_robot(Pioneer3AtDef, WebotsBinder)
 
-s.run(SimConfig(max_duration=100, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=2, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+

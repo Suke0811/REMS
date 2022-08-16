@@ -17,16 +17,16 @@ class OutputBase:
         :param timestamp: corresponding timestamp
         """
         self._timestamps.append({'timestamp': timestamp})
-        self._inpts.append({**self.to_dict(inpt)})
-        self._states.append({**self.to_dict(state)})
-        self._outpts.append({**self.to_dict(outpt)})
-        self._info.append({**self.to_dict(info)})
+        self._inpts.append(inpt.clone())
+        self._states.append(state.clone())
+        self._outpts.append(outpt.clone())
+        self._info.append(info)
 
     def to_dict(self, data):
-        ret = {}
-        if isinstance(data, DefDict):
-            ret = data.dict()
-        return ret
+        "make all DefDict to dict format"
+        return list(map(lambda d: {**dict(d)}, data))
+
+
 
     def make_output(self):
         """make proper output from the data"""

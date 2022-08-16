@@ -15,7 +15,7 @@ class FileOutput(OutputBase):
     def _save_2_file(self, *data):
         dfs = []
         for d in data:
-            dfs.append(pd.DataFrame.from_dict(d))
+            dfs.append(pd.DataFrame.from_dict(self.to_dict(d)))
         df = pd.concat(dfs, axis=1)
         p = Path(self.filepath).parent.mkdir(parents=True, exist_ok=True)   # create dir if it doesn't exist
         df.to_csv(self.filepath, index=False)
