@@ -4,8 +4,10 @@ from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 from pathlib import Path
 from sim.outputs import OutputBase
+from sim.outputs.PlotlyHelper import PlotlyHelper
 
-FORMAT = dict(x=float, y=float)
+FORMAT_XY = dict(x=float, y=float)
+FORMAT_XYTh = dict(x=float, y=float, th=float)
 
 class AnimationOutput(OutputBase):
     def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):
@@ -24,15 +26,14 @@ class AnimationOutput(OutputBase):
         if self._under_fps_limit(timestamp):
             self.last_update = timestamp
 
-            plot_data = self.get_plot_list(self._states, FORMAT)
+            plot_data = self.get_plot_list(self._states, FORMAT_XY)
             last_state = round(self._states[-1], 2)
             self._update_canvas(plot_data, f"state: {last_state.__str__()}")
 
     def make_output(self):
         """make proper output from the data"""
-        pass
-        # plt.plot(*self.get_plot_list(self._states, FORMAT))
-        # plt.show()
+        p = PlotlyHelper()
+        p.anim_path_dot(*self.get_plot_list(self._states, FORMAT_XYTh), fps=self.calc_fps())
         self.generate_video()
 
     def _under_fps_limit(self, timestamp):
@@ -103,7 +104,7 @@ class AnimationOutput(OutputBase):
         # lists storing x and y values
         x, y = [], []
 
-        states_x, states_y = self.get_plot_list(self._states, FORMAT)
+        states_x, states_y = self.get_plot_list(self._states, FORMAT_XY)
         axis.set_xlim([min(states_x), max(states_x)])
         axis.set_ylim([min(states_y), max(states_y)])
         line, = axis.plot(0, 0)

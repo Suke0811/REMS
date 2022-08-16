@@ -363,8 +363,9 @@ class DefDict:
         d = copy.deepcopy(self)
         d.clear()
         for k in key_list:
-            d.add_definition({k: self.DEF[k]})
-            d._data[k] = self._data.get(k)
+            if k in self.keys():
+                d.add_definition({k: self.DEF[k]})
+                d._data[k] = self._data.get(k)
         return d    #DefDict
 
     def filter_data(self, data):

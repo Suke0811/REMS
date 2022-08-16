@@ -39,5 +39,5 @@ s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.g
 #s.add_robot(Pioneer3DxDef, WebotsBinder)
 #s.add_robot(Pioneer3AtDef, WebotsBinder)
 
-s.run(SimConfig(max_duration=2, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
