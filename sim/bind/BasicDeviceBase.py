@@ -14,6 +14,3 @@ class BasicDeviceBase:
     def enable(self, enable):
         pass
 
-    def __del__(self):
-        self.enable(False)
-        self.close()

@@ -84,6 +84,12 @@ class Simulation:
             futs.append(robot_actor.init(block=False))
         done = ray.get(futs)
 
+    def open(self):
+        futs = []
+        for inpt, robot, robot_actor, outputs in self._robots:
+            futs.append(robot_actor.open(block=False))
+        done = ray.get(futs)
+
     def reset(self, t):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
@@ -124,6 +130,7 @@ class Simulation:
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init()
+        self.open()
         self.reset(t)
         st = time.perf_counter()
         next_time = time.perf_counter()

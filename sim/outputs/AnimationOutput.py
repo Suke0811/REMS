@@ -32,6 +32,8 @@ class AnimationOutput(OutputBase):
 
     def make_output(self):
         """make proper output from the data"""
+        if len(self._timestamps) <= 2:
+            return
         p = PlotlyHelper()
         p.anim_path_dot(*self.get_plot_list(self._states, FORMAT_XYTh), fps=self.calc_fps())
         self.generate_video()
