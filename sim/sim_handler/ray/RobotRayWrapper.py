@@ -25,7 +25,8 @@ class RobotRayWrapper(object):
     def __init__(self, robot, outputs, cache=False):
         self._local_robot = robot
         self._cache = cache
-        self._ray_robot = SimActor.options(name=robot.run.name+str(time.time()), max_concurrency=2).remote(robot, outputs)
+        #self._ray_robot = SimActor.options(name=robot.run.name+str(time.time()), max_concurrency=2).remote(robot, outputs)
+        self._ray_robot = SimActor.options(name=robot.run.name + str(time.time())).remote(robot, outputs)
         self._ray_methods = get_methods(robot)
         self._ray_actor_methods = get_methods(self._ray_robot)
         self._ray_vars = get_vars(robot)
