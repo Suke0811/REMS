@@ -2,22 +2,24 @@ from sim.typing import DefDict
 
 
 class RobotDefBase:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """init with a specific initial state (optional) """
+        self.name = 'robot'
         self.inpt: DefDict = None
         self.state: DefDict = None
         self.outpt: DefDict = None
+        self.drive_space: DefDict = None
+        self.sense_space: DefDict = None
         self.info = None
         self.joint_space: DefDict = None
         self.task_space: DefDict = None
         self.jacobian: DefDict = None
-        self.all_defs = [self.inpt, self.state, self.outpt, self.info, self.joint_space, self.task_space, self.jacobian]
-        self.all_names = ['inpt', 'state', 'outpt', 'info', 'joint_space', 'task_space', 'jacobian']
-
+        self.defs = dict(inpt=self.inpt, state=self.state, outpt=self.outpt, info=self.info,
+                         joint_space=self.joint_space, task_space=self.task_space, jacobian=self.jacobian)
 
     def define(self, *args, **kwargs):
         """Definitions of the robot"""
-        for d, name in zip(self.all_defs, self.all_names):
+        for name, d in self.defs.items():
             try:
                 d.add_name(name)
             except AttributeError:

@@ -17,8 +17,7 @@ class PlotlyHelper:
         x_range, y_range = self.axis_limit(x, y, DEFAULT_MARGIN)
 
         duration = round(1000/fps)
-        print(duration)
-        n = 1
+        n = 1   # if need to drop some data points
         N = list(range(len(x))[0::n])
         N.append(len(x)-1)
         fig = go.Figure(

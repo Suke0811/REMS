@@ -1,4 +1,4 @@
-from sim.bind import SenseBase
+from sim.device import SenseBase
 from sim.typing import DefDict
 import numpy as np
 from controller import Node

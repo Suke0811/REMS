@@ -1,8 +1,8 @@
 import numpy as np
 
 from sim.robots import RobotBase
-from sim.bind.webots.WebotsDrive import WebotsDrive
-from sim.bind.webots.WebotsSense import WebotsSense
+from sim.device.webots.WebotsDrive import WebotsDrive
+from sim.device.webots.WebotsSense import WebotsSense
 from sim.typing.definitions import *
 from controller import Supervisor, Robot
 from scipy.spatial.transform import Rotation as R
@@ -18,23 +18,23 @@ WEBOTS_ROT_VEL = dict(d_th_x=float, d_th_y=float, d_th_z=float)
 
 class WebotsBinder(RobotBase):
     """You will receive updates in the next lab"""
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.wb_state = DefDict((WEBOTS_POS, WEBOTS_ROT, WEBOTS_POS_VEL, WEBOTS_ROT_VEL))
+        self.run.name = 'Webots'
         # gets robot instance from the webots
         #get robot node, and translation and rotation fields
 
-
-    def init(self):
+    def init(self, *args, **kwargs):
         # init motors and sensors
-        os.environ['WEBOTS_ROBOT_NAME'] = self.run.name
+        os.environ['WEBOTS_ROBOT_NAME'] = self.name
         self._robot = Supervisor()
-        self._robot_node = self._robot.getFromDef(self.run.name)
+        self._robot_node = self._robot.getFromDef(self.name)
         print(self._robot.getName())
         if self._robot_node is None:
             self._robot_node = self._robot.getSelf()
             if self._robot_node is None:
-                raise ImportError(f'the Webots robot {self.run.name} could not found')
+                raise ImportError(f'the Webots robot {self.name} could not found')
         self._trans_field = self._robot_node.getField("translation")
         self._rotation_field = self._robot_node.getField("rotation")
         # get the time step of the current world.
@@ -58,12 +58,12 @@ class WebotsBinder(RobotBase):
         self._robot_node.resetPhysics()  # reset physics
         self.clock(0)
 
-    def drive(self, inpts, timestamp):
+    def drive(self, inpt, timestamp):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         :return full state feedback"""
-        self.inpt.set(inpts)
-        self.wb_driver.drive(inpts, timestamp)
+        super(WebotsBinder, self).drive(inpt, timestamp)
+        self.wb_driver.drive(self.joint_space, timestamp)
 
     def observe_state(self):
         """Collect ground truth position, orientation, and velocity"""

@@ -1,6 +1,5 @@
-from sim.robots.webots import DifferentialDriveDef
-from sim.typing import DefDict, BindRule
-import numpy as np
+from sim.robot_def.webots import DifferentialDriveDef
+from sim.typing import BindRule
 
 SENSOR = {
     "Sick LMS 291": list,
@@ -22,7 +21,7 @@ class Pioneer3AtDef(DifferentialDriveDef):
 
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
-        self.run.name = 'Pioneer 3-AT'
+        self.name = 'Pioneer 3-AT'
         self.joint_space.clear_rules() # default rule is 1 to 1 mapping
         self.joint_space.set_rule(
             BindRule(self.inpt.list_keys(),

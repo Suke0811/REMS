@@ -1,4 +1,4 @@
-from sim.bind import DriveBase
+from sim.device import DriveBase
 from sim.typing import DefDict
 from sim.typing import definitions as DEF
 
@@ -18,7 +18,6 @@ class WebotsDrive(DriveBase):
     def enable(self, enable):
         for joint in self.joint_space:
             joint['on'] = True
-
 
     def drive(self, jointspace: DefDict, timestamp):
         self.joint_space.set(jointspace)

@@ -1,6 +1,4 @@
-from sim.robots.webots import DifferentialDriveDef
-from sim.typing import DefDict
-import numpy as np
+from sim.robot_def.webots import DifferentialDriveDef
 
 SENSOR = {
     "accelerometer": dict(x=float, y=float, z=float),
@@ -21,5 +19,5 @@ class EpuckDef(DifferentialDriveDef):
 
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
-        self.run.name = 'e-puck'
+        self.name = 'e-puck'
 

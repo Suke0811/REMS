@@ -49,9 +49,9 @@ class KeyMapRule:
 
 
 class DifferentialDriveDef(RobotDefBase):
-    def __init__(self, radius=0.01, length=0.1, max_vel=1.0):
+    def __init__(self, radius=0.01, length=0.1, max_vel=1.0, *args, **kwargs):
         """init with a specific initial state (optional) """
-        super().__init__()
+        RobotDefBase.__init__(self, *args, **kwargs)
         self.radius = radius
         self.length = length
         self.rule = KeyMapRule(max_vel)
@@ -66,10 +66,10 @@ class DifferentialDriveDef(RobotDefBase):
         self.jacobian = DefDict(JACOB_2D, shape=(3, 2))
         super().define()
 
-    def drive(self, inpt, timestamp):
+    def control(self, inpt, timestamp):
         self.inpt.set(inpt)
         self.joint_space.vel().set(inpt)
-        super().drive(self.joint_space, timestamp)
+        return self.joint_space
 
     def jb(self, theta: DefDict, *args, **kwargs):
         th = theta.get('theta')

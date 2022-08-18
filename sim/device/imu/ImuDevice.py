@@ -1,5 +1,5 @@
-from sim.bind import SenseBase
-from sim.bind.imu.Imu_interface import imu
+from sim.device import SenseBase
+from sim.device.imu.Imu_interface import imu
 from sim.typing import DefDict
 
 

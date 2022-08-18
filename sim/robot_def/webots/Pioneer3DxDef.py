@@ -1,6 +1,4 @@
-from sim.robots.webots import DifferentialDriveDef
-from sim.typing import DefDict
-import numpy as np
+from sim.robot_def.webots import DifferentialDriveDef
 
 SENSOR = {
     "so0": float, "so1": float, "so2": float, "so3": float, "so4": float, "so5": float, "so6": float, "so7": float,
@@ -19,5 +17,5 @@ class Pioneer3DxDef(DifferentialDriveDef):
 
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
-        self.run.name = 'Pioneer 3-DX'
+        self.name = 'Pioneer 3-DX'
 

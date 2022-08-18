@@ -110,6 +110,11 @@ class DynamiexX:
             rad_sec = (rev_min * 2 * np.pi) / 60
             return rad_sec
 
+    class VELOCITY_LIMIT(TableBase):
+        ADDR = 44
+        LEN = 4
+        UNIT = unit.rad_p_sec
+
     class MOVING(TableBase):
         ADDR = 122
         LEN = 1

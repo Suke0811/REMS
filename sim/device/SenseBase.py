@@ -1,10 +1,10 @@
-from sim.bind import BasicDeviceBase
+from sim.device import BasicDeviceBase
 
 
 class SenseBase(BasicDeviceBase):
     def __init__(self):
         super().__init__()
-        self.sensors = {}
+        self.config.on().set([False, True, True])
 
     def sense(self):
         pass
