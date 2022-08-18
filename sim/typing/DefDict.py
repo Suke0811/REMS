@@ -46,12 +46,6 @@ class DefDict:
             reshape = self.shape
         return np.array(data_list).reshape(reshape)
 
-    def ndsquare(self):
-        s = np.sqrt(len(self._data))
-        if np.ceil(s) != s:
-            raise ValueError('Cannot make the data size {} to square matrix'.format(len(self._data)))
-        return self.ndarray((int(s), int(s)))
-
     def ndtall(self):
         return self.ndarray((len(self._data), 1))
 
@@ -547,6 +541,45 @@ class DefDict:
 
     def __ipow__(self, other, modulo=None):  #Todo: modulo implementation
         return self._math(other, lambda v, o: v ** o, immutable=False)
+
+#############################
+    def _compare(self, other, func):
+        ret = []
+        current = self
+        if np.isscalar(other):  # if scalar, then compare the value to all elements
+            for k in current._data.keys():
+                ret.append(func(current._data[k][0], other))
+        else:  # other wise element wise
+            if not isinstance(other, DefDict):
+                # if not DefDict, create one assuming
+                other_defdict = self.clone()
+                other_defdict.init_data(other_defdict.list_keys())
+                other_defdict.set(other)
+            else:
+                other_defdict = other
+            # sum for corresponding keys
+            for k, o in zip(current.filter(other_defdict.keys()).list_keys(),
+                        other_defdict.filter(other_defdict.list_keys()).list()):
+                ret.append(func(current._data[k][0], o))
+        return ret
+
+    def __lt__(self, other):
+        return self._compare(other, lambda v, o: v < o)
+
+    def __le__(self, other):
+        return self._compare(other, lambda v, o: v <= o)
+
+    def __eq__(self, other):
+        return self._compare(other, lambda v, o: v == o)
+
+    def __ne__(self, other):
+        return self._compare(other, lambda v, o: v != o)
+
+    def __ge__(self, other):
+        return self._compare(other, lambda v, o: v >= o)
+
+    def __gt__(self, other):
+        return self._compare(other, lambda v, o: v > o)
 
     def __round__(self, n=None):
         d = self.clone()
