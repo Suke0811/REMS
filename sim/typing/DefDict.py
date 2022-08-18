@@ -393,8 +393,6 @@ class DefDict:
                 ret.append(elem)
         return ret
 
-    def __str__(self):
-        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
 ###################################################################
     #dictionary methods
@@ -472,6 +470,15 @@ class DefDict:
 
     def __getitem__(self, item):
         return self._data.__getitem__(item)[0]
+
+
+##############################################################
+    # magic methods
+    def __len__(self):
+        return len(d._data)
+
+    def __str__(self):
+        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
 ##############################################################
     # Math operations
