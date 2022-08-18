@@ -7,7 +7,7 @@ from sim.outputs import OutputBase
 from sim.outputs.PlotlyHelper import PlotlyHelper
 
 FORMAT_XY = dict(x=float, y=float)
-FORMAT_XYTh = dict(x=float, y=float, th=float)
+FORMAT_XYTh = dict(x=float, y=float, th_y=float)
 
 class AnimationOutput(OutputBase):
     def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):

@@ -32,7 +32,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
             d, args, kwargs = data
             device = d(*args, **kwargs)
             if device.to_thread:
-                device = RayWrapper(device, name=device.device_name, cache=False)
+                device = RayWrapper(device, name=device.device_name, cache=True)
             self.devices.append(device)
             config = device.config
             if config.get('drive').get('on'):
