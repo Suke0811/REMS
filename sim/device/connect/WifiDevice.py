@@ -13,18 +13,19 @@ def os_compatible():
 
 
 class WifiDevice(BasicDeviceBase):
-    def __init__(self, ssid):
+    def __init__(self, ssid, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.ssid = ssid
         self.ssid_original = None
 
-    def init(self):
+    def init(self, *args, **kwargs):
         if not os_compatible():
             logging.warning(f"WifiDevice is not compatible with {platform.system()} yet. Nothing will be executed for this device.")
             return
 
         self.open()
 
-    def open(self):
+    def open(self, *args, **kwargs):
         """
         save current ssid -> disconnect, pose 1sec -> search for specified ssid -> connect if exists
         -> connect to the original network if not exists
@@ -33,25 +34,27 @@ class WifiDevice(BasicDeviceBase):
         ssids = self.search()
         if ssids:
             self.ssid_original = ssids[0]
-        self.enable(False)
-        time.sleep(1)
-        ssids = self.search()
-        logging.info(f"SSID list: {ssids}")
-        matching = fnmatch.filter(ssids, self.ssid)
-        if matching:
-            self.ssid = matching[0]
-        else:
-            self.ssid = self.ssid_original
-        self.enable(True)
+        # if connected already then skip
+        if not fnmatch.filter(self.ssid_original, self.ssid):
+            self.enable(False)
+            time.sleep(1)
+            ssids = self.search()
+            logging.info(f"SSID list: {ssids}")
+            matching = fnmatch.filter(ssids, self.ssid)
+            if matching:
+                self.ssid = matching[0]
+            else:
+                self.ssid = self.ssid_original
+            self.enable(True)
 
 
-    def close(self):
+    def close(self, *args, **kwargs):
         if not os_compatible():
             return
         self.ssid = self.ssid_original
         self.enable(True)
 
-    def enable(self, enable):
+    def enable(self, enable, *args, **kwargs):
         if enable:
             output = subprocess.check_output(f'netsh wlan connect {self.ssid}', shell=True)
         else:

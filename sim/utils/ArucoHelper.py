@@ -66,7 +66,7 @@ class ArucoHelper:
         self.arena_corner = np.array([[0.0, 0.0], [ENV.WIDTH, 0.0], [0.0, ENV.LENGTH], [ENV.WIDTH, ENV.LENGTH]], np.float32) * 1000
         #calibration setting
         self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
+        self.t = 0.0
 
     def get_camera(self):
         if self.camera_id is self.CAMERA_ID_REALSENSE:
@@ -86,6 +86,7 @@ class ArucoHelper:
             assert self.camera.isOpened()
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
+            self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             RES = ARUCO.CAMERA_RES
 
         # Video Feeds
@@ -116,6 +117,7 @@ class ArucoHelper:
         except ImportError:
             self.camera_matrix = None       # if no calibration file found
             self.distortion_matrix = None
+        self.t = time.perf_counter()
 
 
     def track(self):
@@ -144,9 +146,13 @@ class ArucoHelper:
             image = self._corner_display(corners, ids, image)
             self._corner_2_frame(corners, ids)
         image = np.array(image, dtype=np.uint8)
-        cv2.imshow(ARUCO.FRAME, image)
+        if time.perf_counter() - self.t >= round(1/15):
+            cv2.imshow(ARUCO.FRAME, image)
+            self.t = time.perf_counter()
+
         self.video_out.write(image)
         cv2.waitKey(1)
+
 
     def _corner_display(self, corners, ids, image):
         if np.all(ids is not None):  # If there are markers found by detector

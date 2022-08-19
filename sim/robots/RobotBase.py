@@ -58,19 +58,19 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """
         self.joint_space.set(self.control(inpt, timestamp))
         for device in self.drivers:
-            device.drive(self.joint_space.list(), timestamp, block=False)
+            device.drive(self.joint_space, timestamp, block=False)
 
     def sense(self):
         """generate the sensor reading
         :return output"""
         for device in self.sensors:
-            self.outpt.data = device.sense(block=False)
+            self.outpt.update(device.sense(cache=False))
         return self.outpt
 
     def observe_state(self):
         """get current state"""
         for device in self.observers:
-            self.state.data = device.observe_state(block=False)
+            self.state.data = device.observe_state(cache=False)
         return self.state
 
     def clock(self, t):

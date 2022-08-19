@@ -26,8 +26,8 @@ def define_motor(id_lists):
 default_func = (None, None)
 
 class Dynamixel(DeviceBase):
-    def __init__(self, id_lists, slave_ids=None, device_port='/dev/ttyUSB0', offset_func=default_func):
-        super().__init__()
+    def __init__(self, id_lists, slave_ids=None, device_port='/dev/ttyUSB0', offset_func=default_func, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.device_port = device_port
         # motor sensing is only for masters
         self.motors_outpt = define_motor(id_lists)
@@ -50,11 +50,11 @@ class Dynamixel(DeviceBase):
         self.vel_mode = False
         self.to_thread = True
 
-    def init(self):
+    def init(self, *args, **kwargs):
         self.packet = x.PacketHandler(DynamiexX.PROTOCOL_VERSION)
         self.port = x.PortHandler(self.device_port)
 
-    def open(self):
+    def open(self, *args, **kwargs):
         if not self.port.is_open:
             self.port.openPort()
             self.port.setBaudRate(DynamiexX.BAUDRATE)
@@ -74,7 +74,7 @@ class Dynamixel(DeviceBase):
                     self.motors_inpt.acc()[key] = DEFAULT_ACC
             self._sync_write(self.motors_inpt.ID().acc(), DynamiexX.PROFILE_ACCELERATION)
 
-    def close(self):
+    def close(self, *args, **kwargs):
         if self.port.is_open:
             self.enable(False)
             self.port.closePort()
@@ -84,7 +84,7 @@ class Dynamixel(DeviceBase):
         self._sync_write(self.motors_inpt.ID().pos(), DynamiexX.GOAL_POSITION, np.pi)
         time.sleep(1)   # TODO: wait till the motor reach the target position
 
-    def enable(self, enable):
+    def enable(self, enable, *args, **kwargs):
         if self.port.is_open:
             for i, id in enumerate(self.ids):
                 result = self.func_retry(self.packet.write1ByteTxRx,
@@ -103,16 +103,16 @@ class Dynamixel(DeviceBase):
                     logging.info('Disabled')
         return False
 
-    def drive(self, inpt: DefDict, timestamp):
+    def drive(self, inpt: DefDict, timestamp, *args, **kwargs):
         # TODO: change this so that each motor could have different mode
-        self.motors_inpt.set(inpt)
+        self.motors_inpt.set(inpt.list())
         if self.velocity_mode():
             self._sync_write(self.motors_inpt.ID().vel(), DynamiexX.GOAL_VELOCITY)
         else:
             self._sync_write(self.motors_inpt.pos().bind(self.toDynamixel).ID(), DynamiexX.GOAL_POSITION)
             self._sync_write(self.motors_inpt.ID().vel(), DynamiexX.PROFILE_VELOCITY)
 
-    def sense(self):
+    def sense(self, *args, **kwargs):
         if not self.read_vel and not self.vel_mode:
             self._sync_read(self.motors_outpt.ID().pos(), DynamiexX.PRESENT_POSITION)
             self.motors_outpt.pos().bind(self.fromDynamixel)
@@ -162,6 +162,11 @@ class Dynamixel(DeviceBase):
             self.vel_mode = False
         return self.vel_mode
 
+    def system_voltage_status(self):
+        voltage = min = self._sync_read(self.motors_inpt.ID(), DynamiexX.PRESENT_INPUT_VOLTAGE)
+
+
+
 
     @staticmethod
     def func_retry(func, args=None, retry_max=DynamiexX.RETRY_MAX, success_condition=True):
@@ -178,5 +183,6 @@ class Dynamixel(DeviceBase):
                 logging.debug(f"Connection try {retry_count} succeed")
                 break
         return result
+
 
 

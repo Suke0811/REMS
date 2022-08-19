@@ -18,7 +18,7 @@ class PlotlyHelper:
 
         duration = round(1000/fps)
         n = 1   # if need to drop some data points
-        N = list(range(len(x))[0::n])
+        N = list(range(len(x))[1::n])
         N.append(len(x)-1)
         fig = go.Figure(
             data=[go.Scatter(x=x, y=y,

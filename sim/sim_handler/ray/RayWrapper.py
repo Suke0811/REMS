@@ -51,13 +51,15 @@ class RayWrapper(object):
         def method(self, *args, **kwargs):
             ret = None
             ray_ret = self._refs.get(name)
-            if 'block' in kwargs and not kwargs.pop('block'):
+            if 'cache' in kwargs and not kwargs.pop('cache'):
                 if self._cache and ray_ret:
                     finished, ray_ret = ray.wait(ray_ret, num_returns=len(ray_ret))
                     if finished:
                         ret = ray.get(finished[-1])
                 ray_ret.append(func(self, name, *args, **kwargs))
                 self._refs[name] = ray_ret
+            elif 'block' in kwargs and not kwargs.pop('block'):
+                    func(self, name, *args, **kwargs)
             else:
                 ret = ray.get(func(self, name, *args, **kwargs))
             return ret

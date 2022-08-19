@@ -47,8 +47,7 @@ class TableBase:
 class unit:
     rad = 0.00153398
     rad_p_sec = 0.02398
-
-
+    volt = 0.1
 
 class DynamiexX:
     """
@@ -58,38 +57,48 @@ class DynamiexX:
     PROTOCOL_VERSION = 2.0
     BAUDRATE = 4000000
     RETRY_MAX = 5       # # of times to retry communication
+
+    class OPERATING_MODE(TableBase):
+        ADDR = 11
+        LEN = 1
+        VEL_MODE = 1
+        POS_MODE = 3
+
+    class VELOCITY_LIMIT(TableBase):
+        ADDR = 44
+        LEN = 4
+        UNIT = unit.rad_p_sec
+
     class TORQUE_ENABLE(TableBase):
         ADDR = 64
 
     class LED(TableBase):
         ADDR = 65
 
-    class GOAL_POSITION(TableBase):
-        ADDR = 116
-        LEN = 4
-        UNIT = unit.rad  # rad
-
     class GOAL_VELOCITY(TableBase):
         ADDR = 104
         LEN = 4
         UNIT = unit.rad_p_sec  # rev/sec
-
-
-    class PROFILE_VELOCITY(TableBase):
-        ADDR = 112
-        LEN = 4
-        UNIT = unit.rad_p_sec   # rev/sec
 
     class PROFILE_ACCELERATION(TableBase):
         ADDR = 108
         LEN = 4
         UNIT = 0.3745
 
-    class PRESENT_POSITION(TableBase):
-        ADDR = 132
+    class PROFILE_VELOCITY(TableBase):
+        ADDR = 112
         LEN = 4
-        W = False
-        UNIT = unit.rad # rad
+        UNIT = unit.rad_p_sec   # rev/sec
+
+    class GOAL_POSITION(TableBase):
+        ADDR = 116
+        LEN = 4
+        UNIT = unit.rad  # rad
+
+    class MOVING(TableBase):
+        ADDR = 122
+        LEN = 1
+        unit = 1
 
     class PRESENT_VELOCITY(TableBase):
         ADDR = 128
@@ -110,18 +119,15 @@ class DynamiexX:
             rad_sec = (rev_min * 2 * np.pi) / 60
             return rad_sec
 
-    class VELOCITY_LIMIT(TableBase):
-        ADDR = 44
+    class PRESENT_POSITION(TableBase):
+        ADDR = 132
         LEN = 4
-        UNIT = unit.rad_p_sec
+        W = False
+        UNIT = unit.rad # rad
 
-    class MOVING(TableBase):
-        ADDR = 122
-        LEN = 1
-        unit = 1
+    class PRESENT_INPUT_VOLTAGE(TableBase):
+        ADDR = 144
+        LEN = 2
+        W = False
+        UNIT = unit.volt
 
-    class OPERATING_MODE(TableBase):
-        ADDR = 11
-        LEN = 1
-        VEL_MODE = 1
-        POS_MODE = 3
