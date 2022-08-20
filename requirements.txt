@@ -13,3 +13,5 @@ redis
 dynamixel_sdk
 pybullet
 protobuf~=3.19.0
+plotly
+pycreate2
