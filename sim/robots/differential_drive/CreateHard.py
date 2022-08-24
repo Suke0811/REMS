@@ -4,16 +4,14 @@ from sim.device.state_estimator.ArucoDevice import ArucoDevice
 from sim.typing import DefDict
 from sim.utils import time_str
 
-ID_LISTs = [2, 1]
-
 
 class CreateHard(RobotBase):
     def __init__(self, port, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run.DT = 0.04
+        self.run.DT = 0.1
         self.run.name = 'Hard'
         self.add_device(Create2Device, port=port)
-        #self.add_device(ArucoDevice, track_id=2, camera_id=2, video_name=f'video/aruco_{time_str()}.avi', dt=self.run.DT)
+        self.add_device(ArucoDevice, track_id=3, camera_id=2, video_name=f'video/aruco_{time_str()}.avi', dt=self.run.DT)
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)

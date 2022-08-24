@@ -86,11 +86,11 @@ class ArucoHelper:
             assert self.camera.isOpened()
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
-            self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 2)
             RES = ARUCO.CAMERA_RES
 
         # Video Feeds
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         self.video_out = cv2.VideoWriter(self.video_name, fourcc, self.fps, (RES[1], RES[0]))
 
 
@@ -146,9 +146,9 @@ class ArucoHelper:
             image = self._corner_display(corners, ids, image)
             self._corner_2_frame(corners, ids)
         image = np.array(image, dtype=np.uint8)
-        if time.perf_counter() - self.t >= round(1/15):
-            cv2.imshow(ARUCO.FRAME, image)
-            self.t = time.perf_counter()
+        #if time.perf_counter() - self.t >= round(1/15):
+        cv2.imshow(ARUCO.FRAME, image)
+        #    self.t = time.perf_counter()
 
         self.video_out.write(image)
         cv2.waitKey(1)
@@ -300,4 +300,4 @@ if __name__ == "__main__":
     # init_camera tries to read calibration data
     a.init_camera()
     #a.calibrate(0.02)
-    a.run([2])
+    a.run([3])

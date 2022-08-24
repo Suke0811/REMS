@@ -32,7 +32,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
             d, args, kwargs = data
             device = d(*args, **kwargs)
             if device.to_thread:
-                device = RayWrapper(device, name=device.device_name, cache=True)
+                device = RayWrapper(device, name=device.device_name)
             self.devices.append(device)
             config = device.config
             if config.get('drive').get('on'):
@@ -64,13 +64,13 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """generate the sensor reading
         :return output"""
         for device in self.sensors:
-            self.outpt.update(device.sense(cache=False))
+            self.outpt.update(device.sense(cache=True))
         return self.outpt
 
     def observe_state(self):
         """get current state"""
         for device in self.observers:
-            self.state.data = device.observe_state(cache=False)
+            self.state.update(device.observe_state(cache=True))
         return self.state
 
     def clock(self, t):

@@ -39,8 +39,8 @@ class Simulation:
 
     def handler_ctrl_c(self, signum, frame):
         """Ctrl+C termination handling"""
-        self.make_outputs()
         self.close()
+        self.make_outputs()
         exit(1)
 
     def set_input(self, input_system):

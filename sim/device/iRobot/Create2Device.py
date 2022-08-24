@@ -35,9 +35,10 @@ class Create2Device(DriveBase, SenseBase):
 
     def drive(self, inpt, timestamp, *args, **kwargs):
         self.drive_space.update(inpt.vel().list())
-        self.drive_space *= 20
+        self.drive_space *= 10
+        #print(self.drive_space)
         l, r = (int(i) for i in self.drive_space.list())
-        self.create.drive_direct(l, r)
+        self.create.drive_direct(r, l)
 
     def sense(self, *args, **kwargs):
         vals = self.create.get_sensors()

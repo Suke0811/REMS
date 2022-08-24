@@ -20,9 +20,8 @@ def get_vars(instance):
 
 
 class RayWrapper(object):
-    def __init__(self, remote_class, name=None, cache=False):
+    def __init__(self, remote_class, name=None):
         self._local_class = remote_class
-        self._cache = cache
         if name is None:
             name = 'ray'
         #self._ray_robot = ActorWrapper.options(name=robot.run.name+str(time.time()), max_concurrency=2).remote(robot, outputs)
@@ -51,8 +50,8 @@ class RayWrapper(object):
         def method(self, *args, **kwargs):
             ret = None
             ray_ret = self._refs.get(name)
-            if 'cache' in kwargs and not kwargs.pop('cache'):
-                if self._cache and ray_ret:
+            if 'cache' in kwargs and kwargs.pop('cache'):
+                if ray_ret:
                     finished, ray_ret = ray.wait(ray_ret, num_returns=len(ray_ret))
                     if finished:
                         ret = ray.get(finished[-1])
