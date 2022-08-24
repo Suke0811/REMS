@@ -44,17 +44,43 @@ class TableBase:
         """
         return val * cls.UNIT
 
+class classproperty(object):
+    def __init__(self, fget):
+        self.fget = fget
+
+    def __get__(self, owner_self, owner_cls):
+        return self.fget(owner_cls)
+
+# raise not implemented error when a class field is accessed
+@classproperty
+def NotImplementedField(self):
+    raise NotImplementedError('Table does not exists')
+
+# a table to throw NotImplementedError
+class NotAavailableTable(TableBase):
+    ADDR = NotImplementedField
+    LEN = NotImplementedField
+    R = False
+    W = False
+    RANGE = NotImplementedField
+    UNIT = NotImplementedField
+
+
 class unit:
     rad = 0.00153398
     rad_p_sec = 0.02398
     percentage = 0.00113
     amps = 0.00269
+    accel = 0.3745
+    msec = 0.001
 
     percentage_pro = 0.0498/100
     rad_p_sec_pro = 0.001047
     amps_pro = 0.001
 
-class DynamiexX:
+
+
+class DynamixelX:
     """
     Control tables for Dynamixel X series.
     (Pro or legacy lines have different addresses)
@@ -132,7 +158,7 @@ class DynamiexX:
     class PROFILE_ACCELERATION(TableBase):
         ADDR = 108
         LEN = 4
-        UNIT = 0.3745
+        UNIT = unit.accel
 
     class PROFILE_VELOCITY(TableBase):
         ADDR = 112
@@ -147,7 +173,7 @@ class DynamiexX:
     class REALTIME_CLICK(TableBase):
         ADDR = 120
         LEN = 2
-        UNIT = 0.001  # msec
+        UNIT = unit.msec # msec
         W = False
 
     class MOVING(TableBase):
@@ -232,14 +258,18 @@ class DynamiexX:
         VEL_MODE = 1
         POS_MODE = 3
 
-class Dynamixe (DynamiexX):
+class Dynamixel (DynamixelX):
     """
     Control tables for Dynamixel legacy series.
     The same as DynamiexX
+    147 Not Available
     """
+
+    class BACKUP_READY(NotAavailableTable):
+        pass
     pass
 
-class DynamixePro:
+class DynamixelPro:
     """
     Control tables for Dynamixel Pro series.
     """
@@ -322,7 +352,7 @@ class DynamixePro:
     class PROFILE_ACCELERATION(TableBase):
         ADDR = 556
         LEN = 4
-        UNIT = 0.3745
+        UNIT = unit.accel
 
     class PROFILE_VELOCITY(TableBase):
         ADDR = 560
@@ -337,7 +367,7 @@ class DynamixePro:
     class REALTIME_CLICK(TableBase):
         ADDR = 568
         LEN = 2
-        UNIT = 0.001  # msec
+        UNIT = unit.msec  # msec
         W = False
 
     class MOVING(TableBase):
