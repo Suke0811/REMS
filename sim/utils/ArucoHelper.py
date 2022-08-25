@@ -36,7 +36,7 @@ class ARUCO:
 
     CAMERA_RES = [int(480),int(640)]
     REALSENSE_RES = [int(480), int(848)]
-    REALSENSE_FPS = 60
+    REALSENSE_FPS = 30
 
     EULER = 'zyx'
 
@@ -296,7 +296,7 @@ class ArucoHelper:
 
 if __name__ == "__main__":
     # camera id could be 1 if there is another one
-    a = ArucoHelper(camera_id=2)
+    a = ArucoHelper(camera_id=6)
     # init_camera tries to read calibration data
     a.init_camera()
     #a.calibrate(0.02)

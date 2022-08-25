@@ -13,7 +13,7 @@ class DynamixelbotHard(RobotBase):
         self.run.DT = 0.04
         self.run.name = 'Hard'
         self.add_device(Dynamixel, id_lists=ID_LISTs, slave_ids=None, device_port=port)
-        self.add_device(ArucoDevice, track_id=2, camera_id=2, video_name=f'video/aruco_{time_str()}.avi', dt=self.run.DT)
+        self.add_device(ArucoDevice, track_id=2, camera_id=6, video_name=f'video/aruco_{time_str()}.avi', dt=self.run.DT)
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)

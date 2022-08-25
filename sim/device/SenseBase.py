@@ -4,7 +4,7 @@ from sim.device import BasicDeviceBase
 class SenseBase(BasicDeviceBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.config.on().set([False, True, True])
+        self.config.on().set(dict(sense=True))
 
     def sense(self, *args, **kwargs):
         pass
