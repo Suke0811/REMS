@@ -7,7 +7,7 @@ from sim.outputs import OutputBase
 from sim.outputs.PlotlyHelper import PlotlyHelper
 
 FORMAT_XY = dict(x=float, y=float)
-FORMAT_XYTh = dict(x=float, y=float, th=float)
+FORMAT_XYTh = dict(x=float, y=float, th_y=float)
 
 class AnimationOutput(OutputBase):
     def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):
@@ -32,6 +32,8 @@ class AnimationOutput(OutputBase):
 
     def make_output(self):
         """make proper output from the data"""
+        if len(self._timestamps) <= 2:
+            return
         p = PlotlyHelper()
         p.anim_path_dot(*self.get_plot_list(self._states, FORMAT_XYTh), fps=self.calc_fps())
         self.generate_video()

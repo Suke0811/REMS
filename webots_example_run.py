@@ -1,20 +1,21 @@
-import logging, os
+import logging
 from sim import Simulation
-from sim.inputs import FileInput
-from sim.inputs import KeyboardInput
+from sim.inputs import KeyboardInput, FileInput
 from sim.outputs import FileOutput, AnimationOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
-from sim.robots.webots import CreateDef, EpuckDef, Pioneer3DxDef, Pioneer3AtDef
-from sim.robots.NopRobot import NopRobot
-from sim.bind.webots.WebotsBinder import WebotsBinder
+from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef
+from sim.device.webots.WebotsBinder import WebotsBinder
+from sim.robots.differential_drive.DynamixelbotHard import DynamixelbotHard
+from sim.robots.differential_drive.WoodbotHard import WoodbotHard
+from sim.robots.differential_drive.CreateHard import CreateHard
 
 import ray
 
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=True, num_gpus=1)
+ray.init(local_mode=False, num_gpus=1)
 s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.

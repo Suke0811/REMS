@@ -5,7 +5,7 @@ from sim.inputs.JoyManipulator import JoyManipulator
 from sim.outputs import FileOutput
 from sim.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.robots.scaler_leg.ScalarHard import ScalerHard
-from sim.bind.kinematic_model.KinematicModel import KinematicModel
+from sim.device.kinematic_model.KinematicModel import KinematicModel
 from sim.robots.scaler_leg.Pybullet import Pybullet
 from sim.utils import time_str
 from sim.Config import SimConfig

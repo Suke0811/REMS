@@ -12,26 +12,30 @@ class SimActor:
     def __init__(self, robot, outputs):
         self.robot = robot
         self.outputs = outputs
+        self.t = 0.0
         logging.getLogger().setLevel(logging.INFO)
 
-    def step_forward(self, inpt, t_init, DT):
+    def step_forward(self, inpt, t_sys, DT):
         st = time.perf_counter()
-        t=t_init
         state = None
         observe = None
         info = None
-        while np.round(t - t_init, ROUND) < DT:
-            self.robot.drive(inpt, t)
+        while np.round(self.t - t_sys, ROUND) < DT:
+            self.robot.drive(inpt, self.t)
             observe = self.robot.sense()
             state = self.robot.observe_state()
 
-            t = self.robot.clock(t)
+            self.t = self.robot.clock(self.t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st
-        return observe, state, info, dt_actual, t
+        return observe, state, info, dt_actual, self.t
 
-    def step(self, inpt, t_init, DT):
-        outpt, state, info, dt_actual, t = self.step_forward(inpt, t_init, DT)
+    def step(self, inpt, t_sys, DT):
+        if np.round(self.t - t_sys, ROUND) >= DT:
+            return
+
+        outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
+
         for out in self.outputs:
             out.process(state, inpt, outpt, t, info)
         disp = []

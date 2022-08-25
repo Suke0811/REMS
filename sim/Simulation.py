@@ -39,8 +39,8 @@ class Simulation:
 
     def handler_ctrl_c(self, signum, frame):
         """Ctrl+C termination handling"""
-        self.make_outputs()
         self.close()
+        self.make_outputs()
         exit(1)
 
     def set_input(self, input_system):
@@ -84,6 +84,12 @@ class Simulation:
             futs.append(robot_actor.init(block=False))
         done = ray.get(futs)
 
+    def open(self):
+        futs = []
+        for inpt, robot, robot_actor, outputs in self._robots:
+            futs.append(robot_actor.open(block=False))
+        done = ray.get(futs)
+
     def reset(self, t):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
@@ -124,6 +130,7 @@ class Simulation:
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init()
+        self.open()
         self.reset(t)
         st = time.perf_counter()
         next_time = time.perf_counter()
@@ -134,8 +141,9 @@ class Simulation:
                 t += self.DT
                 next_time += self.DT / config.run_speed     # manipulate run speed
         logging.info(f"loop time {time.perf_counter()-st}")
-        self.make_outputs()
         self.close()
+        self.make_outputs()
+        # self.close()
 
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:

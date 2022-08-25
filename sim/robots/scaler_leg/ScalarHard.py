@@ -1,7 +1,7 @@
 import time
 
 from sim.robots.RobotBase import RobotBase
-from sim.bind.Dynamixel.Dynamixel import Dynamixel
+from sim.device.Dynamixel.Dynamixel import Dynamixel
 from sim.typing import BindRule as rule
 from sim.robots.scaler_leg.kinematics.wrap_to_pi import *
 import numpy as np
@@ -50,7 +50,6 @@ class ScalerHard(RobotBase):
         """
         Initialization necessary for the robot. call all binded objects' init
         """
-        # TODO: code clean up
         self.ID_LIST = self.ID_LISTs[self.arm_id]
         self.ID_LIST_SLAVE = self.ID_LIST_SLAVEs[self.arm_id]
         self.OFFSET = self.OFFSETs[self.arm_id]

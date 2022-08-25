@@ -1,5 +1,5 @@
 from sim.typing.DefDict import DefDict
-
+import copy
 
 class OutputBase:
     def __init__(self):
@@ -17,10 +17,10 @@ class OutputBase:
         :param timestamp: corresponding timestamp
         """
         self._timestamps.append({'timestamp': timestamp})
-        self._inpts.append(inpt.clone())
-        self._states.append(state.clone())
-        self._outpts.append(outpt.clone())
-        self._info.append(info)
+        self._inpts.append(copy.deepcopy(inpt))
+        self._states.append(copy.deepcopy(state))
+        self._outpts.append(copy.deepcopy(outpt))
+        self._info.append(copy.deepcopy(info))
 
     def to_dict(self, data):
         "make all DefDict to dict format"

@@ -7,9 +7,13 @@ import glob
 from scipy.spatial.transform import Rotation as R
 from pathlib import Path
 
-from sim.constants import ENVIRONMENT as ENV
-from sim.constants import DATA
 
+import pyrealsense2 as rs
+
+
+class ENV:
+    LENGTH = 0.88   # [m]
+    WIDTH =  1.15   # [m]
 
 class ARUCO:
     PREFIX = 'image'
@@ -17,7 +21,9 @@ class ARUCO:
     FORMAT_PNG = 'png'
     CALIBRATION = 'calibration.yml'
     CALIB_WIDTH = 9
-    CALIB_HEIGHT = 6
+    CALIB_HEIGHT = 7
+
+    REFINMENT_SIZE = 2
 
     CALIBRATION_PATH = Path(__file__).parent
     square_size = 0.022  #0.022m square size
@@ -29,6 +35,8 @@ class ARUCO:
 
 
     CAMERA_RES = [int(480),int(640)]
+    REALSENSE_RES = [int(480), int(848)]
+    REALSENSE_FPS = 30
 
     EULER = 'zyx'
 
@@ -38,47 +46,94 @@ class ARUCO:
     ARENA_ORIGIN_OFFSET =[-ENV.WIDTH/2,-ENV.LENGTH/2,0,0,0,0] #World origin to World tag
     CORNER_INDEX = [3,2,1,0]
     FPS = 10
-    VIDEO_NAME = 'woodbot.avi'
+    VIDEO_NAME = 'video.avi'
 
 
 class ArucoHelper:
-    def __init__(self, camera_id=0, calib_file_dir=ARUCO.CALIBRATION_PATH, tag_size=ARUCO.TAG_SIZE,fps=ARUCO.FPS):
+    CAMERA_ID_REALSENSE = 255
+    def __init__(self, camera_id=CAMERA_ID_REALSENSE, calib_file_dir=ARUCO.CALIBRATION_PATH, tag_size=ARUCO.TAG_SIZE,fps=ARUCO.FPS, video_name=ARUCO.VIDEO_NAME):
         self.calib_file_dir = calib_file_dir.resolve()
         self.id_tack =[]
+        self.pipe = None
+        self.camera = None
+        self.video_out = None
         self.fps = fps
+        self.video_name = video_name
         self.tag_type = ARUCO.TAG_TYPE_7
         self.tag_size = tag_size
-        self.camera = cv2.VideoCapture(camera_id)
-        assert self.camera.isOpened()
-
-        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
-        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.video_out = cv2.VideoWriter(ARUCO.VIDEO_NAME, fourcc, fps,(ARUCO.CAMERA_RES[1],ARUCO.CAMERA_RES[0]))
+        self.camera_id = camera_id
         self.frames = {}   # tracking ids and respective frames
         self.arena_corner = np.array([[0.0, 0.0], [ENV.WIDTH, 0.0], [0.0, ENV.LENGTH], [ENV.WIDTH, ENV.LENGTH]], np.float32) * 1000
         #calibration setting
         self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        self.t = 0.0
+
+    def get_camera(self):
+        if self.camera_id is self.CAMERA_ID_REALSENSE:
+            self.pipe = rs.pipeline()
+            self.config = rs.config()
+            self.profile = self.pipe.start()
+            self.config.enable_stream(rs.stream.color, ARUCO.REALSENSE_RES[1], ARUCO.REALSENSE_RES[0], rs.format.bgr8, ARUCO.REALSENSE_FPS)
+            RES = ARUCO.REALSENSE_RES
+            # Start streaming
+            try:
+                self.pipe.stop()
+            except RuntimeError:
+                pass
+            self.pipe.start(self.config)
+        else:
+            self.camera = cv2.VideoCapture(self.camera_id)
+            assert self.camera.isOpened()
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
+            RES = ARUCO.CAMERA_RES
+
+        # Video Feeds
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.camera.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+        self.video_out = cv2.VideoWriter(self.video_name, fourcc, self.fps, (RES[1], RES[0]))
+
+
+    def get_image(self):
+        if self.camera is None:
+            frames = self.pipe.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            if not color_frame:
+                return
+
+            # Convert images to numpy arrays
+            image = np.asanyarray(color_frame.get_data())
+        else:
+            ret, image = self.camera.read()  # capture camera frame
+            if not ret:
+                return
+        return image
+
 
     def init_camera(self):
         try:
+            self.get_camera()
             self._load_coefficients()    # load calibration
-        except:
+        except ImportError:
             self.camera_matrix = None       # if no calibration file found
             self.distortion_matrix = None
+        self.t = time.perf_counter()
+
 
     def track(self):
         """Track tag and get tag frame w.r.t. camera, and update display image """
         if self.camera_matrix is None:
             self._load_coefficients()   # making sure calibration info is available
 
-        ret, image = self.camera.read()     # capture camera frame
-        if not ret:
+        image = self.get_image()
+        if image is None:
             return
 
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Change grayscale
         parameters = aruco.DetectorParameters_create()  # Marker detection parameters
-        # lists of detected markers
+        parameters.cornerRefinementMethod = aruco.CORNER_REFINE_SUBPIX
+        parameters.cornerRefinementWinSize = ARUCO.REFINMENT_SIZE
+                # lists of detected markers
         corners, ids, rejected_img_points = aruco.detectMarkers(gray, self.tag_type,
                                                                 parameters=parameters,
                                                                 cameraMatrix=self.camera_matrix,
@@ -90,10 +145,13 @@ class ArucoHelper:
                     self.arena_corner[index] = corners[i][0][ARUCO.CORNER_INDEX[index]]
             image = self._corner_display(corners, ids, image)
             self._corner_2_frame(corners, ids)
-
+        image = np.array(image, dtype=np.uint8)
+        #if time.perf_counter() - self.t >= round(1/15):
         cv2.imshow(ARUCO.FRAME, image)
-        self.video_out.write(image)
+        #    self.t = time.perf_counter()
 
+        self.video_out.write(image)
+        cv2.waitKey(1)
 
 
     def _corner_display(self, corners, ids, image):
@@ -105,11 +163,8 @@ class ArucoHelper:
                 (rvec - tvec).any()  # numpy value array error
                 aruco.drawDetectedMarkers(image, corners)  # Draw A square around the markers
                 aruco.drawAxis(image, self.camera_matrix, self.distortion_matrix, rvec, tvec, self.tag_size/2)  # Draw Axis
-
         return image
         # Display the resulting image
-
-
 
 
     def _corner_2_frame(self, corners, ids):
@@ -161,6 +216,7 @@ class ArucoHelper:
             key = cv2.waitKey(int(1000/self.fps)) & 0xFF
             if key == ord('q'):  # Quit
                 break
+        self.close()
 
 
     def calibrate(self, square_size, image_format=ARUCO.FORMAT_JPG, prefix=ARUCO.PREFIX, width=ARUCO.CALIB_WIDTH, height=ARUCO.CALIB_HEIGHT):
@@ -177,7 +233,7 @@ class ArucoHelper:
         imgpoints = []  # 2d points in image plane.
 
 
-        images = glob.glob(self.calib_file_dir + prefix + '*.' + image_format)
+        images = glob.glob(str(self.calib_file_dir.absolute()) + '\\image\\' + prefix + ' (*).' + image_format)
 
         for fname in images:
             img = cv2.imread(fname)
@@ -226,17 +282,22 @@ class ArucoHelper:
         self.distortion_matrix = dist_matrix
 
     def __del__(self):
-        self.camera.release()
-        self.video_out.release()
-        cv2.destroyAllWindows()
+        self.close()
 
+    def close(self):
+        if self.camera is not None:
+            self.camera.release()
+        if self.pipe is not None:
+            self.pipe.stop()
+        if self.video_out is not None:
+            self.video_out.release()
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
     # camera id could be 1 if there is another one
-    a = ArucoHelper(camera_id=0 + cv2.CAP_DSHOW)
+    a = ArucoHelper(camera_id=6)
     # init_camera tries to read calibration data
     a.init_camera()
-    #a.calibrate(0.022)
-    a.run([1])
-
+    #a.calibrate(0.02)
+    a.run([3])
