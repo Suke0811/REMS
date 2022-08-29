@@ -2,12 +2,33 @@ import copy
 import logging
 import numpy as np
 from typing import Any
-
+from sim.typing.UnitType import UnitType
+from typing import Union
 SEPARATOR = '.'
 
+class Default(UnitType):
+    # unit
+    default_unit = 'dimensionless'
+    # default value for this unit, if none then we do dtype(), i.e. float() = 0.0
+    default_value = None
+    # data type
+    default_dtype = float
+    # dimension i.e. 1D array of 3 columns -> 3 or 2D array 2 by 3 -> (2, 3)
+    default_dim: Union[int, tuple[int, int]] = 1
+    # data range for this unit
+    default_drange: tuple[(Union[int, float, str], Union[int, float, str])] = (float('-inf'), float('inf'))
+    # data mapping to let you create your own unit conversion
+    # unit='count'; drange=(0, 4095); drange_map=('0.01m', '1m')
+    # This indicates 0 count corresponds to 0.01m and 4096 to 1m and inbetween is linear interpolation
+    # drange_map=('-1m', func, '1m') and takes func(val, sv, lv). this let you define custom interpolation
+    # you can also have more points. If no func is specified, then it'll be linear interpolation
+    # drange=(0, 1024, 2048, 3072 ,4096); drange_map=('10mm', '0.1m', '0.5m', func, '0.75m', ,'1m')
+    default_drange_map: tuple[(Union[int, float, str], Union[int, float, str])] = None
+    # data scale. (-1, 1) -> -100% to 100%. (0, 1) -> 0% to 100%
+    defualt_drange_scale: tuple[(Union[int, float], Union[int, float])] = (-1, 1)
 
 class DefDict:
-    reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
+    reserved = ['definition', 'get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
     def __init__(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
         self._definition = dict()
         self._data = dict()
@@ -16,22 +37,27 @@ class DefDict:
         self.shape = shape
         self.suffixes = []
         self.prefixes = []
+        self.dtype = dtype
         if not isinstance(rules, list) and rules is not None:
             rules = [rules]
         self.rules = rules
+        self.nested_def = nested_def
 
         if isinstance(suffixes, dict):
             suffixes = list(suffixes.keys())
         elif not isinstance(suffixes, list):
             suffixes = [suffixes]
 
-        if isinstance(definition, tuple):
-            for d in definition:    # add as many definition as you want
-                suffixes.extend(self.add_definition(d, dtype, nested_def))
-                if isinstance(d, DefDict) and suffixes:
-                    self._add_suffix(d.list_keys())
-        else:
-            suffixes.extend(self.add_definition(definition, dtype, nested_def))
+        if not isinstance(definition, tuple):
+            definition = (definition, )
+        for d in definition:    # add as many definition as you want
+            try:
+                d = self._unpack_dict(**d)  # in case user forgot **definitino
+            except TypeError:
+                pass
+            suffixes.extend(self.add_definition(d, self.dtype, self.nested_def))
+            if isinstance(d, DefDict) and suffixes:
+                self._add_suffix(d.list_keys())
 
         if prefixes is not None:
             if isinstance(prefixes, dict):
@@ -39,6 +65,17 @@ class DefDict:
             self._add_prefixes(prefixes)
         if suffixes is not None:
             self._add_suffixes(suffixes)
+
+    def _unpack_dict(self, definition, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
+        self.dtype = dtype
+        self._name = name
+        self.prefixes.append(prefixes)
+        self.suffixes.append(suffixes)
+        self.format_rule = format_rule
+        self.shape = shape
+        self.add_rule(rules)
+        self.nested_def = nested_def
+        return definition
 
     def ndarray(self, reshape: tuple = None):
         data_list = self.list()
@@ -53,7 +90,7 @@ class DefDict:
         return list(self.values())
 
     def list_keys(self):
-        return list(self._data.keys())
+        return list(self.keys())
 
     def get(self, key=None):
         if key is None:
@@ -69,7 +106,7 @@ class DefDict:
         if to_int:
             return map(int, self.list_keys())
         else:
-            return self.list_keys()
+            return self.data.keys()
 
     def as_ruled(self):
         if self.format_rule is None:
@@ -147,11 +184,18 @@ class DefDict:
 
     @property
     def data(self):
-        return {k: v[0] for k, v in self._data.items()}
+        ret = {}
+        for k, v in self._data.items():
+            if not k.startswith('_'):    # protected keys are not accessible normally
+                ret[k] = v[0]
+        return ret
 
     @data.setter
     def data(self, ndata):
         self.set(ndata)
+
+    def all(self): # return in dict including protected values
+        return {k: v[0] for k, v in self._data.items()}
 
     def set(self, ndata):
         if ndata is None:
@@ -166,7 +210,7 @@ class DefDict:
             except:
                 pass
         if isinstance(ndata, DefDict):
-            ndata = ndata.data
+            self._from_defdict(ndata)
         if isinstance(ndata, dict):
             self._dict2dict(ndata)
         elif isinstance(ndata, list):
@@ -184,16 +228,15 @@ class DefDict:
         ret = None
         if isinstance(data, dict) or isinstance(data, DefDict):
             for rule in self.rules:
-                if rule.bind_from is None:
+                if rule.origin is None:
                     continue
-                keys = rule.bind_from.list_keys()
-                if all(elem in list(data.keys()) for elem in keys):
-                    ret = rule.bind(data)
+                if rule.if_rule_apply(data.keys()):
+                    ret = rule.map(data)
                     if ret is not None:
                         break
         return ret
 
-    def set_rule(self, rule):
+    def add_rule(self, rule):
         if self.rules is None:
             self.rules = []
         self.rules.append(rule)
@@ -208,7 +251,7 @@ class DefDict:
         return self
 
     def format(self, ndata):
-        """format dose not change the stored data, but format the input into current definition"""
+        """format does not change the stored data, but format the input into current definition"""
         d = copy.deepcopy(self)
         return d.set(ndata)
 
@@ -247,78 +290,107 @@ class DefDict:
                     v = DefDict(v)
                     suffixes.extend(v.list_keys())
                 if isinstance(v, type) or v is Any:
-                    self._definition[k] = dtype
+                    self._definition[k] = self._to_UnitType(v)
                     keys.append(k)
                 else:
-                    self._definition[k] = type(v)
-                    self._data[k] = [v]
+                    self._definition[k] = self._to_UnitType(v)
+                    self._data[k] = [v] # initiate with given values
 
         elif isinstance(ndef, list):
-            self._definition.update(dict.fromkeys(ndef, dtype))
+            self._definition.update(dict.fromkeys(ndef, self._to_UnitType(dtype)))
             keys.extend(ndef)
         elif isinstance(ndef, str):
-            self._definition[ndef] = dtype
+            self._definition[ndef] = self._to_UnitType(dtype)
             keys.append(ndef)
         else:
             raise TypeError('You can only add str, dict, or list')
         self.init_data(keys)
         return suffixes
 
+    def _to_UnitType(self, dtype):
+        if not isinstance(dtype, UnitType):
+            if isinstance(dtype, type) and issubclass(dtype, UnitType):
+                dtype = dtype()
+            else:   # if not UnitType then default (dimensionless) is used
+                if not isinstance(dtype, type):
+                    val = dtype
+                    dtype = type(dtype) # if some instance is handover, try to get type i.e. type(0.0) -> float
+                    dtype = Default(dtype=dtype, default=val)
+                else:
+                    dtype = Default(dtype=dtype)
+        return dtype
+
     def init_data(self, keys):
         for k, v in self._definition.items():
             if k in keys:
-                if v is Any:
-                    self._data[k] = [float()] # what should be the init value?
-                elif isinstance(v, type):
-                    self._data[k] = [v()]
+                self._data[k] = [v.default] # use UnitType Default
+    
+    
+    def _from_defdict(self, data):
+        for k, v in data.items:
+            if k in self._data.keys():
+                if isinstance(self.DEF[k], DefDict):
+                    self._data[k][0].set(v)
                 else:
-                    self._data[k] = [v]   # maybe a different way of initialization?
-
+                    self._data[k][0] = self._enforce_type(self.DEF[k], v, data.DEF[k])
+    
     def _dict2dict(self, data: dict):
-        extra_data = {}
         stored_data_keys = []
         for k, v in data.items():
             if k in self._data.keys():
-                if self.DEF[k] is DefDict:
+                DEF = self.DEF[k]
+                if isinstance(DEF, DefDict):
                     self._data[k][0].set(v)
                 else:
-                    self._data[k][0] = self._enforce_type(self.DEF[k], v)
+                    if isinstance(v, UnitType):
+                        self._data[k][0] = self._enforce_type(self.DEF[k], v.data, v)
+                    else:
+                        self._data[k][0] = self._enforce_type(self.DEF[k], v)
                 stored_data_keys.append(k)
-            else:
-                pass
-                #extra_data[k][0] = v
-        if extra_data:
-            # TODO: binding implementation
-            return
-            self.bind_from(extra_data, stored_data_keys)
 
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
         for i, key in enumerate(self._data.keys()):
             if i > length:
                 break
-            if self.DEF[key] is DefDict:
-                self._data[key][0].set(data[i])
+            if key.startswith('_'):
+                continue
+            DEF = self.DEF[key]
+            if isinstance(DEF, DefDict):
+                if self._check_if_iterable(data[i]):    # if data is iterative, then just hand over to sub DefDict
+                    sub_data = data[i]
+                else:   # otherwise, try to collect data
+                    # DefDict(x, quat=DefDict(w,x,y,z)).set([0, 1, 0, 0])
+                    # then user probably meant x = 0, quat = [1, 0, 0, 0]
+                    try:
+                        sub_data = data[i:i+DEF.dim]
+                    except IndexError:
+                        # if there is not enough elements, still hand them over(May sub DefDict reject it tho)
+                        sub_data = data[i:-1]
+                if DEF.strict and len(sub_data) != DEF.dim: # if strict, it should receive the dim length
+                    continue
+                self._data[key][0].set(sub_data)    # call sub DefDict.set() and it'll do the rest of the job
             else:
                 self._data[key][0] = self._enforce_type(self.DEF[key], data[i])
 
-    def _enforce_type(self, d_type, value):
-        if d_type is Any:   # If the type is Any, no enforcement
-            ret = value
-        else:
-            try:
-                ret = d_type(value)
-            except (TypeError, AttributeError):
-                ret = value
-            if not isinstance(ret, d_type):
-                raise TypeError(f'{ret} is not type of {d_type}')
-        return ret    # Enforce type in the corresponding definition
+    def _check_if_iterable(self, item):
+        try:
+            iter(item)
+            return True
+        except TypeError:
+            return False
+
+    def _enforce_type(self, dtype:UnitType, value, vdef=None):
+        return dtype.to(value, vdef) # UnitType will handle unit conversion and type enforcement
 
     def bind(self, bind_rule, val=None):
         if val is None:
             val = self.dict()
         self.set(bind_rule.bind(val))
         return self
+    
+    def map(self, map_rule, val=None):
+        return self.bind(map_rule, val=None)
 
     def inv_bind(self, bind_rule, val=None):
         if val is None:
@@ -392,6 +464,9 @@ class DefDict:
             except TypeError:
                 ret.append(elem)
         return ret
+
+    def is_DefDict(self):
+        return True
 
 
 ###################################################################
@@ -475,10 +550,14 @@ class DefDict:
 ##############################################################
     # magic methods
     def __len__(self):
-        return len(d._data)
+        return len(self._data)
+
+    def __repr__(self):
+        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
     def __str__(self):
         return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
+
 
 ##############################################################
     # Math operations
