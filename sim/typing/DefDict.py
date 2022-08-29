@@ -247,13 +247,17 @@ class DefDict:
         suffixes = []
         if isinstance(ndef, dict):
             for k, v in ndef.items():
-                print(k,v)
                 if isinstance(v, dict) and nested_dict:
                     v = DefDict(v)
                     suffixes.extend(v.list_keys())
-                if isinstance(v, type) or v is Any:
+                if isinstance(v, DefDict):
+                    self._definition[k] = v
+                   # keys.append(k)
+                    self._data[k] = [v]
+                elif isinstance(v, type) or v is Any:
                     self._definition[k] = dtype
                     keys.append(k)
+                    self._data[k] = 0.0
                 else:
                     self._definition[k] = type(v)
                     self._data[k] = [v]
@@ -303,7 +307,6 @@ class DefDict:
                 break
             if key.startswith('_'):
                 continue
-
             if isinstance(self.DEF[key], DefDict):
                 self._data[key][0].set(data[i])
             else:
@@ -495,6 +498,9 @@ class DefDict:
     # magic methods
     def __len__(self):
         return len(d._data)
+
+    def __repr__(self):
+        return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
 
     def __str__(self):
         return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
