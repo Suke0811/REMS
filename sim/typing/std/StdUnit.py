@@ -185,27 +185,35 @@ class AxisAngle4D(UnitType):
     default_dim = 4
     default_conversion_rules = conversion_rules
 
-import sys
-#sys.setrecursionlimit(30)
-import time
-# st  = time.perf_counter()
-# p = DefDict(dict(x=Pos, quat=Quaternion))
-# print(time.perf_counter()-st)
-# p.set(dict(x=Pos(unit='cm', data=10)))
-# print(time.perf_counter()-st)
-# p.set(dict(quat=[1,0,0,0]))
-# print(time.perf_counter()-st)
+
+if __name__ == '__main__':
+    import sys
+    #sys.setrecursionlimit(30)
+    import time
+    # st  = time.perf_counter()
+    # p = DefDict(dict(x=Pos, quat=Quaternion))
+    # print(time.perf_counter()-st)
+    # p.set(dict(x=Pos(unit='cm', data=10)))
+    # print(time.perf_counter()-st)
+    # p.set(dict(quat=[1,0,0,0]))
+    # print(time.perf_counter()-st)
 
 
-import unyt
-st = time.perf_counter()
-u = unyt.unyt_quantity.from_string('0.1m')
-print(time.perf_counter()-st)
-st = time.perf_counter()
-d = DefDict(dict(x=float,y=float,z=float))
-print(time.perf_counter()-st)
-# d.format(dict(x=0, y=0)).ndarray()
-# print(time.perf_counter()-st)
-
-r = DefDict(dict(x=Pos, rot3d=Rotation3DMatix))
-pass
+    import unyt
+    st = time.perf_counter()
+    u = unyt.unyt_quantity.from_string('0.1m')
+    print('unyt',time.perf_counter()-st)
+    st = time.perf_counter()
+    d = DefDict(dict(x=float,y=float,z=float))
+    print(time.perf_counter()-st)
+    # d.format(dict(x=0, y=0)).ndarray()
+    # print(time.perf_counter()-st)
+    st = time.perf_counter()
+    r = DefDict(dict(x=Pos, rot3d=Rotation3DMatix))
+    print(time.perf_counter()-st)
+    st = time.perf_counter()
+    q=Quaternion()
+    print('unyt',time.perf_counter()-st)
+    q.to(10)
+    print('unyt',time.perf_counter()-st)
+    pass

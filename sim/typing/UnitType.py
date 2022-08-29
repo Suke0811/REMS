@@ -196,12 +196,13 @@ class UnitType:
 
     def to(self, val, vdef=None):
         vdef = self._create_class_instance(vdef)
-        if vdef.unit == self.unit:
+        if vdef.unit == self.unit or vdef.unit.units == unyt.dimensionless:
             return self.enforce_type(val)   # if the unit is the same, no need to convert
 
         ruled = self._ruled_conversion(vdef.unit, val, self.unit)
         if ruled is not None:
             return ruled    # if ruled is not None, then return ruled value
+
         if not isinstance(val, unyt.unyt_array):
             val = vdef.enforce_unit(val)    # unyt
         val = val.to(self.unit)
@@ -278,14 +279,13 @@ class UnitType:
             self.dtype.set(val)
             return self.dtype
 
-
         if self.dtype is np.array:  # special handling for np.array
             if isinstance(val, unyt.unyt_array):
                 enforced_val = val.to_ndarray()
             elif not isinstance(val, self.dtype):
                 enforced_val = np.array(val)
         else:
-            if not isinstance(val, self.dtype): # otherwise apply the type
+            if isinstance(self.dtype, type) and not isinstance(val, self.dtype): # otherwise apply the type
                 try:
                     enforced_val = self.dtype(val)
                 except (TypeError, AttributeError): # some type like Any throw the error
