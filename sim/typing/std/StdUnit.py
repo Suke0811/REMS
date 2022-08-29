@@ -1,5 +1,4 @@
 import numpy as np
-
 from sim.typing import DefDict, UnitType, MapRule
 from typing import Union
 from scipy.spatial.transform import Rotation as R
@@ -88,15 +87,15 @@ class CountSensor(UnitType):
 # so unitless (there will be no unit dimension check)
 
 
-quat = dict(quat=dict(qw=float, qx=float, qy=float, qz=float), name='quat')
-rot3d = dict(rot3d=dict(r11=float, r12=float, r13=float,
+quat = dict(definition=dict(qw=float, qx=float, qy=float, qz=float), name='quat')
+rot3d = dict(definition=dict(r11=float, r12=float, r13=float,
                                  r21=float, r22=float, r23=float,
                                  r31=float, r32=float, r33=float,), name='rot3d', shape=(3, 3))
-rot2d = dict(rot2d=dict(r11=float, r12=float,
+rot2d = dict(definition=dict(r11=float, r12=float,
                                  r21=float, r22=float,), name='rot2d', shape=(2, 2))
-euler = dict(euler=dict(th_x=Ang, th_y=Ang, th_z=Ang, _coord=str), name='euler')
-ax_ang = dict(ax_ang=dict(rx=Ang, ry=Ang, rz=Ang), name='ax_ang')
-ax_ang4d = dict(ax_ang4d=dict(ux=float, uy=float, uz=float, alpha=Ang), name='ax_ang4d')
+euler = dict(definition=dict(th_x=Ang, th_y=Ang, th_z=Ang, _coord=str), name='euler')
+ax_ang = dict(definition=dict(rx=Ang, ry=Ang, rz=Ang), name='ax_ang')
+ax_ang4d = dict(definition=dict(ux=float, uy=float, uz=float, alpha=Ang), name='ax_ang4d')
 
 def from_ax_ang4d(ax_ang4d):
     ax_angle = ax_ang4d[0:3] * ax_ang4d[-1]
@@ -138,28 +137,28 @@ conversion_rules = [
 
 class Quaternion(UnitType):
     default_unit = 'quat'
-    default_dtype = DefDict(quat)
+    default_dtype = DefDict(**quat)
     default_dim = 4
-    default_conversion_rules = conversion_rules
+    # default_conversion_rules = conversion_rules
 
 
 class Rotation3DMatix(UnitType):
     default_unit = 'rot3d'
-    default_dtype = DefDict(rot3d)
+    default_dtype = DefDict(**rot3d)
     default_value = np.eye(3) # identy matrix. Under the hood, it does DefDict.set(default_value)
     default_dim = (3, 3)
-    default_conversion_rules = conversion_rules
+   # default_conversion_rules = conversion_rules
 
 class Rotation2DMatix(UnitType):
     default_unit = 'rot2d'
-    default_dtype = DefDict(rot2d)
+    default_dtype = DefDict(**rot2d)
     default_value = np.eye(2) # identy matrix. Under the hood, it does DefDict.set(default_value)
     default_dim = (2, 2)
 
 class Euler(UnitType):
     default_unit = 'euler'
     # _coord is a protected key (you don't see unless you implicitly access it)
-    default_dtype = DefDict(euler)
+    default_dtype = DefDict(**euler)
     default_value = [0, 0, 0, 'xyz']
     default_dim = 3
     default_conversion_rules = conversion_rules
@@ -170,7 +169,7 @@ class AxisAngle(UnitType):
     The first three elements are unit vector times angle (hence dimension is angle)
     """
     default_unit = 'ax_ang'
-    default_dtype = DefDict(ax_ang)
+    default_dtype = DefDict(**ax_ang)
     default_value = [0, 0, 0] # 0 rotation around z
     default_dim = 3
     default_conversion_rules = conversion_rules
@@ -181,14 +180,32 @@ class AxisAngle4D(UnitType):
     The first three elements are unit vector and the 4th element is angle
     """
     default_unit = 'ax_ang4d'
-    default_dtype = DefDict(ax_ang4d)
+    default_dtype = DefDict(**ax_ang4d)
     default_value = [0, 0, 1, 0]
     default_dim = 4
     default_conversion_rules = conversion_rules
 
+import sys
+#sys.setrecursionlimit(30)
+import time
+# st  = time.perf_counter()
+# p = DefDict(dict(x=Pos, quat=Quaternion))
+# print(time.perf_counter()-st)
+# p.set(dict(x=Pos(unit='cm', data=10)))
+# print(time.perf_counter()-st)
+# p.set(dict(quat=[1,0,0,0]))
+# print(time.perf_counter()-st)
 
-p = DefDict(dict(x=Pos, quat=Quaternion))
-p.set(dict(x=Pos(unit='cm', data=10)))
-p.set(dict(quat=[1,0,0,0]))
+
+import unyt
+st = time.perf_counter()
+u = unyt.unyt_quantity.from_string('0.1m')
+print(time.perf_counter()-st)
+st = time.perf_counter()
+d = DefDict(dict(x=float,y=float,z=float))
+print(time.perf_counter()-st)
+# d.format(dict(x=0, y=0)).ndarray()
+# print(time.perf_counter()-st)
+
 r = DefDict(dict(x=Pos, rot3d=Rotation3DMatix))
 pass

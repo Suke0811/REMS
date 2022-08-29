@@ -1,5 +1,7 @@
 import copy
 import logging
+import time
+
 import numpy as np
 from typing import Any
 from sim.typing.UnitType import UnitType
@@ -252,7 +254,9 @@ class DefDict:
 
     def format(self, ndata):
         """format does not change the stored data, but format the input into current definition"""
+        st = time.perf_counter()
         d = copy.deepcopy(self)
+        print(time.perf_counter()-st)
         return d.set(ndata)
 
     @property
@@ -312,7 +316,10 @@ class DefDict:
             if isinstance(dtype, type) and issubclass(dtype, UnitType):
                 dtype = dtype()
             else:   # if not UnitType then default (dimensionless) is used
-                if not isinstance(dtype, type):
+                if isinstance(dtype, DefDict):
+                    dtype = dtype  # if some instance is handover, try to get type i.e. type(0.0) -> float
+                    dtype = Default(dtype=dtype, default=dtype.dict())
+                elif not isinstance(dtype, type):
                     val = dtype
                     dtype = type(dtype) # if some instance is handover, try to get type i.e. type(0.0) -> float
                     dtype = Default(dtype=dtype, default=val)
@@ -327,7 +334,7 @@ class DefDict:
     
     
     def _from_defdict(self, data):
-        for k, v in data.items:
+        for k, v in data.items():
             if k in self._data.keys():
                 if isinstance(self.DEF[k], DefDict):
                     self._data[k][0].set(v)
@@ -465,7 +472,8 @@ class DefDict:
                 ret.append(elem)
         return ret
 
-    def is_DefDict(self):
+    @staticmethod
+    def is_DefDict():
         return True
 
 

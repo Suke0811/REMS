@@ -1,12 +1,13 @@
-from dataclasses import dataclass, field
-from typing import Any, Union, Callable, Tuple
+from typing import Any, Union
 import unyt
 from unyt.exceptions import UnitParseError
 import numpy as np
-from sim.typing import DefDict, BindRule
 
 Pos = dict(unit='m', dtype=float, drange=(-float('inf'), float('inf')), drange_unit=None, dim=1, default=0.0)
 Dist = dict(unit='m', dtype=float, drange=(-float('inf'), float('inf')), drange_unit=None, dim=1, default=0.0)
+
+RESERVED = ['quat', 'rot3d', 'rot2d', 'euler', 'ax_ang', 'ax_ang4d']
+
 
 class InvalidUnitChangeError(Exception):
     def __init__(self, old_unit, old_dim, new_unit, new_dim):
@@ -70,17 +71,20 @@ class UnitType:
         return self._unit
     @unit.setter
     def unit(self, val: str):
-        try:
-            uval = unyt.unyt_quantity.from_string(val)
-            default_unit = unyt.unyt_quantity.from_string(self.default_unit)
-            if not default_unit.units == unyt.dimensionless:  # if dimensionless, accept all
-                if not default_unit.units.dimensions.simplify() == uval.units.dimensions.simplify():
-                    # if the default is not dimensionless, then the new unit should match the default dimensions
-                    raise InvalidUnitChangeError(default_unit.units, default_unit.units.dimensions,
-                                                 uval.units, uval.units.dimensions)
-        except UnitParseError:
-            self.custom_unit = val
+        if val in RESERVED:
             uval = unyt.unyt_quantity.from_string('dimensionless')
+        else:
+            try:
+                uval = unyt.unyt_quantity.from_string(val)
+                default_unit = unyt.unyt_quantity.from_string(self.default_unit)
+                if not default_unit.units == unyt.dimensionless:  # if dimensionless, accept all
+                    if not default_unit.units.dimensions.simplify() == uval.units.dimensions.simplify():
+                        # if the default is not dimensionless, then the new unit should match the default dimensions
+                        raise InvalidUnitChangeError(default_unit.units, default_unit.units.dimensions,
+                                                     uval.units, uval.units.dimensions)
+            except (UnitParseError, ValueError):
+                self.custom_unit = val
+                uval = unyt.unyt_quantity.from_string('dimensionless')
         self._unit = uval
 
     @property
@@ -167,7 +171,9 @@ class UnitType:
     ######################
 
     def get_default(self):
-        if self.dtype is np.array:
+        if self._is_defdict(self.dtype):
+            default = self.dtype.dict()
+        elif self.dtype is np.array:
             default = np.zeros(self.dim)
         else:
             try:
@@ -268,12 +274,10 @@ class UnitType:
         This will enforce the type and strip off the unit if unyt variables are given
         """
         enforced_val = val
-        try:
-            if self.dtype.is_DefDict():
-                self.dtype.set(val)
-                return self.dtype
-        except AttributeError:
-            pass
+        if self._is_defdict(self.dtype):
+            self.dtype.set(val)
+            return self.dtype
+
 
         if self.dtype is np.array:  # special handling for np.array
             if isinstance(val, unyt.unyt_array):
@@ -297,4 +301,10 @@ class UnitType:
                     return rule.inv_bind(to_unit)
         return None
 
-
+    def _is_defdict(self, data):
+        try:
+            if data.is_DefDict():
+                return True
+        except AttributeError:
+            pass
+        return False
