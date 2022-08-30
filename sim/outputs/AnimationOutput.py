@@ -9,6 +9,9 @@ import numpy as np
 
 FORMAT_XY = dict(x=float, y=float)
 FORMAT_XYTh = dict(x=float, y=float, th_z=float)
+DEFAULT_AXIS_SIZE = 0.1
+SCALE = 0.04
+MARGIN = 0.1
 
 class AnimationOutput(OutputBase):
     def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):
@@ -45,9 +48,9 @@ class AnimationOutput(OutputBase):
     def _create_canvas(self):
         #marker = (3, 0, i * 90), markersize = 20, linestyle = 'None')
         self.fig, self.ax = plt.subplots()
-        self.line, = self.ax.plot([], lw=3, clip_on = False)
+        self.line, = self.ax.plot([], lw=3)
         self.ann = self.ax.annotate('', xy=(0,0),
-                                    arrowprops=dict(arrowstyle="<-"))
+                                    arrowprops=dict(arrowstyle="<-", color='red', lw=3))
         self.text = self.ax.text(0.0, 0.0, "")
         self.fig.canvas.draw()
         self.ax_cache = self.fig.canvas.copy_from_bbox(self.ax.bbox)
@@ -55,15 +58,22 @@ class AnimationOutput(OutputBase):
         plt.show(block=False)
 
     def _update_canvas(self, line=None, text=None):
+        x_l, y_l = self.ax.get_xlim(), self.ax.get_ylim()
+        x_l, y_l = (x_l[1]-x_l[0]), (y_l[1]-y_l[0])
         if line is not None:
             x,y,th = line
             self.line.set_data(*(x,y))
             self.ann.remove()
+            x_l, y_l = self._get_axis_size(x,y)
             self.ann = self.ax.annotate('', xy=(x[-1], y[-1]),
-                        xytext=(x[-1]+0.03, y[-1]+0.03),
-                        arrowprops=dict(arrowstyle="<-"))
+                        xytext=(x[-1] + SCALE*x_l*np.cos(th[-1]), y[-1] + SCALE*y_l*np.sin(th[-1])),
+                        arrowprops=dict(arrowstyle="<-",
+                         color='red',
+                         lw=3,
+                         ls='--'))
         if text is not None:
-            self.text.set_position((line[0][-1], line[1][-1]))
+            
+            self.text.set_position((line[0][-1] + SCALE * x_l, line[1][-1] + SCALE * y_l))
             self.text.set_text(text)
 
         if self.use_cache:
@@ -77,14 +87,18 @@ class AnimationOutput(OutputBase):
             # fill in the axes rectangle
             self.fig.canvas.blit(self.ax.bbox)
 
-            self.ax.set_xlim([min(line[0]), max(line[0])])
-            self.ax.set_ylim([min(line[1]), max(line[1])])
         else:
             self.fig.canvas.draw()
-            self.ax.set_xlim([min(line[0]), max(line[0])])
-            self.ax.set_ylim([min(line[1]), max(line[1])])
+        self.ax.set_xlim([min(line[0])-MARGIN*x_l, max(line[0])+MARGIN*x_l])
+        self.ax.set_ylim([min(line[1])-MARGIN*y_l, max(line[1])+MARGIN*y_l])
 
         self.fig.canvas.flush_events()
+
+    def _get_axis_size(self, x, y):
+        l = []
+        for v in (x, y):
+            l.append(max(v) - min(v))
+        return tuple(l)
 
 
     def get_data_range(self, data):
@@ -108,29 +122,43 @@ class AnimationOutput(OutputBase):
     def generate_video(self):
         # initializing a figure
         fig = plt.figure()
-        axis = plt.axes(clip_on = False)
-        ann = axis.annotate('', xy=(0,0), arrowprops=dict(arrowstyle="<-"))
+        axis = plt.axes()
+        ann = axis.annotate('', xy=(0,0), arrowprops=dict(arrowstyle="<-",
+                         color='red',
+                         lw=3,
+                         ls='--'))
         ann_list =[ann]
         # labeling the x-axis and y-axis
         #axis = plt.axes(xlim=(0, 1000), ylim=(0, 1000))
 
         # lists storing x and y values
-        x, y = [], []
+        x, y, th = [], [], []
 
-        states_x, states_y, th = self.get_plot_list(self._states, FORMAT_XYTh)
+        states_x, states_y, state_th = self.get_plot_list(self._states, FORMAT_XYTh)
+
         axis.set_xlim([min(states_x), max(states_x)])
         axis.set_ylim([min(states_y), max(states_y)])
+        x_l, y_l = self._get_axis_size(states_x, states_y)
         line, = axis.plot(0, 0)
+        text = axis.text(0.0,0.0,'')
 
         def animate(frame_number):
             x.append(states_x[frame_number])
             y.append(states_y[frame_number])
+            th.append(state_th[frame_number])
             line.set_xdata(x)
             line.set_ydata(y)
+            self.text.set_position((states_x[frame_number] + SCALE *x_l, states_y[frame_number]+ SCALE * y_l))
+            last_state = round(self._states[frame_number], 2)
+            self.text.set_text(f"state: {last_state.__str__()}")
             ann_list.pop().remove()
             ann = axis.annotate('', xy=(states_x[frame_number], states_y[frame_number]),
-                                    xytext=(states_x[frame_number]+0.03, states_y[frame_number]+0.03),
-                                    arrowprops=dict(arrowstyle="<-"))
+                                    xytext=(states_x[frame_number]+SCALE * x_l * np.cos(state_th[frame_number]),
+                                            states_y[frame_number]+SCALE * y_l * np.sin(state_th[frame_number])),
+                                    arrowprops=dict(arrowstyle="<-",
+                         color='red',
+                         lw=3,
+                         ls='--'))
             ann_list.append(ann)
             return line,
         fps = self.calc_fps()
