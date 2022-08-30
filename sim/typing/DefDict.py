@@ -2,7 +2,7 @@ import copy
 import logging
 import numpy as np
 from typing import Any
-from sim.typing.UnitType import UnitType
+
 SEPARATOR = '.'
 
 
@@ -627,6 +627,5 @@ class DefDict:
 
 
 if __name__ == '__main__':
-    d =DefDict({'leg.a':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.b':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
-    d.leg()
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
     print(d)
