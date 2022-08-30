@@ -79,10 +79,10 @@ class DefDict:
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
         d.clear()
-        for k in self.list_keys():
+        for k in self.keys():
             k_seq = k.split(SEPARATOR)
             if len(k_seq) <= 1:
-                break
+                continue
             if prefix is None:
                 k_seq.pop(0)
                 d.add_definition({SEPARATOR.join(k_seq): self.DEF[k]})
@@ -113,6 +113,7 @@ class DefDict:
                 return self.remove_prefix(name)
             elif not isinstance(ids, list):
                 ids = [ids]
+            ids = list(map(str, ids))
             return self.remove_prefix(name).filter(ids)
         setattr(self, name, method.__get__(self))
 
@@ -415,6 +416,32 @@ class DefDict:
                 ret.append(elem)
         return ret
 
+    def to_float(self):
+        for k, v in self.items():
+            if isinstance(v, np.ndarray):
+                v.astype(float)
+            elif isinstance(v, DefDict):
+                v.to_float()
+            else:
+                try:
+                    self._data[k][0] = float(v)
+                except ValueError:
+                    pass
+        return self
+
+    def to_int(self):
+        for k, v in self.items():
+            if isinstance(v, np.ndarray):
+                v.astype(int)
+            elif isinstance(v, DefDict):
+                v.to_int()
+            else:
+                try:
+                    self._data[k][0] = int(v)
+                except ValueError:
+                    pass
+        return self
+
 
 ###################################################################
     #dictionary methods
@@ -618,6 +645,11 @@ class DefDict:
         for k, v in d.items():
             d._data[k][0] = round(v, n)
         return d
+
+    @property
+    def name(self):
+        return self._name
+
 
 
 if __name__ == '__main__':

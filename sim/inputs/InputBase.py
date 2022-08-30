@@ -7,7 +7,7 @@ class StdKeyMap:
 class InputBase:
     def __init__(self, estop_callback=None):
         self._timestamps = []
-        self._inputs = None
+        self.inpt = None
         self._command = None
         self._quit = False
         self._estop = False
@@ -16,8 +16,12 @@ class InputBase:
     def init(self, input_def=None):
         pass
 
-    def get_inputs(self, inpt_def: DefDict, timestamp=None):
-        inpt_def.set(self._inputs)
+    def get_inputs(self, inpt_def: DefDict, timestamp=None, prefix='inpt'):
+        """prefix specify what data to get, if noe"""
+        if prefix in self.inpt.prefixes:
+            inpt_def.set(self.inpt.__dict__[prefix]())
+        else:
+            inpt_def.set(self.inpt)
         return inpt_def
 
     def get_command(self):
