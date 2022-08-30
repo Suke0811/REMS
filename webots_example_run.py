@@ -20,8 +20,8 @@ s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-i = FileCsvInput('out/sim08_29_2022_20_53_41.csv', loop=False)
-#i = KeyboardInput()
+#i = FileCsvInput('out/hard08_29_2022_19_24_44.csv', loop=False)
+i = KeyboardInput()
 #i = JoystickInput()
 
 s.set_input(i)  # specify inputs to run
