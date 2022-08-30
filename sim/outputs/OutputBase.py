@@ -22,14 +22,31 @@ class OutputBase:
         self._outpts.append(copy.deepcopy(outpt))
         self._info.append(copy.deepcopy(info))
 
-    def to_dict(self, data):
-        "make all DefDict to dict format"
-        return list(map(lambda d: {**dict(d)}, data))
-
-
-
     def make_output(self):
         """make proper output from the data"""
         raise NotImplementedError
 
+    def to_dict(self, data, dtype=None):
+        "make all DefDict to dict format"
+        if dtype is not None:
+            if dtype == 'float':
+                try:
+                    return list(map(lambda d: {**dict(d.to_float())}, data))
+                except AttributeError:
+                    pass
+            elif dtype == 'int':
+                try:
+                    return list(map(lambda d: {**dict(d.to_int())}, data))
+                except AttributeError:
+                    pass
+        return list(map(lambda d: {**dict(d)}, data))
+
+    def to_timeseries_dict(self):
+        timeseries = []
+        for t, state, inpt, outpt, info in zip(self.to_dict(self._timestamps, 'float'),
+                                                       self.to_dict(self._states, 'float'), self.to_dict(self._inpts, 'float'),
+                                                       self.to_dict(self._outpts, 'float'), self.to_dict(self._info, 'float')):
+            d = dict(timestamp=t, inpt=inpt, state=state, outpt=outpt, info=info)
+            timeseries.append(d)
+        return timeseries
 
