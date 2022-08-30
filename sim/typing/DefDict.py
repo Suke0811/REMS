@@ -79,10 +79,10 @@ class DefDict:
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
         d.clear()
-        for k in self.list_keys():
+        for k in self.keys():
             k_seq = k.split(SEPARATOR)
             if len(k_seq) <= 1:
-                break
+                continue
             if prefix is None:
                 k_seq.pop(0)
                 d.add_definition({SEPARATOR.join(k_seq): self.DEF[k]})
@@ -113,6 +113,7 @@ class DefDict:
                 return self.remove_prefix(name)
             elif not isinstance(ids, list):
                 ids = [ids]
+            ids = list(map(str, ids))
             return self.remove_prefix(name).filter(ids)
         setattr(self, name, method.__get__(self))
 
@@ -619,7 +620,13 @@ class DefDict:
             d._data[k][0] = round(v, n)
         return d
 
+    @property
+    def name(self):
+        return self._name
+
+
 
 if __name__ == '__main__':
-    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
+    d =DefDict({'leg.a':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.b':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
+    d.leg()
     print(d)

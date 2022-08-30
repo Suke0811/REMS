@@ -7,7 +7,7 @@ from sim.outputs import OutputBase
 from sim.outputs.PlotlyHelper import PlotlyHelper
 
 FORMAT_XY = dict(x=float, y=float)
-FORMAT_XYTh = dict(x=float, y=float, th_y=float)
+FORMAT_XYTh = dict(x=float, y=float, th_z=float)
 
 class AnimationOutput(OutputBase):
     def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):
@@ -91,9 +91,10 @@ class AnimationOutput(OutputBase):
     def get_plot_list(self, data, format):
         data = self.get_data_range(data)
         list_data = list(map(lambda d: d.filter(format).list(), data))
-        x = [d[0] for d in list_data]
-        y = [d[1] for d in list_data]
-        return (x, y)
+        ret_list = []
+        for i in range(len(format)):
+            ret_list.append([d[i] for d in list_data])
+        return tuple(ret_list)
 
     def generate_video(self):
         # initializing a figure
