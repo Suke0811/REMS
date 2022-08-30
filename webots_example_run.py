@@ -1,7 +1,7 @@
 import logging
 from sim import Simulation
-from sim.inputs import KeyboardInput, FileInput
-from sim.outputs import FileOutput, AnimationOutput
+from sim.inputs import KeyboardInput, FileCsvInput
+from sim.outputs import FileCsvOutput, AnimationOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
 from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef
@@ -15,12 +15,12 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=False, num_gpus=1)
+ray.init(local_mode=True, num_gpus=1)
 s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-#i = FileInput('out/Pioneer 3-DX_08_10_2022_13_26_54.csv', loop=False)
+#i = FileCsvInput('out/hard08_29_2022_19_24_44.csv', loop=False)
 i = KeyboardInput()
 #i = JoystickInput()
 
@@ -30,11 +30,12 @@ s.set_input(i)  # specify inputs to run
 # Robot simulation using kinematics model
 
 out_dir = 'out/'
-webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.csv at the same dir as the
+webots_csv = FileCsvOutput(out_dir + 'webots' + time_str() + '.csv')      # save to test.csv at the same dir as the
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(CreateDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'.gif'), FileCsvOutput('out/sim'+time_str()+'.csv')) )
+#s.add_robot(CreateDef, (CreateHard, '/dev/ttyUSB0', 6), (AnimationOutput('video/test'+time_str()+'.gif'), FileCsvOutput('out/hard'+time_str()+'.csv')))
 #s.add_robot(EpuckDef, WebotsBinder)
 
 #s.add_robot(Pioneer3DxDef, WebotsBinder)

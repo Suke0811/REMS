@@ -4,8 +4,8 @@ from sim.inputs.map.JOYSTICK_KEYMAP import StdKeys
 import numpy as np
 
 # space definitions
-POS_2D = dict(x=float, y=float, th_y=float)
-VEL_2D = dict(d_x=float, d_y=float, d_th_y=float)
+POS_2D = dict(x=float, y=float, th_z=float)
+VEL_2D = dict(d_x=float, d_y=float, d_th_z=float)
 MOTOR_PARAM = dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,

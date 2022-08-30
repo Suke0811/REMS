@@ -35,7 +35,6 @@ class BindRule:
     def bind(self, data, bind_to=None, name=None):
         # if self.target is not None and self.target != name:
         #     return # if not
-
         if self.bind_from is None:
             bind_from = data
         else:
@@ -77,3 +76,14 @@ class BindRule:
                 return self.bind_from.dict()
             else:
                 return self.inv_bind_func(*self.bind_to.list())
+
+    def if_rule_apply(self, keys):
+        # true when all bind_from.keys() are in keys
+        return all(elem in keys for elem in self.bind_from.keys())
+
+    def if_rule_out_contains(self, keys):
+        # true when all keys are in bind_to.keys()
+        if self.bind_to is None:
+            return False
+        return all(elem in self.bind_to.keys() for elem in keys)
+

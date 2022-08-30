@@ -16,5 +16,5 @@ class GraphOutput(OutputBase):
         (Not necessary for now)
         """
 
-    
+
 

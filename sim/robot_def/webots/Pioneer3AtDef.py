@@ -23,7 +23,7 @@ class Pioneer3AtDef(DifferentialDriveDef):
         super().define(DRIVE, SENSOR)
         self.name = 'Pioneer 3-AT'
         self.joint_space.clear_rules() # default rule is 1 to 1 mapping
-        self.joint_space.set_rule(
+        self.joint_space.add_rule(
             BindRule(self.inpt.list_keys(),
                      lambda *v: [v[0], v[1], v[0], v[1]],
                      )) # new rule is 1 to 2

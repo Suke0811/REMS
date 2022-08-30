@@ -6,7 +6,7 @@ from sim.utils import tictoc, time_str
 from sim.sim_handler.ray.SimActor import SimActor
 import ray, time, signal
 from sim.sim_handler.ray import ProcessActor
-from sim.outputs import FileOutput
+from sim.outputs import FileCsvOutput
 from sim.Config import SimConfig
 from sim.robots.bind_robot import bind_robot
 from sim.sim_handler.ray import RobotRayWrapper as ray_robot
@@ -61,7 +61,7 @@ class Simulation:
         run = robot.run
         self.realtime += run.realtime
         if outputs is None:     # in no output is specified, then do file outputs
-            outputs = FileOutput('out/'+robot.run.name+'_'+time_str()+'.csv')
+            outputs = FileCsvOutput('out/' + robot.run.name + '_' + time_str() + '.csv')
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
 
@@ -94,10 +94,10 @@ class Simulation:
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                robot.inpt.set(self._input_system.get_inputs(robot.inpt, timestamp=t))
+                robot.state.set(self._input_system.get_inputs(robot.state, timestamp=t, prefix='state'))
             else:
-                robot.inpt.set(inpt.get_inputs(robot.inpt, timestamp=t))
-            futs.append(robot_actor.reset(robot.inpt, t, block=False))
+                robot.state.set(inpt.get_inputs(robot.state, timestamp=t, prefix='state'))
+            futs.append(robot_actor.reset(robot.state, t, block=False))
         done = ray.get(futs)
         time.sleep(1)
 
