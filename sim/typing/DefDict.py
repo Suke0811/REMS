@@ -416,6 +416,32 @@ class DefDict:
                 ret.append(elem)
         return ret
 
+    def to_float(self):
+        for k, v in self.items():
+            if isinstance(v, np.ndarray):
+                v.astype(float)
+            elif isinstance(v, DefDict):
+                v.to_float()
+            else:
+                try:
+                    self._data[k][0] = float(v)
+                except ValueError:
+                    pass
+        return self
+
+    def to_int(self):
+        for k, v in self.items():
+            if isinstance(v, np.ndarray):
+                v.astype(int)
+            elif isinstance(v, DefDict):
+                v.to_int()
+            else:
+                try:
+                    self._data[k][0] = int(v)
+                except ValueError:
+                    pass
+        return self
+
 
 ###################################################################
     #dictionary methods
