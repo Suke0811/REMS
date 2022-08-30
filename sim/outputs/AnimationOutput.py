@@ -5,6 +5,7 @@ import matplotlib.animation as animation
 from pathlib import Path
 from sim.outputs import OutputBase
 from sim.outputs.PlotlyHelper import PlotlyHelper
+import numpy as np
 
 FORMAT_XY = dict(x=float, y=float)
 FORMAT_XYTh = dict(x=float, y=float, th_z=float)
@@ -26,7 +27,7 @@ class AnimationOutput(OutputBase):
         if self._under_fps_limit(timestamp):
             self.last_update = timestamp
 
-            plot_data = self.get_plot_list(self._states, FORMAT_XY)
+            plot_data = self.get_plot_list(self._states, FORMAT_XYTh)
             last_state = round(self._states[-1], 2)
             self._update_canvas(plot_data, f"state: {last_state.__str__()}")
 
@@ -42,8 +43,11 @@ class AnimationOutput(OutputBase):
         return bool((1/(timestamp - self.last_update)) <= self.fps_limit)
 
     def _create_canvas(self):
+        #marker = (3, 0, i * 90), markersize = 20, linestyle = 'None')
         self.fig, self.ax = plt.subplots()
-        self.line, = self.ax.plot([], lw=3)
+        self.line, = self.ax.plot([], lw=3, clip_on = False)
+        self.ann = self.ax.annotate('', xy=(0,0),
+                                    arrowprops=dict(arrowstyle="<-"))
         self.text = self.ax.text(0.0, 0.0, "")
         self.fig.canvas.draw()
         self.ax_cache = self.fig.canvas.copy_from_bbox(self.ax.bbox)
@@ -52,9 +56,14 @@ class AnimationOutput(OutputBase):
 
     def _update_canvas(self, line=None, text=None):
         if line is not None:
-            self.line.set_data(*line)
+            x,y,th = line
+            self.line.set_data(*(x,y))
+            self.ann.remove()
+            self.ann = self.ax.annotate('', xy=(x[-1], y[-1]),
+                        xytext=(x[-1]+0.03, y[-1]+0.03),
+                        arrowprops=dict(arrowstyle="<-"))
         if text is not None:
-            self.text.set_position((line[0][0], line[1][0]))
+            self.text.set_position((line[0][-1], line[1][-1]))
             self.text.set_text(text)
 
         if self.use_cache:
@@ -99,15 +108,16 @@ class AnimationOutput(OutputBase):
     def generate_video(self):
         # initializing a figure
         fig = plt.figure()
-        axis = plt.axes()
-
+        axis = plt.axes(clip_on = False)
+        ann = axis.annotate('', xy=(0,0), arrowprops=dict(arrowstyle="<-"))
+        ann_list =[ann]
         # labeling the x-axis and y-axis
         #axis = plt.axes(xlim=(0, 1000), ylim=(0, 1000))
 
         # lists storing x and y values
         x, y = [], []
 
-        states_x, states_y = self.get_plot_list(self._states, FORMAT_XY)
+        states_x, states_y, th = self.get_plot_list(self._states, FORMAT_XYTh)
         axis.set_xlim([min(states_x), max(states_x)])
         axis.set_ylim([min(states_y), max(states_y)])
         line, = axis.plot(0, 0)
@@ -117,6 +127,11 @@ class AnimationOutput(OutputBase):
             y.append(states_y[frame_number])
             line.set_xdata(x)
             line.set_ydata(y)
+            ann_list.pop().remove()
+            ann = axis.annotate('', xy=(states_x[frame_number], states_y[frame_number]),
+                                    xytext=(states_x[frame_number]+0.03, states_y[frame_number]+0.03),
+                                    arrowprops=dict(arrowstyle="<-"))
+            ann_list.append(ann)
             return line,
         fps = self.calc_fps()
 
