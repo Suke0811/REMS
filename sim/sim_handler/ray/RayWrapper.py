@@ -2,6 +2,7 @@ from sim.sim_handler.ray.ActorWrapper import ActorWrapper
 import time
 import ray
 
+TIMEOUT = 0.0005
 EXCLUDE = ['get_class'] #['call_func', 'get_variable', 'set_variable']
 def get_methods(instance):
     rets = []
@@ -52,13 +53,13 @@ class RayWrapper(object):
             ray_ret = self._refs.get(name)
             if 'cache' in kwargs and kwargs.pop('cache'):
                 if ray_ret:
-                    finished, ray_ret = ray.wait(ray_ret, num_returns=len(ray_ret))
+                    finished, ray_ret = ray.wait(ray_ret, num_returns=len(ray_ret), timeout=TIMEOUT)
                     if finished:
                         ret = ray.get(finished[-1])
                 ray_ret.append(func(self, name, *args, **kwargs))
                 self._refs[name] = ray_ret
             elif 'block' in kwargs and not kwargs.pop('block'):
-                    func(self, name, *args, **kwargs)
+                ret = func(self, name, *args, **kwargs)
             else:
                 ret = ray.get(func(self, name, *args, **kwargs))
             return ret
