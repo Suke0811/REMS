@@ -72,7 +72,7 @@ class AnimationOutput(OutputBase):
                          lw=3,
                          ls='--'))
         if text is not None:
-            
+
             self.text.set_position((line[0][-1] + SCALE * x_l, line[1][-1] + SCALE * y_l))
             self.text.set_text(text)
 

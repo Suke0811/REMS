@@ -135,7 +135,7 @@ class Simulation:
         st = time.perf_counter()
         next_time = time.perf_counter()
         while not config.if_time(t) and not self._input_system.quite:
-            if self.realtime is False or time.perf_counter() >= next_time:
+            if self.realtime == False or time.perf_counter() >= next_time:
                 self.step(t)
                 self.process(t)
                 t += self.DT
