@@ -7,7 +7,7 @@ dict(bumps_wheeldrops=float)
 
 
 class Create2Device(DriveBase, SenseBase):
-    def __init__(self, port, safety=True, *args, **keyword):
+    def __init__(self, port, safety=False, *args, **keyword):
         super().__init__(*args, **keyword)
         self.config.on().set([True, True, False])
         self.device_name = 'Create 2'
@@ -42,8 +42,8 @@ class Create2Device(DriveBase, SenseBase):
         self.create.drive_direct(r, l)
 
     def sense(self, *args, **kwargs):
+        return self.sense_sapce
         vals = self.create.get_sensors()
-        print(vals)
         self.sense_sapce.set(vals)
         return self.sense_sapce
 

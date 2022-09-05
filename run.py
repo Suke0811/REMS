@@ -1,8 +1,8 @@
 import logging, os
 from sim import Simulation
-from sim.inputs import FileInput
+from sim.inputs import FileCsvInput
 from sim.inputs.JoyManipulator import JoyManipulator
-from sim.outputs import FileOutput
+from sim.outputs import FileCsvOutput
 from sim.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.robots.scaler_leg.ScalarHard import ScalerHard
 from sim.device.kinematic_model.KinematicModel import KinematicModel
@@ -21,11 +21,11 @@ s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-#i = FileInput('sim/utils/target_robot_circle_line.csv', loop=True)
+#i = FileCsvInput('sim/utils/target_robot_circle_line.csv', loop=True)
 
-#i_video = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
-i_helix = FileInput('trajectory/target_robot_circle_line.csv', loop=True)
-#i = FileInput('trajectory/r2k/target_robot_video.csv', loop=False)
+#i_video = FileCsvInput('trajectory/r2k/target_robot_video.csv', loop=False)
+i_helix = FileCsvInput('trajectory/target_robot_circle_line.csv', loop=True)
+#i = FileCsvInput('trajectory/r2k/target_robot_video.csv', loop=False)
 #i = KeyboardInput()
 #i = JoystickInput()
 
@@ -36,9 +36,9 @@ s.set_input(i_helix)  # specify inputs to run
 # Robot simulation using kinematics model
 
 out_dir = 'out/'
-target_csv = FileOutput(out_dir+'target_'+time_str()+'.csv')      # save to test.csv at the same dir as the
-ref_csv = FileOutput(out_dir+'ref_'+time_str()+'.csv')
-arm2_csv = FileOutput(out_dir+'arm2_'+time_str()+'.csv')
+target_csv = FileCsvOutput(out_dir + 'target_' + time_str() + '.csv')      # save to test.csv at the same dir as the
+ref_csv = FileCsvOutput(out_dir + 'ref_' + time_str() + '.csv')
+arm2_csv = FileCsvOutput(out_dir + 'arm2_' + time_str() + '.csv')
 
 
 # add robots to simulation

@@ -50,7 +50,7 @@ class JoystickInput(InputBase):
         except AttributeError:
             pass
 
-    def get_inputs(self, inpt_defDict: DefDict=None, timestamp=None):
+    def get_inputs(self, inpt_defDict: DefDict=None, timestamp=None, prefix='inpt'):
         if not self.stick_name:
             self.init()
         self._capture_joystick()

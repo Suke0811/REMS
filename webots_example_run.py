@@ -1,7 +1,7 @@
 import logging
 from sim import Simulation
-from sim.inputs import KeyboardInput, FileInput
-from sim.outputs import FileOutput, AnimationOutput
+from sim.inputs import KeyboardInput, FileCsvInput, FileInput
+from sim.outputs import FileCsvOutput, AnimationOutput, FileOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
 from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef
@@ -16,7 +16,7 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=True, num_gpus=1)
+ray.init(local_mode=False, num_gpus=1)
 s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.

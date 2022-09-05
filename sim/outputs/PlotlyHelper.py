@@ -47,12 +47,38 @@ class PlotlyHelper:
                 data=[go.Scatter(
                     x=[x[k]],
                     y=[y[k]],
-                    mode="markers+text",
+                    mode="text",
                     text=f"State: x: {round(x[k],2)}, y: {round(y[k], 2)}, th: {round(th[k], 2)}",
                     textposition="top right",
-                    marker=dict(color="red", size=10))]) for k in N],)
+                    #marker=dict(color="red", size=7)
+                     )],
+                layout=go.Layout(
+                    annotations=[
+                        dict(
+                            x=x[k],
+                            y=y[k],
+                            # axref="x",
+                            # ayref="y",
+                           # ax=x[k] + 0.2 * np.cos(th[k]),
+                           # ay=y[k] + 0.2 * np.sin(th[k]),
+                            ax= 30 * np.cos(th[k]),
+                            ay= 30 * np.sin(th[k]),
+                            #text=f"State: x: {round(x[k], 2)}, y: {round(y[k], 2)}, th: {round(th[k], 2)}",
+                            arrowside='end+start',
+                            showarrow=True,
+                            arrowsize=2,
+                            arrowcolor='red',
+                            arrowhead=6,
+                            startarrowsize=2,
+                            startarrowhead=4,
+
+
+                        )], )
+            ) for k in N],)
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
         fig.show()
+
+
 
     def axis_limit(self, x, y, margin):
         def min_max(v):

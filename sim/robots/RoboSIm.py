@@ -2,8 +2,8 @@ import logging, os, ray
 import time
 
 from sim import Simulation
-from sim.inputs import FileInput
-from sim.outputs import FileOutput
+from sim.inputs import FileCsvInput
+from sim.outputs import FileCsvOutput
 from sim.robots.bind_robot import bind_robot
 from sim.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
 from sim.robots.scaler_leg.ScalarHard import ScalerHard
