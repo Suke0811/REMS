@@ -39,5 +39,6 @@ class WoodbotHard(RobotBase):
         self.ws.send("#S")
         resp_opcode, msg = self.ws.recv_data()
         sensors = struct.unpack("<HH", msg)
-        return [float(x) for x in sensors]
+        self.outpt.update([float(x) for x in sensors])
+        return self.outpt
 
