@@ -8,7 +8,7 @@ class WebsocketDevice(DeviceBase):
     def __init__(self, target_address=TARGET, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.target = target_address
-        self.to_thread = True
+        self.to_thread = False
 
     def init(self, *args, **kwargs):
         self.ws = websocket.WebSocket()

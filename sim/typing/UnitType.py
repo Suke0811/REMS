@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Union, Tuple
 import unyt
 from unyt.exceptions import UnitParseError
 import numpy as np
@@ -22,11 +22,11 @@ class InvalidUnitChangeError(Exception):
 class UnitType:
     default_unit = 'dimensionless'
     default_dtype = float
-    default_dim: Union[int, tuple[int, int]] = 1
+    default_dim: Union[int, Tuple[int, int]] = 1
     default_value = None
-    default_drange: tuple[(Union[int, float, str], Union[int, float, str])] = (float('-inf'), float('inf'))
-    default_drange_map: tuple[(Union[int, float, str], Union[int, float, str])] = None
-    defualt_drange_scale: tuple[(Union[int, float], Union[int, float])] = (-1, 1)
+    default_drange: Tuple[(Union[int, float, str], Union[int, float, str])] = (float('-inf'), float('inf'))
+    default_drange_map: Tuple[(Union[int, float, str], Union[int, float, str])] = None
+    defualt_drange_scale: Tuple[(Union[int, float], Union[int, float])] = (-1, 1)
     default_conversion_rules: list = []
 
     def __init__(self, unit=None, drange=None, default=None, dim=None, drange_map=None, drange_scale=None, dtype=None, strict=False, data=None):
