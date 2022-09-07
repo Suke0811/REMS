@@ -3,6 +3,7 @@ import logging
 import numpy as np
 from typing import Any
 from sim.typing.UnitType import UnitType
+import inspect
 SEPARATOR = '.'
 
 
@@ -193,8 +194,8 @@ class DefDict:
             except:
                 pass
         if isinstance(ndata, DefDict):
-            ndata = ndata.data
-        if isinstance(ndata, dict):
+            self._from_defdict(ndata)
+        elif isinstance(ndata, dict):
             self._dict2dict(ndata)
         elif isinstance(ndata, list):
             self._list2dict(ndata)
@@ -264,19 +265,24 @@ class DefDict:
     def _set_defs(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
+        if inspect.isclass(dtype) and issubclass(dtype, UnitType):
+            dtype = dtype()
         if isinstance(ndef, dict):
             for k, v in ndef.items():
                 if isinstance(v, dict) and nested_dict:
                     v = DefDict(v)
                     suffixes.extend(v.list_keys())
-                if isinstance(v, DefDict):
+                if inspect.isclass(v) and issubclass(v, UnitType):
+                    self._definition[k] = v()
+                    self._data[k] = [v().default]
+                elif isinstance(v, DefDict) or isinstance(v, UnitType):
                     self._definition[k] = v
                    # keys.append(k)
-                    self._data[k] = [v]
+                    self._data[k] = [v.default]
                 elif isinstance(v, type) or v is Any:
                     self._definition[k] = dtype
                     keys.append(k)
-                    self._data[k] = 0.0
+                    self._data[k] = [0.0]
                 else:
                     self._definition[k] = type(v)
                     self._data[k] = [v]
@@ -341,7 +347,7 @@ class DefDict:
     def _enforce_type(self, d_type, value, vdef=None):
         if isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
-        if isinstance(d_type, DefDict):
+        elif isinstance(d_type, DefDict):
             ret = d_type.set(value)
         elif d_type is Any:   # If the type is Any, no enforcement
             ret = value
@@ -355,7 +361,9 @@ class DefDict:
         return ret    # Enforce type in the corresponding definition
 
     def _unit_type(self, dtype, value, vdef=None):
-        return dtype.to(value, vdef)
+        if not isinstance(vdef, UnitType):
+            vdef = dtype
+        return vdef.to(value, dtype)
 
     def bind(self, bind_rule, val=None):
         if val is None:
@@ -573,7 +581,8 @@ class DefDict:
             # sum for corresponding keys
             for k, o in zip(current.filter(other_defdict.keys()).list_keys(),
                         other_defdict.filter(other_defdict.list_keys()).list()):
-                current._data[k][0] = func(current._data[k][0], o)
+
+                current._data[k][0] = current._enforce_type(current.DEF[k], func(current._data[k][0],  current._enforce_type(current.DEF[k], o, other_defdict.DEF[k])))
         return current
 
     def __iter__(self):
@@ -665,11 +674,6 @@ class DefDict:
         for k, v in d.items():
             d._data[k][0] = round(v, n)
         return d
-
-    @property
-    def name(self):
-        return self._name
-
 
 
 if __name__ == '__main__':

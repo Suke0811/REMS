@@ -8,13 +8,12 @@ from controller import Supervisor, Robot
 from scipy.spatial.transform import Rotation as R
 import os
 
-
-
-
 WEBOTS_POS = dict(x=float, y=float, z=float)
 WEBOTS_ROT = dict(th_x=float, th_y=float, th_z=float)
 WEBOTS_POS_VEL = dict(d_x=float, d_y=float, d_z=float)
 WEBOTS_ROT_VEL = dict(d_th_x=float, d_th_y=float, d_th_z=float)
+
+WEBOTS_MOTOR = dict()
 
 class WebotsBinder(RobotBase):
     """You will receive updates in the next lab"""

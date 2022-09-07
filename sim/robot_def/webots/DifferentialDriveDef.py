@@ -1,16 +1,16 @@
 from sim.typing import DefDict, BindRule
 from sim.robots import RobotDefBase
-from sim.inputs.map.JOYSTICK_KEYMAP import StdKeys
+from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc
 import numpy as np
 
 # space definitions
-POS_2D = dict(x=float, y=float, th_z=float)
+POS_2D = dict(x=Pos, y=Pos, th_z=float)
 VEL_2D = dict(d_x=float, d_y=float, d_th_z=float)
-MOTOR_PARAM = dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+MOTOR_PARAM = dict(pos=Ang(default=float('inf')), vel=AngVel, acc=AngAcc, on=bool, pid=list),
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,
                 jb_w0=float, jb_w1=float)
-WHEEEL_VEL = dict(wh_l=float, wh_r=float)
+WHEEEL_VEL = dict(wh_l=AngVel, wh_r=AngVel)
 
 # Key mapping
 class KeyMapRule:

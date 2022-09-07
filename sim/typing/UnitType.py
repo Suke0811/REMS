@@ -211,6 +211,8 @@ class UnitType:
 
         elif vdef.unit.units == unyt.count:
             val = vdef.to_count(val, vdef)
+        elif self.unit.units == unyt.count:
+            val = self.from_count(val)
 
         elif self.unit.units == unyt.percent:
             val = self.from_percent(val, vdef.drange, vdef.drange_scale)
@@ -374,7 +376,7 @@ class UnitType:
                     enforced_val = self.dtype(val)
                 except (TypeError, AttributeError): # some type like Any throw the error
                     pass
-        return enforced_val
+        return np.clip(enforced_val, *self.drange)
 
     def _ruled_conversion(self, from_unit, val, to_unit):
         if self._rules:
@@ -392,3 +394,11 @@ class UnitType:
         except AttributeError:
             pass
         return False
+
+
+
+    def __str__(self):
+        return f"{self.unit.units, tuple([d.to_string() for d in self.drange]), self.dtype}"
+
+    def __repr__(self):
+        return f"{self.unit, self.drange, self.dtype}"
