@@ -31,7 +31,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         for data in self.devices_data:
             d, args, kwargs = data
             device = d(*args, **kwargs)
-            if device.to_thread:
+            if device.to_thread == self.TO_PROCESS:
                 device = RayWrapper(device, name=device.device_name)
             self.devices.append(device)
             config = device.config

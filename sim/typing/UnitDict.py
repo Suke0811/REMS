@@ -181,13 +181,13 @@ class DefDict:
             d.clear()
             for k, v in self.items():
                 if isinstance(v, DefDict):
-                    d.add_definition({k: v.DEF[name]})
+                    d._set_defs({k: v.DEF[name]})
                     d._data[k] = v._data.get(name)
                 elif isinstance(v, dict):
-                    d.add_definition({k: v[name]})
+                    d._set_defs({k: v[name]})
                     d._data[k] = v.get(name)
                 elif k == name:
-                    d.add_definition({k: self.DEF[k]})
+                    d._set_defs({k: self.DEF[k]})
                     d._data[k] = v
             return d
 

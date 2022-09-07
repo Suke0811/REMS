@@ -51,10 +51,11 @@ class WebotsBinder(RobotBase):
         self._robot.step(self._timestep)
 
     def reset(self, state, t):
-        self.wb_state.set(state)
-        self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
-        self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
-        self._robot_node.setVelocity(self.wb_state.filter((WEBOTS_POS_VEL, WEBOTS_ROT_VEL)).list())
+        if state is not None:
+            self.wb_state.set(state)
+            self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
+            #self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
+            self._robot_node.setVelocity(self.wb_state.filter((WEBOTS_POS_VEL, WEBOTS_ROT_VEL)).list())
         self._robot_node.resetPhysics()  # reset physics
         self.clock(0)
 
