@@ -18,11 +18,17 @@ class DefDict:
         self.suffixes = []
         self.prefixes = []
         if definition is not None:
-            self.add_def(definition, dtype, prefixes, suffixes, rules, nested_def)
+            self.add_def(definition, dtype=dtype, prefixes=prefixes, suffixes=suffixes, format_rule=format_rule,
+                         shape=shape, rules=rules, nested_def=nested_def)
 
-    def add_def(self, definition, dtype=Any, prefixes=None, suffixes=None, rules=None, nested_def=True):
+    def add_def(self, definition, dtype=Any, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
+        if format_rule is not None:
+            self.format_rule = format_rule
+        if shape is not None:
+            self.shape = shape
         if not isinstance(rules, list) and rules is not None:
             rules = [rules]
+        if rules is not None:
             self.rules.extend(rules)
 
         if isinstance(suffixes, dict):
@@ -44,6 +50,7 @@ class DefDict:
             self._add_prefixes(prefixes)
         if suffixes is not None:
             self._add_suffixes(suffixes)
+        return self
 
 
     def ndarray(self, reshape: tuple = None):
@@ -332,6 +339,8 @@ class DefDict:
             return False
 
     def _enforce_type(self, d_type, value, vdef=None):
+        if isinstance(d_type, UnitType):
+            ret = self._unit_type(d_type, value, vdef)
         if isinstance(d_type, DefDict):
             ret = d_type.set(value)
         elif d_type is Any:   # If the type is Any, no enforcement

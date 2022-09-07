@@ -3,11 +3,15 @@ import unyt
 from unyt.exceptions import UnitParseError
 import numpy as np
 
+
+
 Pos = dict(unit='m', dtype=float, drange=(-float('inf'), float('inf')), drange_unit=None, dim=1, default=0.0)
 Dist = dict(unit='m', dtype=float, drange=(-float('inf'), float('inf')), drange_unit=None, dim=1, default=0.0)
 
 RESERVED = ['quat', 'rot3d', 'rot2d', 'euler', 'ax_ang', 'ax_ang4d']
 
+MAX=1
+MIN=0
 
 class InvalidUnitChangeError(Exception):
     def __init__(self, old_unit, old_dim, new_unit, new_dim):
@@ -183,29 +187,43 @@ class UnitType:
         return default
 
     def enforce_unit(self, val):
+        return self._to_unyt(val, self.unit)  # unyt
+
+    def _to_unyt(self, val, unit):
         if val is None:
             return val
         if isinstance(val, str):
             val = unyt.unyt_quantity.from_string(val)
-        if not isinstance(self.unit, str):
+        if not isinstance(unit, str):
             if isinstance(val, unyt.unyt_array):
-                val = val.to(self.unit)
+                val = val.to(unit)
             else:
-                val = val * self.unit
+                val = val * unit
         return val  # unyt
 
     def to(self, val, vdef=None):
         vdef = self._create_class_instance(vdef)
-        if vdef.unit == self.unit or vdef.unit.units == unyt.dimensionless:
-            return self.enforce_type(val)   # if the unit is the same, no need to convert
+        if vdef.unit.units == self.unit.units:
+            return self.enforce_type(val)
 
-        ruled = self._ruled_conversion(vdef.unit, val, self.unit)
-        if ruled is not None:
-            return ruled    # if ruled is not None, then return ruled value
+        elif vdef.unit.units == unyt.percent:
+            val = self.to_percent(val, drange_scale=vdef.drange_scale)
 
-        if not isinstance(val, unyt.unyt_array):
-            val = vdef.enforce_unit(val)    # unyt
-        val = val.to(self.unit)
+        elif vdef.unit.units == unyt.count:
+            val = vdef.to_count(val, vdef)
+
+        elif self.unit.units == unyt.percent:
+            val = self.from_percent(val, vdef.drange, vdef.drange_scale)
+
+        # ruled = self._ruled_conversion(vdef.unit, val, self.unit)
+        # if ruled is not None:
+        #     return ruled    # if ruled is not None, then return ruled value
+
+        elif not isinstance(val, unyt.unyt_array):
+            val = self.enforce_unit(val)    # unyt
+            val = val.to(vdef.unit)
+        else:
+            val = val.to(vdef.unit)
         return self.enforce_type(val) # unyt to proper type
 
     def _create_class_instance(self, vdef):
@@ -215,7 +233,7 @@ class UnitType:
             vdef = vdef()
         return vdef
 
-    def drange_mapping(self, val):
+    def from_count(self, val):
         """
         drange_unit should be like
         = (val_0, val_1, ...,  val_n)
@@ -240,7 +258,7 @@ class UnitType:
                 if sv <= val and val <= lv:
                     if not callable(nv_map):  # if not callable not function -> this is the next value
                         lv_map = nv_map
-                        func = lambda val, sv, lv, sv_map, lv_map: ((lv_map - sv_map) / (lv - sv) * scaled_val + sv_map)
+                        func = lambda o_val, sv, lv, sv_map, lv_map: ( ((lv_map - sv_map) / (lv - sv)) * (o_val - sv) + sv_map)
                     else:
                         func = nv_map
                         lv_map = next(drange_map)  # if callable, then we need to get next value
@@ -255,20 +273,86 @@ class UnitType:
             sv = lv
         return scaled_val
 
-    def to_percent(self, val, drange=None):
+    def to_count(self, val, vdef=None):
+        """
+        drange_unit should be like
+        = (val_0, val_1, ...,  val_n)
+        or
+        = (val_0, func, val_1, val_2, ..., val_n)
+        if you skip func, then linear interpolation will be used
+        :param val:
+        :return:
+        """
+        if vdef is None:
+            vdef = self
+        scaled_val = vdef._to_unyt(val, vdef.drange_map[0].units)
+        if self.drange_map is None:
+            return scaled_val
+        drange_map = iter(self.drange_map)
+        drange = iter(self.drange)
+        sv_map = next(drange_map)
+        sv = next(drange)
+
+        while True:
+            try:
+                nv_map = next(drange_map)
+                lv = next(drange)
+                if sv <= val and val <= lv:
+                    if not callable(nv_map):  # if not callable not function -> this is the next value
+                        lv_map = nv_map
+                        func = lambda o_val, sv, lv, sv_map, lv_map: (((lv - sv)/(lv_map - sv_map)) * (o_val - sv_map) + sv)
+                    else:
+                        func = nv_map
+                        lv_map = next(drange_map)  # if callable, then we need to get next value
+
+                    scaled_val = func(scaled_val, sv, lv, sv_map, lv_map)
+                    break
+                else:
+                    lv_map = nv_map
+            except StopIteration:
+                break
+            sv_map = lv_map
+            sv = lv
+        return scaled_val
+
+
+    def to_percent(self, val, drange=None, drange_scale=None):
         current_drange = self.drange
+        current_scale = self.drange_scale
         if drange is not None:
             self.drange = drange
+        if drange_scale is not None:
+            self.drange_scale = drange_scale
 
         if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
             raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         if not isinstance(val, unyt.unyt_array):
             val = self.enforce_unit(val)
-        p_val = (val - np.min(self.drange)) / (np.max(self.drange) - np.min(self.drange)) # percent 0-1 scale
-        s_val = p_val * (np.max(self.drange_scale) - np.min(self.drange_scale)) - np.min(self.drange_scale) # scale back to as defined
+        p_val = (val - self.drange[MIN]) / (self.drange[MAX] - self.drange[MIN]) # percent 0-1 scale
+        s_val = p_val * (self.drange_scale[MAX] - self.drange_scale[MIN]) + self.drange_scale[MIN] # scale back to as defined
         self.drange = current_drange
-        return s_val.to('%')  # unyt
+        self.drange_scale = current_scale
+        return self.enforce_type(100*s_val) # percent)
+
+    def from_percent(self, val, drange=None, drange_scale=None):
+        current_drange = self.drange
+        current_scale = self.drange_scale
+        if drange is not None:
+            self.drange = drange
+        if drange_scale is not None:
+            self.drange_scale = drange_scale
+        if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
+            raise ValueError(f'{val} cannot converted from % from a value because data range is {self.drange}')
+
+        val = val/100
+        #scale percent i.e. [-100%, 100%], [0,100%]
+        p_val = (val + self.drange_scale[MIN]) / (self.drange_scale[MAX] - self.drange_scale[MIN])
+        s_val = p_val * (self.drange[MAX] - self.drange[MIN]) + self.drange[MIN]
+        self.drange = current_drange
+        self.drange_scale = current_scale
+        return self.enforce_unit(s_val)
+
 
     def enforce_type(self, val):
         """

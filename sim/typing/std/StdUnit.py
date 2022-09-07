@@ -65,6 +65,10 @@ class Mass(UnitType):
     default_drange = (0, float('inf'))
     defualt_drange_scale = (0, 1)
 
+class Percent(UnitType):
+    default_unit = 'percent'
+    defualt_drange_scale = (0, 1)
+
 class Count(UnitType):
     default_unit = 'count'
     default_dtype = int
@@ -77,6 +81,27 @@ class CountSensor(UnitType):
     default_drange = (0, 4095)
     default_drange_map = ('0.1m', '1m')
     defualt_drange_scale = (0, 1)
+
+class VelCreate(UnitType):
+    default_unit = 'rad/s'
+    default_drange = (-5,5)
+
+class CountVel(UnitType):
+    default_unit = 'count'
+    default_dtype = int
+    default_drange = (-500, 500)
+    default_drange_map = ('-5rad/s', '5rad/s')
+    defualt_drange_scale = (0, 1)
+
+
+
+v = VelCreate()
+p = Percent()
+c = CountVel()
+v.to(5, p)
+v.to(5, c)
+c.from_count(500)
+
 
 
 # Rotation

@@ -16,6 +16,11 @@ class RobotDefBase:
         self.jacobian = DefDict()
         self.defs = dict(inpt=self.inpt, state=self.state, outpt=self.outpt, info=self.info,
                          joint_space=self.joint_space, task_space=self.task_space, jacobian=self.jacobian)
+        for name, d in self.defs.items():
+            try:
+                d.set_name(name)
+            except AttributeError:
+                pass
 
     def define(self, *args, **kwargs):
         """Definitions of the robot"""

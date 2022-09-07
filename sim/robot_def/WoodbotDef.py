@@ -21,5 +21,6 @@ class WoodbotDef(DifferentialDriveDef):
     def define(self, *args, **kwargs):
         super().define(DRIVE, SENSOR)
         self.name = 'Woodbot'
+        print(self.inpt.rules)
 
 
