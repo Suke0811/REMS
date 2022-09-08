@@ -201,13 +201,37 @@ class UnitType:
                 val = val * unit
         return val  # unyt
 
+    def enforce(self, val, vdef=None):
+        vdef = self._create_class_instance(vdef)
+        if vdef.unit.units == self.unit.units:
+            return self.enforce_type(val)
+        elif self.unit.units == unyt.percent:
+            val = vdef.to_percent(val, vdef=self)
+        elif self.unit.units == unyt.count:
+            val = vdef.to_count(val, vdef=self)
+        elif vdef.unit.units == unyt.count:
+            val = vdef.from_count(val)
+        elif vdef.unit.units == unyt.percent:
+            val = self.from_percent(val, vdef=vdef)
+
+        # ruled = self._ruled_conversion(vdef.unit, val, self.unit)
+        # if ruled is not None:
+        #     return ruled    # if ruled is not None, then return ruled value
+
+        elif not isinstance(val, unyt.unyt_array):
+            val = vdef.enforce_unit(val)  # unyt
+            val = val.to(self.unit)
+        else:
+            val = val.to(self.unit)
+        return self.enforce_type(val)  # unyt to proper type
+
     def to(self, val, vdef=None):
         vdef = self._create_class_instance(vdef)
         if vdef.unit.units == self.unit.units:
             return self.enforce_type(val)
 
         elif vdef.unit.units == unyt.percent:
-            val = self.to_percent(val, drange_scale=vdef.drange_scale)
+            val = self.to_percent(val, vdef=vdef)
 
         elif vdef.unit.units == unyt.count:
             val = vdef.to_count(val, vdef)
@@ -215,7 +239,7 @@ class UnitType:
             val = self.from_count(val)
 
         elif self.unit.units == unyt.percent:
-            val = self.from_percent(val, vdef.drange, vdef.drange_scale)
+            val = vdef.from_percent(val, vdef=self)
 
         # ruled = self._ruled_conversion(vdef.unit, val, self.unit)
         # if ruled is not None:
@@ -226,7 +250,7 @@ class UnitType:
             val = val.to(vdef.unit)
         else:
             val = val.to(vdef.unit)
-        return self.enforce_type(val) # unyt to proper type
+        return vdef.enforce_type(val) # unyt to proper type
 
     def _create_class_instance(self, vdef):
         if vdef is None:
@@ -318,41 +342,28 @@ class UnitType:
         return scaled_val
 
 
-    def to_percent(self, val, drange=None, drange_scale=None):
-        current_drange = self.drange
-        current_scale = self.drange_scale
-        if drange is not None:
-            self.drange = drange
-        if drange_scale is not None:
-            self.drange_scale = drange_scale
-
+    def to_percent(self, val, vdef=None):
+        if vdef is None:
+            vdef = self
         if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
             raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         if not isinstance(val, unyt.unyt_array):
             val = self.enforce_unit(val)
         p_val = (val - self.drange[MIN]) / (self.drange[MAX] - self.drange[MIN]) # percent 0-1 scale
-        s_val = p_val * (self.drange_scale[MAX] - self.drange_scale[MIN]) + self.drange_scale[MIN] # scale back to as defined
-        self.drange = current_drange
-        self.drange_scale = current_scale
-        return self.enforce_type(100*s_val) # percent)
+        s_val = p_val * (vdef.drange_scale[MAX] - vdef.drange_scale[MIN]) + vdef.drange_scale[MIN] # scale back to as defined
+        return vdef.enforce_type(100*s_val) # percent)
 
-    def from_percent(self, val, drange=None, drange_scale=None):
-        current_drange = self.drange
-        current_scale = self.drange_scale
-        if drange is not None:
-            self.drange = drange
-        if drange_scale is not None:
-            self.drange_scale = drange_scale
+    def from_percent(self, val, vdef=None):
+        if vdef is None:
+            vdef = self
         if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
             raise ValueError(f'{val} cannot converted from % from a value because data range is {self.drange}')
 
         val = val/100
         #scale percent i.e. [-100%, 100%], [0,100%]
-        p_val = (val + self.drange_scale[MIN]) / (self.drange_scale[MAX] - self.drange_scale[MIN])
+        p_val = (val - vdef.drange_scale[MIN]) / (vdef.drange_scale[MAX] - vdef.drange_scale[MIN])
         s_val = p_val * (self.drange[MAX] - self.drange[MIN]) + self.drange[MIN]
-        self.drange = current_drange
-        self.drange_scale = current_scale
         return self.enforce_unit(s_val)
 
 
@@ -376,7 +387,7 @@ class UnitType:
                     enforced_val = self.dtype(val)
                 except (TypeError, AttributeError): # some type like Any throw the error
                     pass
-        return np.clip(enforced_val, *self.drange)
+        return np.clip(enforced_val, * tuple([d.value for d in self.drange]))
 
     def _ruled_conversion(self, from_unit, val, to_unit):
         if self._rules:
@@ -401,4 +412,4 @@ class UnitType:
         return f"{self.unit.units, tuple([d.to_string() for d in self.drange]), self.dtype}"
 
     def __repr__(self):
-        return f"{self.unit, self.drange, self.dtype}"
+        return  f"{self.unit.units, tuple([d.to_string() for d in self.drange]), self.dtype}"

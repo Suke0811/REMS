@@ -275,10 +275,13 @@ class DefDict:
                 if inspect.isclass(v) and issubclass(v, UnitType):
                     self._definition[k] = v()
                     self._data[k] = [v().default]
-                elif isinstance(v, DefDict) or isinstance(v, UnitType):
+                elif isinstance(v, UnitType):
+                    self._definition[k] = v
+                    self._data[k] = [v.default]
+                elif isinstance(v, DefDict):
                     self._definition[k] = v
                    # keys.append(k)
-                    self._data[k] = [v.default]
+                    self._data[k] = [v]
                 elif isinstance(v, type) or v is Any:
                     self._definition[k] = dtype
                     keys.append(k)
@@ -297,6 +300,8 @@ class DefDict:
             raise TypeError('You can only add str, dict, or list')
         self.init_data(keys)
         return suffixes
+
+
 
     def init_data(self, keys):
         for k, v in self._definition.items():
@@ -363,7 +368,7 @@ class DefDict:
     def _unit_type(self, dtype, value, vdef=None):
         if not isinstance(vdef, UnitType):
             vdef = dtype
-        return vdef.to(value, dtype)
+        return dtype.enforce(value, vdef)
 
     def bind(self, bind_rule, val=None):
         if val is None:
