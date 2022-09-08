@@ -1,15 +1,17 @@
 import copy
 import logging
+import time
+
 import numpy as np
 from typing import Any
 from sim.typing.UnitType import UnitType
 import inspect
 SEPARATOR = '.'
-
+from sim.utils.tictoc import tictoc
 
 class DefDict:
     reserved = ['get', 'set', 'keys', 'list', 'list_keys', 'ndtall']
-    def __init__(self, definition=None, dtype=Any, name=None, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
+    def __init__(self, definition=None, dtype=Any, name=None, prefixes=True, suffixes=True, format_rule=None, shape=None, rules=None, nested_def=True):
         self._definition = dict()
         self._data = dict()
         self._name = name
@@ -21,8 +23,8 @@ class DefDict:
         if definition is not None:
             self.add_def(definition, dtype=dtype, prefixes=prefixes, suffixes=suffixes, format_rule=format_rule,
                          shape=shape, rules=rules, nested_def=nested_def)
-
-    def add_def(self, definition, dtype=Any, prefixes=None, suffixes=None, format_rule=None, shape=None, rules=None, nested_def=True):
+    @tictoc
+    def add_def(self, definition, dtype=Any, prefixes=True, suffixes=True, format_rule=None, shape=None, rules=None, nested_def=True):
         if format_rule is not None:
             self.format_rule = format_rule
         if shape is not None:
@@ -32,26 +34,42 @@ class DefDict:
         if rules is not None:
             self.rules.extend(rules)
 
-        if isinstance(suffixes, dict):
-            suffixes = list(suffixes.keys())
-        elif not isinstance(suffixes, list):
-            suffixes = [suffixes]
+        suff_add = []
 
         if isinstance(definition, tuple):
             for d in definition:  # add as many definition as you want
-                suffixes.extend(self._set_defs(d, dtype, nested_def))
-                if isinstance(d, DefDict) and suffixes:
+                suf = self._set_defs(d, dtype, nested_def)
+                if suffixes is not False:
+                    suff_add.extend(suf)
+                if isinstance(d, DefDict) and suffixes is not False:
                     self._add_suffix(d.list_keys())
         else:
-            suffixes.extend(self._set_defs(definition, dtype, nested_def))
+            suf = self._set_defs(definition, dtype, nested_def)
+            if suffixes is not False:
+                suff_add.extend(suf)
+
+        if isinstance(suffixes, dict):
+            suff_add.extend(list(suffixes.keys()))
+        if isinstance(suffixes, list):
+            suff_add.extend(suffixes)
+
+        if prefixes is True:
+            prefixes = self._find_all_prefixes(self.keys())
 
         if prefixes is not None:
             if isinstance(prefixes, dict):
                 prefixes = list(prefixes.keys())
             self._add_prefixes(prefixes)
-        if suffixes is not None:
-            self._add_suffixes(suffixes)
+        if suff_add:
+            self._add_suffixes(suff_add)
         return self
+
+    def _find_all_prefixes(self, data_list):
+        prefix =[]
+        for d in data_list:
+            if d.find(SEPARATOR) >= 1:
+                prefix.append(d.split(SEPARATOR)[0])
+        return prefix
 
 
     def ndarray(self, reshape: tuple = None):
@@ -180,7 +198,7 @@ class DefDict:
     def name(self, val):
         self._name = val
 
-
+    @tictoc
     def set(self, ndata):
         if ndata is None:
             return self
@@ -242,7 +260,12 @@ class DefDict:
 
     @property
     def DEF(self):
-        return self._definition
+        ret = {}
+        for k, v in self._definition.items():
+            #if not k.startswith('_'):  # protected keys are not accessible normally
+            ret[k] = v[0]
+        return ret
+
 
     def get_DEF(self, keys):
         key_lists = []
@@ -262,6 +285,7 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
+    @tictoc
     def _set_defs(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
@@ -272,29 +296,31 @@ class DefDict:
                 if isinstance(v, dict) and nested_dict:
                     v = DefDict(v)
                     suffixes.extend(v.list_keys())
+
                 if inspect.isclass(v) and issubclass(v, UnitType):
-                    self._definition[k] = v()
+                    self._definition[k] = [v()]
                     self._data[k] = [v().default]
                 elif isinstance(v, UnitType):
-                    self._definition[k] = v
+                    self._definition[k] = [v]
                     self._data[k] = [v.default]
                 elif isinstance(v, DefDict):
-                    self._definition[k] = v
+                    self._definition[k] = [v]
+                    suffixes.extend(v.list_keys())
                    # keys.append(k)
                     self._data[k] = [v]
                 elif isinstance(v, type) or v is Any:
-                    self._definition[k] = dtype
+                    self._definition[k] = [dtype]
                     keys.append(k)
                     self._data[k] = [0.0]
                 else:
-                    self._definition[k] = type(v)
+                    self._definition[k] = [type(v)]
                     self._data[k] = [v]
 
         elif isinstance(ndef, list):
-            self._definition.update(dict.fromkeys(ndef, dtype))
+            self._definition.update(dict.fromkeys(ndef, [dtype]))
             keys.extend(ndef)
         elif isinstance(ndef, str):
-            self._definition[ndef] = dtype
+            self._definition[ndef] = [dtype]
             keys.append(ndef)
         else:
             raise TypeError('You can only add str, dict, or list')
@@ -312,7 +338,7 @@ class DefDict:
                     self._data[k] = [v()]
                 else:
                     self._data[k] = [v]   # maybe a different way of initialization?
-
+    @tictoc
     def _from_defdict(self, data):
         for k, v in data.items():
             if k in self._data.keys():
@@ -329,7 +355,7 @@ class DefDict:
                 else:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
 
-
+    @tictoc
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
         for i, key in enumerate(self._data.keys()):
@@ -349,6 +375,7 @@ class DefDict:
         except TypeError:
             return False
 
+    @tictoc
     def _enforce_type(self, d_type, value, vdef=None):
         if isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
@@ -411,12 +438,14 @@ class DefDict:
 
         key_list = map(str, key_list)
         d = copy.deepcopy(self)
-        d.clear()
-        for k in key_list:
-            if k in self.keys():
-                d._set_defs({k: self.DEF[k]})
-                d._data[k] = self._data.get(k)
+        for k in self.DEF:
+            if k not in key_list:
+                d.remove(k)
         return d    #DefDict
+
+    def remove(self, key):
+        self._data.pop(key)
+        self._definition.pop(key)
 
     def filter_data(self, data):
         if isinstance(data, dict):
@@ -552,6 +581,21 @@ class DefDict:
 
     def __getitem__(self, item):
         return self._data.__getitem__(item)[0]
+
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k == '_definition':
+                d = {dk: dv for dk,dv in self._definition.items()}
+                setattr(result, k, d)
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
+
+
 
 
 ##############################################################

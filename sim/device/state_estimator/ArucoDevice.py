@@ -4,7 +4,7 @@ from sim.typing import DefDict
 from sim.utils import time_str
 import numpy as np
 
-ARUCO_STATE = dict(x=float, y=float, z=float, th_x=float, th_y=float, th_z=float)
+ARUCO_STATE = dict(x=float, y=float, z=float, th_z=float, th_y=float, th_x=float)
 VEL_2D = dict(d_x=float, d_y=float, d_th_y=float)
 
 class ArucoDevice(ObserveStateBaseBasic):
@@ -18,7 +18,6 @@ class ArucoDevice(ObserveStateBaseBasic):
         self.dt = dt
 
     def observe_state(self, *args, **kwargs):
-
         self._track_makers()
         return self.state
 

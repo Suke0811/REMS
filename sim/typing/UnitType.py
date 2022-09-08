@@ -208,7 +208,7 @@ class UnitType:
         elif self.unit.units == unyt.percent:
             val = vdef.to_percent(val, vdef=self)
         elif self.unit.units == unyt.count:
-            val = vdef.to_count(val, vdef=self)
+            val = self.to_count(val, vdef=self)
         elif vdef.unit.units == unyt.count:
             val = vdef.from_count(val)
         elif vdef.unit.units == unyt.percent:

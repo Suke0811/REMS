@@ -3,6 +3,7 @@ from sim.typing import DefDict
 class StdKeyMap:
     pass
 
+SEPARATOR = '.'
 
 class InputBase:
     def __init__(self, estop_callback=None):
@@ -46,4 +47,11 @@ class InputBase:
         if self._estop and self.estop_callback is not None:
             self.estop_callback()
         return self._estop
+
+    def _find_all_prefixes(self, data_list):
+        prefix =[]
+        for d in data_list:
+            if d.find(SEPARATOR) >= 1:
+                prefix.append(d.split(SEPARATOR)[0])
+        return prefix
 
