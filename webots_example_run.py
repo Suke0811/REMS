@@ -12,7 +12,6 @@ from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.robots.differential_drive.CreateHard import CreateHard
 
 
-
 logging.basicConfig(level=logging.INFO)
 
 s = Simulation(debug_mode=False)    # Create instance of Robot testing system
@@ -35,8 +34,7 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 #s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 #s.add_robot(CreateDef, (CreateHard, 'COM7', 2),  AnimationOutput('video/test'+time_str()+'.gif'))
-#s.add_robot(WoodbotDef, WoodbotHard)
-s.add_robot(WoodbotDef, WebotsBinder)
+s.add_robot(WoodbotDef, WoodbotHard)
 #s.add_robot(EpuckDef, WebotsBinder)
 
 #s.add_robot(Pioneer3DxDef, WebotsBinder)
