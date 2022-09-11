@@ -54,7 +54,8 @@ class UnitType:
         self.drange_map = drange_map
         self.drange_scale = drange_scale
         self.strict = strict
-        self.custom_unit  = None
+        self.custom_unit = None
+
 
 
         if default is None:
@@ -67,6 +68,7 @@ class UnitType:
         # initiate the data with default
         if data is None:
             data = self.default
+        self._name = ''
         self.data = data
         self._rules = self.default_conversion_rules
 
@@ -89,7 +91,17 @@ class UnitType:
             except (UnitParseError, ValueError):
                 self.custom_unit = val
                 uval = unyt.unyt_quantity.from_string('dimensionless')
+        self._name = str(uval.units)
+        self._name_dim = str(uval.units.dimensions.simplify())
         self._unit = uval
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def name_dimension(self):
+        return self._name_dim
 
     @property
     def dim(self):
@@ -387,7 +399,11 @@ class UnitType:
                     enforced_val = self.dtype(val)
                 except (TypeError, AttributeError): # some type like Any throw the error
                     pass
-        return np.clip(enforced_val, * tuple([d.value for d in self.drange]))
+        try:
+            enforced_val = np.clip(enforced_val, *tuple([d.value for d in self.drange]))
+        except TypeError:
+            pass
+        return enforced_val
 
     def _ruled_conversion(self, from_unit, val, to_unit):
         if self._rules:

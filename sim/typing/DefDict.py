@@ -23,7 +23,7 @@ class DefDict:
         if definition is not None:
             self.add_def(definition, dtype=dtype, prefixes=prefixes, suffixes=suffixes, format_rule=format_rule,
                          shape=shape, rules=rules, nested_def=nested_def)
-    @tictoc
+    
     def add_def(self, definition, dtype=Any, prefixes=True, suffixes=True, format_rule=None, shape=None, rules=None, nested_def=True):
         if format_rule is not None:
             self.format_rule = format_rule
@@ -198,7 +198,7 @@ class DefDict:
     def name(self, val):
         self._name = val
 
-    @tictoc
+    
     def set(self, ndata):
         if ndata is None:
             return self
@@ -285,7 +285,7 @@ class DefDict:
                 raise (f'{k} is not in definition')
         return DEFs
 
-    @tictoc
+    
     def _set_defs(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
@@ -338,7 +338,7 @@ class DefDict:
                     self._data[k] = [v()]
                 else:
                     self._data[k] = [v]   # maybe a different way of initialization?
-    @tictoc
+    
     def _from_defdict(self, data):
         for k, v in data.items():
             if k in self._data.keys():
@@ -355,7 +355,7 @@ class DefDict:
                 else:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
 
-    @tictoc
+    
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
         for i, key in enumerate(self._data.keys()):
@@ -375,7 +375,7 @@ class DefDict:
         except TypeError:
             return False
 
-    @tictoc
+    
     def _enforce_type(self, d_type, value, vdef=None):
         if isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
