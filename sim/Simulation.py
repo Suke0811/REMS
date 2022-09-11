@@ -16,10 +16,18 @@ class Simulation:
     DT_ERR = 0.01
     DT_DEFAULT = 0.25
 
-    def __init__(self, suppress_info=False):
+    def __init__(self, debug_mode=False, suppress_info=False, ray_init_options: dict=None):
         """
         :param suppress_info: no log outputs to console
         """
+        if ray_init_options is not None:
+            ray_init_options.setdefault('local_mode', debug_mode)
+            ray_init_options.setdefault('num_gpus', 1)
+            ray.init(**ray_init_options)
+        else:
+            ray.init(local_mode=debug_mode, num_gpus=1) # for windows, not setting num_gpu cause an error
+
+
         self.suppress_info = suppress_info
         self._input_system = None
         self._robots = []

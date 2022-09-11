@@ -1,6 +1,8 @@
 from sim.typing import DefDict
 from sim.device import BasicDeviceBase
 
+
+
 class DeviceBase(BasicDeviceBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

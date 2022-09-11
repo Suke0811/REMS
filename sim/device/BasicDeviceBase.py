@@ -1,12 +1,14 @@
 from sim.typing import DefDict
 
-
 class BasicDeviceBase:
+    TO_THREAD = 'to_thread'
+    TO_PROCESS = 'to_process'
+
     def __init__(self, *args, **kwargs):
-        self.to_thread = False
+        self.to_thread = None
         self.device_name = None
-        self.config = DefDict(dict(drive=dict(on=False), sense=dict(on=False), observe_state=dict(on=False)),
-                              suffixes=['on'])
+        self.config = DefDict(dict(drive=dict(on=False, step=float), sense=dict(on=False, step=float), observe_state=dict(on=False, step=float)),
+                              suffixes=['on', 'step'])
 
     def init(self, *args, **kwargs):
         pass

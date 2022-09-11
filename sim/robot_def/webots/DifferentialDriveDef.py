@@ -1,25 +1,25 @@
 from sim.typing import DefDict, BindRule
 from sim.robots import RobotDefBase
-from sim.inputs.map.JOYSTICK_KEYMAP import StdKeys
+from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc
 import numpy as np
 
 # space definitions
-POS_2D = dict(x=float, y=float, th_z=float)
+POS_2D = dict(x=Pos, y=Pos, th_z=float)
 VEL_2D = dict(d_x=float, d_y=float, d_th_z=float)
-MOTOR_PARAM = dict(pos=float('inf'), vel=float, acc=float, on=bool, pid=list),
+MOTOR_PARAM = dict(pos=Ang(default=float('inf')), vel=AngVel, acc=AngAcc, on=bool, pid=list),
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,
                 jb_w0=float, jb_w1=float)
-WHEEEL_VEL = dict(wh_l=float, wh_r=float)
+WHEEEL_VEL = dict(wh_l=AngVel, wh_r=AngVel)
 
 # Key mapping
 class KeyMapRule:
     def __init__(self, max_vel):
         self.max_vel = max_vel
         self.arrow = BindRule(
-            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, target='keyboard')
-        self.direct = BindRule(['q', 'e', 'a', 'd'], self.direct_drive, target='keyboard')
-        self.joy_direct = BindRule(['X', 'Y'], self.direct_drive, target='joystick')
+            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive)
+        self.direct = BindRule(['q', 'e', 'a', 'd'], self.direct_drive)
+        self.joy_direct = BindRule(['X', 'Y'], self.direct_drive)
 
     def get_rules(self):
         return [self.arrow]
@@ -56,14 +56,14 @@ class DifferentialDriveDef(RobotDefBase):
         self.length = length
         self.rule = KeyMapRule(max_vel)
 
-    def define(self, drive_names, sensor_names, *args, **kwargs):
+    def define(self, drive_names, sensor_names,*args, **kwargs):
         """Definitions of the robot"""
-        self.inpt = DefDict(WHEEEL_VEL, rules=self.rule.get_rules())
-        self.state = DefDict((POS_2D,))
-        self.outpt = DefDict(sensor_names)
-        self.joint_space = DefDict(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'], rules=BindRule(WHEEEL_VEL, None,))
+        self.inpt.add_def(WHEEEL_VEL, rules=self.rule.get_rules())
+        self.state.add_def(POS_2D)
+        self.outpt.add_def(sensor_names)
+        self.joint_space.add_def(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'], rules=BindRule(WHEEEL_VEL, None,))
         self.task_space = None
-        self.jacobian = DefDict(JACOB_2D, shape=(3, 2))
+        self.jacobian.add_def(JACOB_2D, shape=(3, 2))
         super().define()
 
     def control(self, inpt, timestamp):

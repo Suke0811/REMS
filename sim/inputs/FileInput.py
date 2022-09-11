@@ -64,12 +64,6 @@ class FileInput(InputBase):
         # initiate _inpt with the first data
         self._inpt.set(list(self.data[0]))
 
-    def _find_all_prefixes(self, data_list):
-        prefix =[]
-        for d in data_list:
-            if d.find(SEPARATOR) >= 1:
-                prefix.append(d.split(SEPARATOR)[0])
-        return prefix
 
     def _find_input_by_timestamp(self, timestamp):
         # Zero-order hold: return most recently specified inputs

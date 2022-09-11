@@ -6,18 +6,15 @@ from sim.utils import time_str
 from sim.Config import SimConfig
 from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef
 from sim.robot_def.WoodbotDef import WoodbotDef
-# from sim.device.webots.WebotsBinder import WebotsBinder
+from sim.device.webots.WebotsBinder import WebotsBinder
 from sim.robots.differential_drive.DynamixelbotHard import DynamixelbotHard
 from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.robots.differential_drive.CreateHard import CreateHard
 
-import ray
-
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=False, num_gpus=1)
-s = Simulation()    # Create instance of Robot testing system
+s = Simulation(debug_mode=False)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test

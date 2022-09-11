@@ -12,8 +12,7 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-ray.init(local_mode=True, num_gpus=1)
-s = Simulation()    # Create instance of Robot testing system
+s = Simulation(debug_mode=False)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test

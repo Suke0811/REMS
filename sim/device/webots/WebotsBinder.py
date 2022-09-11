@@ -8,13 +8,12 @@ from controller import Supervisor, Robot
 from scipy.spatial.transform import Rotation as R
 import os
 
-
-
-
 WEBOTS_POS = dict(x=float, y=float, z=float)
 WEBOTS_ROT = dict(th_x=float, th_y=float, th_z=float)
 WEBOTS_POS_VEL = dict(d_x=float, d_y=float, d_z=float)
 WEBOTS_ROT_VEL = dict(d_th_x=float, d_th_y=float, d_th_z=float)
+
+WEBOTS_MOTOR = dict()
 
 class WebotsBinder(RobotBase):
     """You will receive updates in the next lab"""
@@ -51,10 +50,11 @@ class WebotsBinder(RobotBase):
         self._robot.step(self._timestep)
 
     def reset(self, state, t):
-        self.wb_state.set(state)
-        self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
-        self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
-        self._robot_node.setVelocity(self.wb_state.filter((WEBOTS_POS_VEL, WEBOTS_ROT_VEL)).list())
+        if state is not None:
+            self.wb_state.set(state)
+            self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
+            #self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
+            self._robot_node.setVelocity(self.wb_state.filter((WEBOTS_POS_VEL, WEBOTS_ROT_VEL)).list())
         self._robot_node.resetPhysics()  # reset physics
         self.clock(0)
 
