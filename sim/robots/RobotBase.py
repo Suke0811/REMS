@@ -2,6 +2,9 @@ from sim.robots.RunConfig import RunConfig
 from sim.device.BasicDeviceBase import BasicDeviceBase
 from sim.robots.RobotDefBase import RobotDefBase
 from sim.sim_handler.ray.RayWrapper import RayWrapper
+from sim.sim_handler.ray.DeviceExecutor import DeviceExecutor
+
+from concurrent.futures import ThreadPoolExecutor
 
 
 
@@ -12,36 +15,21 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self._t_minus_1 = 0.0       # delta t may not be a constant
         self.info = {}
         # Devices
-        self.devices_data = []
         self.devices = []
-        self.drivers = []
-        self.sensors = []
-        self.observers = []
         # Run settings
         self.run = RunConfig()
         self.home_position = self.joint_space
 
     def add_device(self, device, *args, **kwargs):
-        self.devices_data.append((device, args, kwargs))
+        self.devices.append(DeviceExecutor(device))
 
 
     def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
-        for data in self.devices_data:
-            d, args, kwargs = data
-            device = d(*args, **kwargs)
-            if device.to_thread == self.TO_PROCESS:
-                device = RayWrapper(device, name=device.device_name)
-            self.devices.append(device)
-            config = device.config
-            if config.get('drive').get('on'):
-                self.drivers.append(device)
-            if config.get('sense').get('on'):
-                self.sensors.append(device)
-            if config.get('observe_state').get('on'):
-                self.observers.append(device)
-            device.init()
+        [device.init(self.inpt, self.state, self.outpt) for device in self.devices]
+        self.executor = ThreadPoolExecutor()
+        self.futs = [self.executor.submit(device.start) for device in self.devices]
 
     def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
@@ -57,20 +45,24 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         :param inpts: left, right wheel velocities
         """
         self.joint_space.set(self.control(inpt, timestamp))
-        for device in self.drivers:
-            device.drive(self.joint_space, timestamp, block=False)
+        for device in self.devices:
+            device.drive(self.joint_space, timestamp)
 
     def sense(self):
         """generate the sensor reading
         :return output"""
-        for device in self.sensors:
-            self.outpt.update(device.sense(cache=True))
+        for device in self.devices:
+            ret = device.sense()
+            if ret is not None:
+                self.outpt.update(ret)
         return self.outpt
 
     def observe_state(self):
         """get current state"""
-        for device in self.observers:
-            self.state.update(device.observe_state(cache=True))
+        for device in self.devices:
+            ret = device.observe_state()
+            if ret is not None:
+                self.state.update(ret)
         return self.state
 
     def clock(self, t):
@@ -87,3 +79,4 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
     def close(self):
         self.enable(False)
         [device.close() for device in self.devices]
+        self.executor.shutdown()

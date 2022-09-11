@@ -61,7 +61,7 @@ class DifferentialDriveDef(RobotDefBase):
         self.inpt.add_def(WHEEEL_VEL, rules=self.rule.get_rules())
         self.state.add_def(POS_2D)
         self.outpt.add_def(sensor_names)
-        self.joint_space.add_def(drive_names, suffixes=['pos', 'vel', 'acc', 'on', 'pid'], rules=BindRule(WHEEEL_VEL, None,))
+        self.joint_space.add_def(drive_names, rules=BindRule(WHEEEL_VEL, None,))
         self.task_space = None
         self.jacobian.add_def(JACOB_2D, shape=(3, 2))
         super().define()

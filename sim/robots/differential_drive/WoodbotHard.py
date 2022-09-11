@@ -24,7 +24,7 @@ class WoodbotHard(RobotBase):
         self.to_thread = False
 
     def init(self, *args, **kwargs):
-        self.dev_inpt = DefDict(dict(motor_l=Fs90r, motor_r=Fs90r))
+        self.dev_inpt = DefDict(dict(wh_l=Fs90r, wh_r=Fs90r))
         self.ws = websocket.WebSocket()
         self.open()
 
