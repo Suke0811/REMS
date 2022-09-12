@@ -18,10 +18,18 @@ class WoodbotVel(AngVel):
 
 # Driver names and definitions
 # pos = inf means velocity control
+# DRIVE = {
+#     "motor_l": dict(pos=Ang(default=float('inf')), vel=WoodbotVel, acc=AngAcc, on=bool, pid=list),
+#     "motor_r": dict(pos=Ang(default=float('inf')), vel=WoodbotVel, acc=AngAcc, on=bool, pid=list),
+# }
+
 DRIVE = {
+
     "motor_l": dict(pos=Ang(default=float('inf')), vel=WoodbotVel, acc=AngAcc, on=bool, pid=list),
     "motor_r": dict(pos=Ang(default=float('inf')), vel=WoodbotVel, acc=AngAcc, on=bool, pid=list),
 }
+
+
 
 
 class WoodbotDef(DifferentialDriveDef):

@@ -230,11 +230,14 @@ class DefDict:
         ret = None
         if isinstance(data, dict) or isinstance(data, DefDict):
             for rule in self.rules:
-                if rule.bind_from is None:
+                try: origin = rule.origin
+                except AttributeError: origin = rule.bind_from
+                if origin is None:
                     continue
-                keys = rule.bind_from.list_keys()
+                keys = origin.list_keys()
                 if all(elem in list(data.keys()) for elem in keys):
-                    ret = rule.bind(data)
+                    try: ret = rule.map(data)
+                    except AttributeError: ret = rule.bind(data)
                     if ret is not None:
                         break
         return ret
@@ -242,7 +245,9 @@ class DefDict:
     def set_rule(self, rule):
         if self.rules is None:
             self.rules = []
-        self.rules.append(rule)
+        if not isinstance(rule, list):
+            rule = [rule]
+        self.rules.extend(rule)
         return self
 
     def clear_rules(self):
@@ -289,8 +294,17 @@ class DefDict:
     def _set_defs(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
+
         if inspect.isclass(dtype) and issubclass(dtype, UnitType):
             dtype = dtype()
+
+        if isinstance(dtype, dict) and nested_dict:
+            dtype = DefDict(dtype)
+            suffixes.extend(dtype.list_keys())
+
+        if isinstance(ndef, DefDict):
+            ndef = ndef.DEF # if DefDict is hand over, get definition dict
+
         if isinstance(ndef, dict):
             for k, v in ndef.items():
                 if isinstance(v, dict) and nested_dict:
@@ -330,7 +344,7 @@ class DefDict:
 
 
     def init_data(self, keys):
-        for k, v in self._definition.items():
+        for k, v in self.DEF.items():
             if k in keys:
                 if v is Any:
                     self._data[k] = [float()] # what should be the init value?
@@ -569,6 +583,11 @@ class DefDict:
     def values(self):  # real signature unknown; restored from __doc__
         """ D.values() -> an object providing a view on D's values """
         return self.data.values()
+
+    @staticmethod
+    def fromkeys(keys, value):
+        return DefDict(keys, dtype=value)
+
 
     def __setitem__(self, key, value):
         if key in self.DEF.keys():

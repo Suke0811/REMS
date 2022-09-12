@@ -8,6 +8,8 @@ ARUCO_STATE = dict(x=float, y=float, z=float, th_z=float, th_y=float, th_x=float
 VEL_2D = dict(d_x=float, d_y=float, d_th_y=float)
 
 class ArucoDevice(ObserveStateBaseBasic):
+    device_name = 'ArucoDevice'
+
     def __init__(self, track_id, camera_id=0, video_name=f'video/aruco_{time_str()}.avi', dt=0.1):
         super().__init__()
         self.track_id = track_id

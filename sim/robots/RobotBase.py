@@ -1,14 +1,17 @@
 from sim.robots.RunConfig import RunConfig
 from sim.device.BasicDeviceBase import BasicDeviceBase
 from sim.robots.RobotDefBase import RobotDefBase
-from sim.sim_handler.ray.RayWrapper import RayWrapper
+from sim.typing import DefDict
 from sim.sim_handler.ray.DeviceExecutor import DeviceExecutor
 
 from concurrent.futures import ThreadPoolExecutor
 
 
 
+
 class RobotBase(RobotDefBase, BasicDeviceBase):
+    DEVICE_LIST = []
+
     def __init__(self, *args, **kwargs):
         """init with a specific initial stat) """
         super().__init__(*args, **kwargs)
@@ -21,6 +24,13 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self.home_position = self.joint_space
 
     def add_device(self, device, *args, **kwargs):
+        name = device.device_name
+        drive_space = self.drive_space.get(name)
+        sense_space = self.sense_space.get(name)
+        try: device.set_drive_space(drive_space)
+        except AttributeError: pass
+        try: device.set_sense_space(sense_space)
+        except AttributeError: pass
         self.devices.append(DeviceExecutor(device))
 
 
@@ -44,9 +54,9 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         """
-        self.joint_space.set(self.control(inpt, timestamp))
+        self.inpt.update(inpt)
         for device in self.devices:
-            device.drive(self.joint_space, timestamp)
+            device.drive(self.inpt, timestamp)
 
     def sense(self):
         """generate the sensor reading
@@ -80,3 +90,25 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self.enable(False)
         [device.close() for device in self.devices]
         self.executor.shutdown()
+
+    @classmethod
+    def drive_space_def(cls, *args, **kwargs):
+        ret = dict()
+        for device in cls.DEVICE_LIST:
+            try:
+                space = device.create_drive_space()
+                ret.setdefault(device.device_name, space)
+            except AttributeError:
+                pass
+        return DefDict(ret)
+
+    @classmethod
+    def sense_space_def(cls, *args, **kwargs):
+        ret = dict()
+        for device in cls.DEVICE_LIST:
+            try:
+                space = device.create_sense_space()
+                ret.setdefault(device.device_name, space)
+            except AttributeError:
+                pass
+        return DefDict(ret)

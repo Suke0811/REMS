@@ -33,7 +33,7 @@ class UnitType:
     defualt_drange_scale: Tuple[(Union[int, float], Union[int, float])] = (-1, 1)
     default_conversion_rules: list = []
 
-    def __init__(self, unit=None, drange=None, default=None, dim=None, drange_map=None, drange_scale=None, dtype=None, strict=False, data=None):
+    def __init__(self, unit=None, drange=None, default=None, dim=None, mapping=None, scale=None, dtype=None, strict=False, data=None):
         if unit is None:
             unit = self.default_unit
         if drange is None:
@@ -42,17 +42,17 @@ class UnitType:
             dim = self.default_dim
         if dtype is None:
             dtype = self.default_dtype
-        if drange_map is None:
-            drange_map = self.default_drange_map
-        if drange_scale is None:
-            drange_scale = self.defualt_drange_scale
+        if mapping is None:
+            mapping = self.default_drange_map
+        if scale is None:
+            scale = self.defualt_drange_scale
 
         self.unit = unit
         self.dtype = dtype
         self.dim = dim
         self.drange = drange
-        self.drange_map = drange_map
-        self.drange_scale = drange_scale
+        self.drange_map = mapping
+        self.drange_scale = scale
         self.strict = strict
         self.custom_unit = None
 

@@ -28,6 +28,7 @@ class DeviceExecutor(DeviceBase):
         self.dev_info = DefDict(dict(drive=dev_info, sense=dev_info, observe_state=dev_info))
         self.dev_info.set(device.config)
         self.dev_step = min(self.dev_info.step())
+        self.dev_timestep = 0.0
 
     def init(self, inpt, state, outpt,):
         self._inpt = inpt
@@ -37,7 +38,14 @@ class DeviceExecutor(DeviceBase):
         self.dev_inpt = copy.deepcopy(inpt)
         self.dev_state = copy.deepcopy(state)
         self.dev_outpt = copy.deepcopy(outpt)
-        self.dev_timestep = copy.deepcopy(self.timestep)
+
+        self.device.init()
+
+    def open(self, *args, **kwargs):
+        self.device.open()
+
+    def close(self, *args, **kwargs):
+        self.device.close()
 
     def start(self):
         st = perf_counter()
@@ -53,23 +61,32 @@ class DeviceExecutor(DeviceBase):
                 st += self.dev_step
             time.sleep(self.dev_step/10)
 
-    def drive(self,inpt, t, *args, **kwargs):
-        if self.dev_info.get('drive').on():
-            self.inpt = inpt
-            self.timestep = t
+    def drive(self, inpt, t, *args, **kwargs):
+        if self.dev_info.get('drive').get('on'):
+            if self.threading:
+                self.inpt.update(inpt)
+                self.timestep = t
+            else:
+                self.device.drive(inpt, t)
 
     def sense(self, *args, **kwargs):
-        if self.dev_info.get('sense').on():
-            return self.outpt
+        if self.dev_info.get('sense').get('on'):
+            if self.threading:
+                return self.outpt
+            else:
+                return self.outpt.update(self.device.sense())
 
     def observe_state(self, *args, **kwargs):
-        if self.dev_info.get('observe_state').on():
-            return self.state
+        if self.dev_info.get('observe_state').get('on'):
+            if self.threading:
+                return self.state
+            else:
+                return self.state.update(self.device.observe_state())
 
     def if_time(self, name):
-        on = self.dev_info.get(name).on()
-        t = self.dev_info.get(name).t()
-        step = self.dev_info.get(name).step()
+        on = self.dev_info.get(name).get('on')
+        t = self.dev_info.get(name).get('t')
+        step = self.dev_info.get(name).get('step')
         if on and (perf_counter() >= t + step):
             self.dev_info.get(name).t().set(t+step)
             return True
@@ -77,52 +94,36 @@ class DeviceExecutor(DeviceBase):
 
     @property
     def inpt(self):
-        Lock.acquire()
         self._inpt.set(self.dev_inpt)
-        Lock.release()
         return self._inpt
 
     @inpt.setter
     def inpt(self, val):
-        Lock.acquire()
         self.dev_inpt.set(val)
-        Lock.release()
 
     @property
     def state(self):
-        Lock.acquire()
         self._state.set(self.dev_state)
-        Lock.release()
         return self._state
 
     @state.setter
     def state(self, val):
-        Lock.acquire()
         self.dev_state.set(val)
-        Lock.release()
 
     @property
     def outpt(self):
-        Lock.acquire()
         self._outpt.set(self.dev_outpt)
-        Lock.release()
         return self._outpt
 
     @outpt.setter
     def outpt(self, val):
-        Lock.acquire()
         self.dev_outpt.set(val)
-        Lock.release()
 
     @property
     def timestep(self):
-        Lock.acquire()
         self._timestep = copy.deepcopy(self.dev_timestep)
-        Lock.release()
         return self._timestep
 
     @timestep.setter
     def timestep(self, val):
-        Lock.acquire()
         self.dev_timestep = val
-        Lock.release()

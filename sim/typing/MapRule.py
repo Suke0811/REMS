@@ -4,12 +4,13 @@ from sim.typing import DefDict
 class MapRule:
     def __init__(self, origin, func=None, target=None, inv_func=None, with_target=False):
         self.origin = DefDict(origin)
-        if not callable(func):
-            raise TypeError('func: {func} is not callable')
+        if func is not None and not callable(func):
+            raise TypeError(f'func: {func} is not callable')
         self.func = func
+
         self.target = DefDict(target)
-        if not callable(inv_func):
-            raise TypeError('func: {func} is not callable')
+        if inv_func is not None and not callable(inv_func):
+            raise TypeError(f'func: {func} is not callable')
         self.inv_func = inv_func
 
         self.with_target = with_target

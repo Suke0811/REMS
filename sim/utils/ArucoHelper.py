@@ -188,16 +188,16 @@ class ArucoHelper:
          return np.array([px,py,0])/1000
 
 
-    def get_frames(self, track_ids):
+    def get_frames(self, track_ids=None):
         """Track multiple tags at a time, Returns list of frames in the world frame"""
         ret_frames = []
-
-        self.track()
-        for id in track_ids:
-            if id in self.frames.keys() and ARUCO.TAG_ARENA_ID[0] in self.frames.keys():
-                ret_frames.append((self.frames[id]) + ARUCO.ARENA_ORIGIN_OFFSET)
-            else:
-                self.frames[id] = (ARUCO.FRAME_INIT)
+        if track_ids is not None:
+            self.track()
+            for id in track_ids:
+                if id in self.frames.keys() and ARUCO.TAG_ARENA_ID[0] in self.frames.keys():
+                    ret_frames.append((self.frames[id]) + ARUCO.ARENA_ORIGIN_OFFSET)
+                else:
+                    self.frames[id] = (ARUCO.FRAME_INIT)
         return ret_frames
 
     @staticmethod
