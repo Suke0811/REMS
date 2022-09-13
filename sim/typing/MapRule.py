@@ -1,5 +1,5 @@
 from sim.typing import DefDict
-
+from typing import Any
 
 class MapRule:
     def __init__(self, origin, func=None, target=None, inv_func=None, with_target=False, to_list=False):
@@ -38,7 +38,8 @@ class MapRule:
             if isinstance(origin_data, DefDict) and self.inherit_units:
                 for k, o_def in origin_data.DEF.items():
                     if k in origin.keys():
-                        origin._definition[k] = [o_def]
+                        if origin._definition[k] is Any:
+                            origin._definition[k] = [o_def]
             origin.set(origin_data)
 
         if target is None:
@@ -49,7 +50,8 @@ class MapRule:
             if isinstance(target_data, DefDict) and self.inherit_units:
                 for k, t_def in target_data.DEF.items():
                     if k in target.keys():
-                        target._definition[k] = [t_def]
+                        if target._definition[k] is Any:
+                            target._definition[k] = [t_def]
 
         if func is None:
             if target is None:
