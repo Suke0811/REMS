@@ -24,11 +24,10 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self.home_position = self.joint_space
 
     def add_device(self, device, *args, **kwargs):
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        if  calframe[1][3] != 'init_devices':
-            raise SyntaxError(f'add_device should be called only in init_device, called from {calframe[1][3]}')
-
+        # curframe = inspect.currentframe()
+        # calframe = inspect.getouterframes(curframe, 2)
+        # if  calframe[1][3] != 'init_devices':
+        #     raise SyntaxError(f'add_device should be called only in init_device, called from {calframe[1][3]}')
         name = device.device_name
         try:
             drive_space = self.drive_space.get(name)
@@ -112,7 +111,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         ret = dict()
         for device in cls.DEVICE_LIST:
             try:
-                space = device.create_drive_space()
+                space = device.create_drive_space(*args, **kwargs)
                 ret.setdefault(device.device_name, space)
             except AttributeError:
                 pass
@@ -123,7 +122,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         ret = dict()
         for device in cls.DEVICE_LIST:
             try:
-                space = device.create_sense_space()
+                space = device.create_sense_space(*args, **kwargs)
                 ret.setdefault(device.device_name, space)
             except AttributeError:
                 pass

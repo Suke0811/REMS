@@ -6,6 +6,8 @@ from sim.device import BasicDeviceBase
 class DeviceBase(BasicDeviceBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.sense_space = None
+        self.drive_space = None
         self.config.on().set([True, True, True])
 
     def drive(self, inpt: DefDict, timestamp, *args, **kwargs):

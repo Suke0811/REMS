@@ -124,6 +124,7 @@ class DefDict:
                     k_seq.remove(prefix)
                     d._set_defs({SEPARATOR.join(k_seq): self.DEF[k]})
                     d._data[SEPARATOR.join(k_seq)] = self._data.get(k)
+
         return d
 
     def _add_prefixes(self, prefixes):
@@ -343,7 +344,7 @@ class DefDict:
                    # keys.append(k)
                     self._data[k] = [v]
                 elif isinstance(v, type) or v is Any:
-                    self._definition[k] = [dtype]
+                    self._definition[k] = [v]
                     keys.append(k)
                     self._data[k] = [0.0]
                 else:
@@ -422,8 +423,8 @@ class DefDict:
                 ret = d_type(value)
             except (TypeError, AttributeError):
                 ret = value
-            if not isinstance(ret, d_type):
-                raise TypeError(f'{ret} is not type of {d_type}')
+            # if not isinstance(ret, d_type):
+            #     raise TypeError(f'{ret} is not type of {d_type}')
         return ret    # Enforce type in the corresponding definition
 
     def _unit_type(self, dtype, value, vdef=None):
@@ -434,13 +435,13 @@ class DefDict:
     def bind(self, bind_rule, val=None):
         if val is None:
             val = self.dict()
-        self.set(bind_rule.bind(val))
+        self.set(bind_rule.map(val))
         return self
 
     def inv_bind(self, bind_rule, val=None):
         if val is None:
             val = self.dict()
-        self.set(bind_rule.inv_bind(val))
+        self.set(bind_rule.inv_map(val))
         return self
 
     def assert_data(self, data=None):
@@ -470,12 +471,19 @@ class DefDict:
         else:
             key_list.extend(self._to_key_list(keys))
 
-        key_list = map(str, key_list)
+        key_list = list(map(str, key_list))
         d = copy.deepcopy(self)
-        for k in self.DEF:
-            if k not in key_list:
-                d.remove(k)
-        return d    #DefDict
+        # for k in self.DEF:
+        #     if k not in key_list:
+        #         d.remove(k)
+        # return d    #DefDict
+
+        d.clear()
+        for k in key_list:
+            if k in self.keys():
+                d._set_defs({k: self.DEF[k]})
+                d._data[k] = self._data.get(k)
+        return d  # DefDict
 
     def remove(self, key):
         self._data.pop(key)
@@ -544,7 +552,7 @@ class DefDict:
     def clear(self):  # real signature unknown; restored from __doc__
         """ D.clear() -> None.  Remove all items from D. """
         self._data.clear()
-        self.DEF.clear()
+        self._definition.clear()
 
     def copy(self):  # real signature unknown; restored from __doc__
         """ D.copy() -> a shallow copy of D """

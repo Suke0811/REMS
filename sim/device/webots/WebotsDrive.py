@@ -5,6 +5,7 @@ from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
 
 
 class WebotsDrive(DriveBase):
+    device_name = 'Webots'
     def __init__(self, wb_robot):
         super().__init__()
 

@@ -12,6 +12,15 @@ JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_w0=float, jb_w1=float)
 WHEEEL_VEL = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
 
+def set_vel(o, t):
+    t.vel().set_positional(o)
+    t.pos().set([float('inf'), float('inf')])
+    return t
+
+rule_to_nested_vel = MapRule(['wh.l', 'wh.r'],
+            set_vel,
+            with_target=True)
+
 # Key mapping
 class KeyMapRule:
     def __init__(self):
@@ -45,6 +54,7 @@ class KeyMapRule:
         elif up: ret = (1, 1)
         elif down: ret = (-1, -1)
         return self.direct_drive(*ret)
+
 
 
 class DifferentialDriveDef(RobotDefBase):

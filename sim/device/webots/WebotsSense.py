@@ -5,6 +5,7 @@ from controller import Node
 from typing import Any
 
 class WebotsSense(SenseBase):
+    device_name = 'Webots'
     def __init__(self, wb_robot, timestep):
         super().__init__()
         self._robot = wb_robot

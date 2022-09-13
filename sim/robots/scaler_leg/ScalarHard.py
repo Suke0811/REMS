@@ -64,7 +64,7 @@ class ScalerHard(RobotBase):
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
-        motor = ray.get(self.dynamiexl_actor.get.remote('dynamixel', 'motors_outpt'))
+        motor = ray.get(self.dynamiexl_actor.get.remote('dynamixel', 'sense_space'))
         self.hard2frame = rule(motor.list_keys()[0:6],
                                lambda *vals: wrap_to_pi(np.array(vals) * self.DIR - self.OFFSET))
 
