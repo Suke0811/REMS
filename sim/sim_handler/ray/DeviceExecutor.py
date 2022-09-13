@@ -6,6 +6,7 @@ from sim.sim_handler.ray.RayWrapper import RayWrapper
 from time import perf_counter
 from sim.typing import DefDict
 import copy
+from sim.utils import tictoc
 from threading import Thread, Lock
 
 
@@ -56,6 +57,7 @@ class DeviceExecutor(DeviceBase):
         self.dev_info.t().set([perf_counter() for k in self.dev_info])
         while self.threading:   # if threading is false, then this job simply dies
             if perf_counter() >= next_time:
+                # st = perf_counter()
                 if self.if_time('drive'):
                     self.device.drive(self.dev_inpt, self.dev_timestep, block=False)
                 if self.if_time('sense'):
@@ -63,6 +65,7 @@ class DeviceExecutor(DeviceBase):
                 if self.if_time('observe_state'):
                     self.dev_state.update(self.device.observe_state(cache=True))
                 next_time += self.dev_step
+                # print(perf_counter()-st)
             time.sleep(self.dev_step/10)
 
     def drive(self, inpt, t, *args, **kwargs):

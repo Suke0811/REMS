@@ -1,6 +1,6 @@
 from sim.robot_def.webots import DifferentialDriveDef
 from sim.robot_def.webots.DifferentialDriveDef import rule_to_nested_vel
-from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
+from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType, Percent
 from sim.robots.differential_drive.CreateHard import CreateHard
 from sim.robots.differential_drive.DynabotHard import DynabotHard
 from sim.typing import MapRule, DefDict
@@ -45,13 +45,16 @@ DRIVE = {
     "Woodbot": bool,
 }
 
+inpt = {'wh.l': AngVel(drange=(-16, 16)), 'wh.r': AngVel(drange=(-16, 16))}
+# inpt = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
+
 
 class CreateDef(DifferentialDriveDef):
     def __init__(self, *args, **kwargs):
         super().__init__(radius=0.031, length=0.135878*2, *args, **kwargs)
 
     def define(self, *args, **kwargs):
-        super().define(joint_unit=AngVel(drange=(-16, 16)))
+        super().define(inpt, joint_unit=AngVel(drange=(-16, 16)))
         self.outpt.add_def(OUTPT).set_rule(out_hard)
         self.drive_space.add_def(DRIVE)
         self.sense_space.add_def(SENSOR)

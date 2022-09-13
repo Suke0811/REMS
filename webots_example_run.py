@@ -33,9 +33,9 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+#s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 s.add_robot(CreateDef, (CreateHard, 'COM7', 2),  AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
+#s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
 #s.add_robot(WoodbotDef, WoodbotHard)
 ##s.add_robot(EpuckDef, WebotsBinder)
 

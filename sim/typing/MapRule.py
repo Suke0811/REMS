@@ -1,5 +1,6 @@
 from sim.typing import DefDict
 from typing import Any
+from sim.utils import tictoc
 
 class MapRule:
     def __init__(self, origin, func=None, target=None, inv_func=None, with_target=False, to_list=False):
@@ -27,7 +28,6 @@ class MapRule:
 
     def inv_map(self, inv_origin, inv_target=None):
         return self._apply_map(self.target, inv_origin, self.inv_func, self.origin, inv_target)
-
 
     def _apply_map(self, origin, origin_data, func, target, target_data):
         # if self.target is not None and self.target != name:

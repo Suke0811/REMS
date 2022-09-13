@@ -12,7 +12,7 @@ class DynabotHard(RobotBase):
     DEVICE_LIST = [Dynamixel, ArucoDevice]
     def __init__(self, port, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run.DT = 0.01
+        self.run.DT = 0.05
         self.run.name = 'Hard'
         self.port = port
 

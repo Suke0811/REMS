@@ -1,3 +1,5 @@
+import time
+
 from sim.robots.RunConfig import RunConfig
 from sim.device.BasicDeviceBase import BasicDeviceBase
 from sim.robots.RobotDefBase import RobotDefBase
@@ -16,6 +18,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """init with a specific initial stat) """
         super().__init__(*args, **kwargs)
         self._t_minus_1 = 0.0       # delta t may not be a constant
+        self._t_real = None
         self.info = {}
         # Devices
         self.devices = []
@@ -92,8 +95,17 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         return self.state
 
     def clock(self, t):
-        self._t_minus_1 = t
-        return t + self.run.DT
+        if self.run.realtime:
+            if self._t_real is None:
+                self._t_real = time.perf_counter()
+                t += self.run.DT
+            else:
+                t += time.perf_counter() - self._t_real
+                self._t_real = time.perf_counter()
+        else:
+            self._t_minus_1 = t
+            t += self.run.DT
+        return t
 
     def open(self):
         [device.open() for device in self.devices]

@@ -9,7 +9,7 @@ class CreateHard(RobotBase):
     DEVICE_LIST = [Create2Device, ArucoDevice]
     def __init__(self, port, camera_id=6, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run.DT = 0.07
+        self.run.DT = 0.1
         self.run.name = 'Hard'
         self.port = port
         self.camera_id = camera_id

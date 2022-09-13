@@ -10,6 +10,7 @@ MOTOR_PARAM = dict(pos=Ang(default=float('inf')), vel=AngVel, acc=AngAcc, on=boo
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
                 jb_y0=float, jb_y1=float,
                 jb_w0=float, jb_w1=float)
+
 WHEEEL_VEL = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
 
 def set_vel(o, t):
@@ -27,7 +28,10 @@ class KeyMapRule:
         self.arrow = MapRule(
             ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, to_list=True)
         self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, to_list=True)
-        self.joy_direct = MapRule(['X', 'Y'], self.direct_drive, to_list=True)
+        self.joy_direct = MapRule(['X', 'Y'],
+                                  self.direct_drive,
+                                  {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},
+                                  to_list=True)
 
     def get_rules(self):
         return [self.arrow]
@@ -65,9 +69,9 @@ class DifferentialDriveDef(RobotDefBase):
         self.length = length
         self.rule = KeyMapRule()
 
-    def define(self, joint_unit, *args, **kwargs):
+    def define(self, inpt, joint_unit, *args, **kwargs):
         """Definitions of the robot"""
-        self.inpt.add_def(WHEEEL_VEL, rules=self.rule.get_rules())
+        self.inpt.add_def(inpt, rules=self.rule.arrow)
         self.state.add_def(POS_2D)
         self.joint_space.add_def({k: joint_unit for k in self.inpt.keys()}) # same definitino as input but with unit specified
         self.task_space = None
