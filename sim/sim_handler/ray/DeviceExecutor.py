@@ -10,18 +10,20 @@ from threading import Thread, Lock
 
 
 class DeviceExecutor(DeviceBase):
-    def __init__(self, device: DeviceBase, *args, **kwargs):
+    def __init__(self, device, *args, **kwargs):
         self._inpt = None
         self._state = None
         self._outpt = None
         self._timestep = 0.0
 
-        self.threading = False
+
         if device.to_thread == device.TO_PROCESS:
             device = RayWrapper(device, name=device.device_name)
             self.threading = True
         elif device.to_thread == device.TO_THREAD or device.to_thread == True:
             self.threading = True
+        else:
+            self.threading = False
         self.device = device
 
         dev_info = dict(on=bool, t=float, step=float)
@@ -44,27 +46,29 @@ class DeviceExecutor(DeviceBase):
     def open(self, *args, **kwargs):
         self.device.open()
 
+
     def close(self, *args, **kwargs):
+        self.threading = False
         self.device.close()
 
     def start(self):
-        st = perf_counter()
+        next_time = perf_counter()
         self.dev_info.t().set([perf_counter() for k in self.dev_info])
         while self.threading:   # if threading is false, then this job simply dies
-            if perf_counter() >= st + self.dev_step:
+            if perf_counter() >= next_time:
                 if self.if_time('drive'):
                     self.device.drive(self.dev_inpt, self.dev_timestep, block=False)
                 if self.if_time('sense'):
                     self.dev_outpt.update(self.device.sense(cache=True))
                 if self.if_time('observe_state'):
                     self.dev_state.update(self.device.observe_state(cache=True))
-                st += self.dev_step
+                next_time += self.dev_step
             time.sleep(self.dev_step/10)
 
     def drive(self, inpt, t, *args, **kwargs):
         if self.dev_info.get('drive').get('on'):
             if self.threading:
-                self.inpt.update(inpt)
+                self.dev_inpt.update(inpt)
                 self.timestep = t
             else:
                 self.device.drive(inpt, t)
@@ -88,7 +92,7 @@ class DeviceExecutor(DeviceBase):
         t = self.dev_info.get(name).get('t')
         step = self.dev_info.get(name).get('step')
         if on and (perf_counter() >= t + step):
-            self.dev_info.get(name).t().set(t+step)
+            self.dev_info.get(name).set({'t': t+step})
             return True
         return False
 
@@ -127,3 +131,13 @@ class DeviceExecutor(DeviceBase):
     @timestep.setter
     def timestep(self, val):
         self.dev_timestep = val
+
+if __name__ == '__main__':
+    from sim.device.iRobot.Create2Device import Create2Device
+    from concurrent.futures import ThreadPoolExecutor
+
+    d = DeviceExecutor(Create2Device('COM7'))
+    d.init(DefDict(),DefDict(),DefDict())
+    d.open()
+    d.start()
+    d.close()

@@ -1,4 +1,5 @@
 import numpy as np
+from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
 
 from sim.robots import RobotBase
 from sim.device.webots.WebotsDrive import WebotsDrive
@@ -8,10 +9,10 @@ from controller import Supervisor, Robot
 from scipy.spatial.transform import Rotation as R
 import os
 
-WEBOTS_POS = dict(x=float, y=float, z=float)
-WEBOTS_ROT = dict(th_x=float, th_y=float, th_z=float)
-WEBOTS_POS_VEL = dict(d_x=float, d_y=float, d_z=float)
-WEBOTS_ROT_VEL = dict(d_th_x=float, d_th_y=float, d_th_z=float)
+WEBOTS_POS = dict(x=Pos, y=Pos, z=Pos)
+WEBOTS_ROT = dict(th_x=Ang, th_y=Ang, th_z=Ang)
+WEBOTS_POS_VEL = dict(d_x=Vel, d_y=Vel, d_z=Vel)
+WEBOTS_ROT_VEL = dict(d_th_x=AngVel, d_th_y=AngVel, d_th_z=AngVel)
 
 WEBOTS_MOTOR = dict()
 
@@ -29,7 +30,6 @@ class WebotsBinder(RobotBase):
         os.environ['WEBOTS_ROBOT_NAME'] = self.name
         self._robot = Supervisor()
         self._robot_node = self._robot.getFromDef(self.name)
-        print(self._robot.getName())
         if self._robot_node is None:
             self._robot_node = self._robot.getSelf()
             if self._robot_node is None:
@@ -49,7 +49,7 @@ class WebotsBinder(RobotBase):
         if state is not None:
             self.wb_state.set(state)
             self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
-            #self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
+            self._rotation_field.setSFRotation([0, 1, 0, self.wb_state.get('th_z')])
             self._robot_node.setVelocity(self.wb_state.filter((WEBOTS_POS_VEL, WEBOTS_ROT_VEL)).list())
         self._robot_node.resetPhysics()  # reset physics
         self.clock(0)
@@ -62,7 +62,8 @@ class WebotsBinder(RobotBase):
         euler = r.as_euler('xyz')  # change R to euler
         vel = self._robot_node.getVelocity()  # get velocity, 1 by 6
         state = np.concatenate([pos, euler, vel])
-        self.state.set(state)
+        self.wb_state.set(state)
+        self.state.set(self.wb_state)
         return self.state
 
 

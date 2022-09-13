@@ -296,8 +296,8 @@ class ArucoHelper:
 
 if __name__ == "__main__":
     # camera id could be 1 if there is another one
-    a = ArucoHelper(camera_id=6)
+    a = ArucoHelper(camera_id=2)
     # init_camera tries to read calibration data
     a.init_camera()
     #a.calibrate(0.02)
-    a.run([3])
+    a.run([3,2 ,1])

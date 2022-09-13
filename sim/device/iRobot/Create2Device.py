@@ -29,15 +29,14 @@ sensor_def = dict(bumps_wheeldrops=int,
 
 
 class Create2Device(DriveBase, SenseBase):
-    device_name = 'Create2'
+    device_name = 'Create2Device'
 
     def __init__(self, port, safety=False, *args, **keyword):
         super().__init__(*args, **keyword)
         self.config.on().set([True, True, False])
+        self.to_thread = self.TO_THREAD
         self.port = port
         self.safety = safety
-        self.drive_space = DefDict(dict(wh_r=float, wh_l=float))
-        self.sense_sapce = DefDict(dict(t=float))
 
     def open(self, *args, **kwargs):
         self.create = Create2(self.port)
@@ -58,19 +57,16 @@ class Create2Device(DriveBase, SenseBase):
         self.create.close()
 
     def drive(self, inpt, timestamp, *args, **kwargs):
-        self.drive_space.update(inpt.vel().list())
-        self.drive_space *= 10
-        #print(self.drive_space)
-        l, r = (int(i) for i in self.drive_space.list())
+        self.drive_space.update(inpt)
+        l, r = self.drive_space.list()
         self.create.drive_direct(r, l)
 
     def sense(self, *args, **kwargs):
-        return self.sense_sapce
+        #return self.sense_space
+        #return self.sense_space
         vals = self.create.get_sensors()
-        self.sense_sapce.set(vals)
-        return self.sense_sapce
-
-
+        self.sense_space.set(vals)
+        return self.sense_space
 
     @classmethod
     def create_drive_space(cls, *args, **kwargs):

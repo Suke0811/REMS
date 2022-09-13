@@ -89,6 +89,10 @@ class Simulation:
     def init(self):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
+            futs.append(robot_actor.init_devices(block=False))
+        done = ray.get(futs)
+
+        for inpt, robot, robot_actor, outputs in self._robots:
             futs.append(robot_actor.init(block=False))
         done = ray.get(futs)
 

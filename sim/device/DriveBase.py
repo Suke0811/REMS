@@ -4,7 +4,6 @@ from sim.typing import DefDict
 class DriveBase(BasicDeviceBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.drive_space = None
         self.config.on().set([True, False, False])
 
     def drive(self, inpt, timestamp, *args, **kwargs):

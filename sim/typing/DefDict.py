@@ -226,18 +226,38 @@ class DefDict:
             self._list2dict([ndata])
         return self
 
+    def set_positional(self, ndata):
+        if isinstance(ndata, DefDict):
+            ndata = self._positional_rule(ndata, self)
+        elif isinstance(ndata, dict):
+            ndata = list(ndata.values())
+        return self.set(ndata)
+
+    @staticmethod
+    def _positional_rule(origin, target):
+        length = min([len(origin), len(target)])
+        count = 0
+
+        new_def = {}
+        values = []
+        for k_o, k_t in zip(origin.keys(), target.keys()):
+            if count > length:
+                break
+            new_def[k_t] = origin._definition[k_o][0]
+            values.append(origin._data[k_o][0])
+        o = DefDict(new_def).update(values)
+        return target.set(o)
+
     def _apply_rules(self, data):
         ret = None
         if isinstance(data, dict) or isinstance(data, DefDict):
             for rule in self.rules:
-                try: origin = rule.origin
-                except AttributeError: origin = rule.bind_from
+                origin = rule.origin
                 if origin is None:
                     continue
                 keys = origin.list_keys()
                 if all(elem in list(data.keys()) for elem in keys):
-                    try: ret = rule.map(data)
-                    except AttributeError: ret = rule.bind(data)
+                    ret = rule.map(origin=data, target=self)
                     if ret is not None:
                         break
         return ret
@@ -620,7 +640,7 @@ class DefDict:
 ##############################################################
     # magic methods
     def __len__(self):
-        return len(d._data)
+        return len(self._data)
 
     def __repr__(self):
         return {k: v[0].__str__() for k, v in self._data.items()}.__str__()

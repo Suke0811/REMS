@@ -1,4 +1,4 @@
-from sim.typing import DefDict, BindRule
+from sim.typing import DefDict, MapRule
 from sim.robots import RobotDefBase
 from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, Percent
 import numpy as np
@@ -15,10 +15,10 @@ WHEEEL_VEL = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
 # Key mapping
 class KeyMapRule:
     def __init__(self):
-        self.arrow = BindRule(
-            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive)
-        self.direct = BindRule(['q', 'e', 'a', 'd'], self.direct_drive)
-        self.joy_direct = BindRule(['X', 'Y'], self.direct_drive)
+        self.arrow = MapRule(
+            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, to_list=True)
+        self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, to_list=True)
+        self.joy_direct = MapRule(['X', 'Y'], self.direct_drive, to_list=True)
 
     def get_rules(self):
         return [self.arrow]
@@ -26,7 +26,7 @@ class KeyMapRule:
     def direct_drive(self, l, r, l_b=None, r_b=None):
         if l_b: l*=-1
         elif r_b: r*=-1
-        return l, r
+        return 100*l, 100*r
 
     def joystick_drive(self):
         pass

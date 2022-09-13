@@ -7,7 +7,7 @@ from sim.Config import SimConfig
 from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef
 from sim.robot_def.WoodbotDef import WoodbotDef
 from sim.device.webots.WebotsBinder import WebotsBinder
-from sim.robots.differential_drive.DynamixelbotHard import DynamixelbotHard
+from sim.robots.differential_drive.DynabotHard import DynamixelbotHard
 from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.robots.differential_drive.CreateHard import CreateHard
 
@@ -33,8 +33,8 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-#s.add_robot(CreateDef, (CreateHard, 'COM7', 2),  AnimationOutput('video/test'+time_str()+'.gif'))
+#s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(CreateDef, (CreateHard, 'COM7', 2),  AnimationOutput('video/test'+time_str()+'.gif'))
 #s.add_robot(WoodbotDef, WoodbotHard)
 ##s.add_robot(EpuckDef, WebotsBinder)
 

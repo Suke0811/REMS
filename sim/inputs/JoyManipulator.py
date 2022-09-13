@@ -1,7 +1,7 @@
 import time
 
 from sim.inputs.JoystickInput import JoystickInput
-from sim.typing import DefDict, BindRule
+from sim.typing import DefDict, MapRule
 from sim.typing.definitions import *
 
 
@@ -12,19 +12,19 @@ class JoyManipulator(JoystickInput):
         self.prev_time = 0.0
         self.vel = [0.1, 0.1, -0.05]
         self.home = DefDict((POS_3D, VEL_POS_3D)).set(dict(x=0.05, z=-.3))
-        xy_stick = BindRule(['X', 'Y'],
+        xy_stick = MapRule(['X', 'Y'],
                            lambda *args: [x*v for x, v in zip(args, self.vel[0:len(args)])],
-                           ['d_y', 'd_x'])
+                           ['d_y', 'd_x'], to_list=True)
         # if None is returned in func, it has no effect
-        a_button = BindRule('A', lambda a: self.home if a else None, (POS_3D, VEL_POS_3D))
-        c_stick = BindRule('C_Stick_X', lambda z: self.vel[2]*z, 'd_z')
+        a_button = MapRule('A', lambda a: self.home if a else None, (POS_3D, VEL_POS_3D), to_list=True)
+        c_stick = MapRule('C_Stick_X', lambda z: self.vel[2]*z, 'd_z', to_list=True)
         #twist = BindRule('Twist', lambda twist )
         self.sum_rules = [xy_stick, c_stick]
         self.equal_rule = [a_button]
         
-        self.calc_pos = BindRule(VEL_POS_3D,
+        self.calc_pos = MapRule(VEL_POS_3D,
                             lambda *args: [self.dt*x for x in args],
-                            POS_3D)
+                            POS_3D, to_list=True)
 
     def init(self, input_def=None):
         super().init(input_def)
@@ -42,12 +42,12 @@ class JoyManipulator(JoystickInput):
             self.prev_time = timestamp
 
         for r in self.sum_rules:
-            self.input_def += r.bind(joy_inpt)
+            self.input_def += r.map(joy_inpt)
 
-        self.input_def += self.calc_pos.bind(self.input_def)
+        self.input_def += self.calc_pos.map(self.input_def)
 
         for r in self.equal_rule:
-            self.input_def.set(r.bind(joy_inpt))
+            self.input_def.set(r.map(joy_inpt))
 
         if inpt is None:
             inpt = self.input_def.clone()

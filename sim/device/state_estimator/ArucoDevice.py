@@ -15,9 +15,10 @@ class ArucoDevice(ObserveStateBaseBasic):
         self.track_id = track_id
         self.camera_id = camera_id
         self.vel = [0.0, 0.0, 0.0]
-        self.to_thread = True
+        self.to_thread = False
         self.video_name = video_name
         self.dt = dt
+        self.aruco_state = DefDict(ARUCO_STATE)
 
     def observe_state(self, *args, **kwargs):
         self._track_makers()
@@ -28,7 +29,8 @@ class ArucoDevice(ObserveStateBaseBasic):
         track_index = 0
         if not frames:
             return
-        self.state.set(frames[track_index])
+        self.aruco_state.update(frames[track_index])
+        self.state.update(self.aruco_state)
         # p_s = np.array(self.state[0:3])
         # dth_notUpdated = self.vel[2]
         # self.vel = list((s-p_s)/self.DT)

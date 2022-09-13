@@ -1,5 +1,5 @@
 from sim.robots.RobotDefBase import RobotDefBase
-from sim.typing import DefDict, BindRule
+from sim.typing import DefDict, MapRule
 from sim.typing.definitions import *
 from sim.robots.scaler.kinematics.SCALAR_kinematics import ScalerKinematics
 from sim.robots.scaler import ScalerMode, ModeBase
@@ -11,10 +11,10 @@ class ScalerDef(RobotDefBase):
         self.kin = ScalerKinematics()
         self.unit = 1000.0
         # a rule to convert meter to mm, and inverse of it
-        self.rule = BindRule(bind_from=POS_3D,
-                             bind_func=lambda *xs: [x / self.unit for x in xs],
-                             bind_to=POS_3D,
-                             inv_bind_func=lambda *xs: [x * self.unit for x in xs])
+        self.rule = MapRule(origin=POS_3D,
+                             func=lambda *xs: [x / self.unit for x in xs],
+                             target=POS_3D,
+                             inv_func=lambda *xs: [x * self.unit for x in xs], to_list=True)
 
     def define(self, *args, **kwargs):
         # input is 2D pos

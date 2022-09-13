@@ -1,5 +1,5 @@
 from sim.robot_def.webots import DifferentialDriveDef
-from sim.typing import BindRule
+from sim.typing import MapRule
 
 SENSOR = {
     "Sick LMS 291": list,
@@ -24,7 +24,7 @@ class Pioneer3AtDef(DifferentialDriveDef):
         self.name = 'Pioneer 3-AT'
         self.joint_space.clear_rules() # default rule is 1 to 1 mapping
         self.joint_space.add_rule(
-            BindRule(self.inpt.list_keys(),
+            MapRule(self.inpt.list_keys(),
                      lambda *v: [v[0], v[1], v[0], v[1]],
-                     )) # new rule is 1 to 2
+                     ), to_list=True) # new rule is 1 to 2
 
