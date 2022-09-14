@@ -81,7 +81,7 @@ class DifferentialDriveDef(RobotDefBase):
 
 
     def jb(self, theta: DefDict, *args, **kwargs):
-        th = theta.get('theta')
+        th = theta.get('th_z')
         r = self.radius
         l = self.length
         jacobian = np.array([r*np.cos(th), r*np.cos(th),

@@ -4,7 +4,7 @@ from sim.inputs import KeyboardInput, FileCsvInput, FileInput
 from sim.outputs import FileCsvOutput, AnimationOutput, FileOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
-from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef
+from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotBaseDef
 from sim.robot_def.WoodbotDef import WoodbotDef
 from sim.device.webots.WebotsBinder import WebotsBinder
 from sim.robots.differential_drive.DynabotHard import DynabotHard
@@ -16,7 +16,7 @@ from sim.robots.ArucoBot import ArucoBot
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=False)    # Create instance of Robot testing system
+s = Simulation(debug_mode=True)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -37,11 +37,13 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 
 # aruco = s.add_robot(None, (ArucoBot, [3, 2, 1]))
 
-s.add_robot(MooseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(Pioneer3DxDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+#s.add_robot(MooseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+# s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+# s.add_robot(Pioneer3DxDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+# s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+# s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+
+s.add_robot(YoubotBaseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 
 
 

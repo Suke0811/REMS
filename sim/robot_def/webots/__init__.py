@@ -4,3 +4,6 @@ from .EpuckDef import EpuckDef
 from .Pioneer3DxDef import Pioneer3DxDef
 from .Pioneer3AtDef import Pioneer3AtDef
 from .MooseDef import MooseDef
+from .YoubotBaseDef import YoubotBaseDef
+from .YoubotArmDef import YoubotArmDef
+from .YoubotDef import YoubotDef
