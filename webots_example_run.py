@@ -16,7 +16,7 @@ from sim.robots.ArucoBot import ArucoBot
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=True)    # Create instance of Robot testing system
+s = Simulation(debug_mode=False)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -38,6 +38,13 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # aruco = s.add_robot(None, (ArucoBot, [3, 2, 1]))
 
 s.add_robot(MooseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(Pioneer3DxDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+
+
+
 
 # r = s.add_robot(EpuckDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))

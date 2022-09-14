@@ -94,6 +94,7 @@ class Simulation:
         for inpt, robot, robot_actor, outputs in self._robots:
             futs.append(robot_actor.init(block=False))
         done = ray.get(futs)
+        time.sleep(1)
 
     def open(self):
         futs = []
@@ -104,11 +105,17 @@ class Simulation:
     def reset(self, t):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
+            state = None
             if inpt is None:
-                robot.state.set(self._input_system.get_inputs(timestamp=t, prefix='state'))
+                ret = self._input_system.get_inputs(timestamp=t, prefix='state')
+                if ret is not None:
+                    state = robot.state.set(ret)
             else:
-                robot.state.set(inpt.get_inputs(timestamp=t, prefix='state'))
-            futs.append(robot_actor.reset(robot.state, t, block=False))
+                ret = inpt.get_inputs(timestamp=t, prefix='state')
+                if ret is not None:
+                    state = robot.state.set(ret)
+                robot.state.set()
+            futs.append(robot_actor.reset(state, t, block=False))
         done = ray.get(futs)
         time.sleep(1)
 

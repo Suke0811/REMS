@@ -24,9 +24,13 @@ class WebotsSense(SenseBase):
         self.enable(enable=False)
 
     def enable(self, enable, *args, **kwargs):
-        for sensor in self._sensors:
+        for k, sensor in self._sensors.items():
             if enable:
-                sensor.enable(self._timestep)
+                try:
+                    sensor.enable(self._timestep)
+                except:
+                    self._sensors.remove(k)
+                    continue
                 if sensor.getNodeType == Node.LIDAR:
                     sensor.enablePointCloud()
             else:

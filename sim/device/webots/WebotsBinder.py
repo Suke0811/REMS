@@ -28,6 +28,7 @@ class WebotsBinder(RobotBase):
     def init(self, *args, **kwargs):
         # init motors and sensors
         os.environ['WEBOTS_CONTROLLER_URL'] = self.name
+        os.environ['WEBOTS_ROBOT_NAME'] = self.name
         self._robot = Supervisor()
         self._robot_node = self._robot.getFromDef(self.name)
         if self._robot_node is None:

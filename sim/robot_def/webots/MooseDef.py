@@ -14,7 +14,7 @@ OUTPT = {
 
 ID_LISTs = [2, 1]
 
-SENSOR = {"Webots": OUTPT,
+SENSOR = {"Webots": {},
     "Create2Device": CreateHard.sense_space_def().get("Create2Device"),
     "Dynamixel": DynabotHard.sense_space_def(IDs=ID_LISTs).get("Dynamixel"),
     "Woodbot": WoodbotHard.sense_space_def()

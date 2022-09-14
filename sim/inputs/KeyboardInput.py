@@ -12,6 +12,8 @@ class KeyboardInput(InputBase):
         self._start_capture_key()   # set listener
 
     def get_inputs(self, timestamp = None, prefix='inpt', *args, **kwargs):
+        if prefix is 'state':
+            return
         return self._inputs
 
 
