@@ -26,8 +26,8 @@ rule_to_nested_vel = MapRule(['wh.l', 'wh.r'],
 class KeyMapRule:
     def __init__(self):
         self.arrow = MapRule(
-            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, to_list=True)
-        self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, to_list=True)
+            ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
+        self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
         self.joy_direct = MapRule(['X', 'Y'],
                                   self.direct_drive,
                                   {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},
@@ -60,7 +60,6 @@ class KeyMapRule:
         return self.direct_drive(*ret)
 
 
-
 class DifferentialDriveDef(RobotDefBase):
     def __init__(self, radius=0.01, length=0.1, *args, **kwargs):
         """init with a specific initial state (optional) """
@@ -69,11 +68,13 @@ class DifferentialDriveDef(RobotDefBase):
         self.length = length
         self.rule = KeyMapRule()
 
-    def define(self, inpt, joint_unit, *args, **kwargs):
+    def define(self, inpt_unit, drive_space, sense_space, *args, **kwargs):
         """Definitions of the robot"""
-        self.inpt.add_def(inpt, rules=self.rule.arrow)
+        self.inpt.add_def({k: inpt_unit for k in WHEEEL_VEL.keys()},  rules=self.rule.arrow) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
-        self.joint_space.add_def({k: joint_unit for k in self.inpt.keys()}) # same definitino as input but with unit specified
+        self.drive_space.add_def(drive_space)
+        self.sense_space.add_def(sense_space)
+        self.joint_space = None
         self.task_space = None
         self.jacobian.add_def(JACOB_2D, shape=(3, 2))
         super().define()

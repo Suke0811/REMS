@@ -47,8 +47,6 @@ DRIVE = {
     "Woodbot": WoodbotHard.create_drive_space(),
 }
 
-inpt = {'wh.l': AngVel(drange=(-16, 16)), 'wh.r': AngVel(drange=(-16, 16))}
-#inpt = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
 
 
 class CreateDef(DifferentialDriveDef):
@@ -56,8 +54,6 @@ class CreateDef(DifferentialDriveDef):
         super().__init__(radius=0.031, length=0.135878*2, *args, **kwargs)
 
     def define(self, *args, **kwargs):
-        super().define(inpt, joint_unit=AngVel(drange=(-16, 16)))
-        self.outpt.add_def(OUTPT).set_rule(out_hard)
-        self.drive_space.add_def(DRIVE)
-        self.sense_space.add_def(SENSOR)
+        super().define(inpt_unit=AngVel(drange=(-16, 16)), drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
+        self.outpt.set_rule(out_hard)
         self.name = 'Create'
