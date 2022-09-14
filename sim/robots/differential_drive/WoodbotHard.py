@@ -9,11 +9,18 @@ from sim.typing import DefDict
 TARGET = "ws://192.168.4.1:81"
 
 
-class Fs90r(Percent):
+class Fs90r(AngVel):
+    default_unit = 'rad/s'
+    default_dtype = float
+    default_drange = (-6.8, 6.8)
+
+class Fs90rSend(Percent):
     default_unit = 'percent'
     default_dtype = float
     # data scale. (-1, 1) -> -100% to 100%. (0, 1) -> 0% to 100%
     defualt_drange_scale = (-1, 1)
+
+
 
 
 class WoodbotHard(RobotBase):
@@ -24,7 +31,9 @@ class WoodbotHard(RobotBase):
         self.to_thread = False
 
     def init(self, *args, **kwargs):
-        self.dev_inpt = DefDict(dict(wh_l=Fs90r, wh_r=Fs90r))
+        super().init()
+        self.dev_inpt = self.create_drive_space()
+        self.drive_send = DefDict({'wh.l': Fs90rSend, 'wh.r': Fs90rSend})
         self.ws = websocket.WebSocket()
         self.open()
 
@@ -42,8 +51,8 @@ class WoodbotHard(RobotBase):
 
     def drive(self, inpt, timestamp, *args, **kwargs):
         self.dev_inpt.set(inpt)
-        print(inpt,  self.dev_inpt)
-        cmd = [126] + [int(90 * x + 90) for x in self.dev_inpt.values()]
+        self.drive_send.set(self.dev_inpt)
+        cmd = [126] + [int(90 * -x/100 + 90) for x in self.drive_send.values()]
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
     def sense(self, *args, **kwargs):
@@ -53,23 +62,10 @@ class WoodbotHard(RobotBase):
         self.outpt.update([float(x) for x in sensors])
         return self.outpt
 
+    @staticmethod
+    def create_drive_space(*args, **kwargs):
+        return DefDict({'wh.l': Fs90r, 'wh.r': Fs90r})
 
-if __name__ == '__main__':
-    class WoodbotVel(AngVel):
-        default_unit = 'rad/s'
-        default_value = None
-        default_dtype = float
-        default_drange = (-7, 7)
-        default_drange_map = None
-        # data scale. (-1, 1) -> -100% to 100%. (0, 1) -> 0% to 100%
-        defualt_drange_scale = (-1, 1)
-    DRIVE = {
-        "motor_l": WoodbotVel,
-        "motor_r": WoodbotVel
-    }
-    d = DefDict(DRIVE)
-    b = DefDict(dict(motor_l=Fs90r, motor_r=Fs90r))
-    d.set([5,10])
-    b.set(d)
-    d.set(b)
-    pass
+    @staticmethod
+    def create_sense_space(*args, **kwargs):
+        return DefDict(dict(lidar_f = float, lidar_r = float,mag_x = float, mag_y = float, gyro_z = float))

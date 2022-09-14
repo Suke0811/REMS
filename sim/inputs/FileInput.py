@@ -27,14 +27,14 @@ class FileInput(InputBase):
         self.inpt = None
         self.time_index = 0
 
-    def get_inputs(self, inpt: DefDict, timestamp=None, prefix='inpt'):
+    def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
         """ """
         data = self._find_input_by_timestamp(timestamp - self.timestamp_offset)
         if prefix in data.prefixes:
-            inpt.set(data.__dict__[prefix]())
+            inpt_ret = data.__dict__[prefix]()
         else:
-            inpt.set(data)
-        return inpt
+            inpt_ret = data
+        return inpt_ret
 
     def if_exit(self):
         return self._quit

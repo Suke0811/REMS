@@ -3,6 +3,7 @@ from sim.robot_def.webots.DifferentialDriveDef import rule_to_nested_vel
 from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType, Percent
 from sim.robots.differential_drive.CreateHard import CreateHard
 from sim.robots.differential_drive.DynabotHard import DynabotHard
+from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.typing import MapRule, DefDict
 
 # sensor names and definitoins
@@ -22,6 +23,7 @@ SENSOR = {"Webots": {
 },
     "Create2Device": CreateHard.sense_space_def().get("Create2Device"),
     "Dynamixel": DynabotHard.sense_space_def(IDs=ID_LISTs).get("Dynamixel"),
+    "Woodbot": WoodbotHard.sense_space_def()
 }
 
 out_hard = [MapRule(['light_bumper_left', 'light_bumper_right'],
@@ -42,11 +44,11 @@ DRIVE = {
     "Webots": wb_drive.set_rule(rule_to_nested_vel),
     "Create2Device": CreateHard.drive_space_def().get("Create2Device"),
     "Dynamixel": DynabotHard.drive_space_def(IDs=ID_LISTs).get('Dynamixel').set_rule(rule_to_nested_vel),
-    "Woodbot": bool,
+    "Woodbot": WoodbotHard.create_drive_space(),
 }
 
 inpt = {'wh.l': AngVel(drange=(-16, 16)), 'wh.r': AngVel(drange=(-16, 16))}
-# inpt = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
+#inpt = {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))}
 
 
 class CreateDef(DifferentialDriveDef):

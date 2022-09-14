@@ -5,5 +5,6 @@ class RunConfig:
         self.DT = DT
         self.realtime = realtime
         self.to_thread = to_thread
+        self.supress_info = False
         self.block = True
         self.name = 'robot'

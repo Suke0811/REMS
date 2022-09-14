@@ -3,6 +3,7 @@ import time
 from sim.device import DriveBase, SenseBase
 from sim.typing import DefDict
 from sim.typing.std.StdUnit import Count, Pos, Vel
+from sim.utils import tictoc
 
 class CountVel(Count):
     default_unit = 'count'

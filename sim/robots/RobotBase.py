@@ -31,6 +31,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         # calframe = inspect.getouterframes(curframe, 2)
         # if  calframe[1][3] != 'init_devices':
         #     raise SyntaxError(f'add_device should be called only in init_device, called from {calframe[1][3]}')
+       # if isinstance()
         name = device.device_name
         try:
             drive_space = self.drive_space.get(name)

@@ -135,6 +135,28 @@ class DeviceExecutor(DeviceBase):
     def timestep(self, val):
         self.dev_timestep = val
 
+
+class DeviceHock(DeviceBase):
+    device_name = 'Hock'
+    def __init__(self, hock, drive=False, sense=False, observe_state=False):
+        self.hock = hock
+        self.config.on().set([drive, sense, observe_state])
+        self.to_thread = self.TO_THREAD
+
+    def drive(self, inpt: DefDict, timestamp, *args, **kwargs):
+        pass
+
+    def sense(self, *args, **kwargs):
+        pass
+
+    def observe_state(self, *args, **kwargs):
+        pass
+
+
+
+
+
+
 if __name__ == '__main__':
     from sim.device.iRobot.Create2Device import Create2Device
     from concurrent.futures import ThreadPoolExecutor

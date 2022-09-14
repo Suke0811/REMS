@@ -10,7 +10,8 @@ from sim.device.webots.WebotsBinder import WebotsBinder
 from sim.robots.differential_drive.DynabotHard import DynabotHard
 from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.robots.differential_drive.CreateHard import CreateHard
-
+from sim.device.state_estimator.ArucoDevice import ShareAruco
+from sim.robots.ArucoBot import ArucoBot
 
 
 logging.basicConfig(level=logging.INFO)
@@ -33,9 +34,20 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
-#s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
-s.add_robot(CreateDef, (CreateHard, 'COM7', 2),  AnimationOutput('video/test'+time_str()+'.gif'))
-#s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
+
+aruco = s.add_robot(None, (ArucoBot, [3, 2, 1]))
+
+s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+
+r = s.add_robot(CreateDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
+r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
+
+r = s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
+r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=2))
+
+r = s.add_robot(CreateDef, WoodbotHard,  AnimationOutput('video/test'+time_str()+'.gif'))
+r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=1))
+
 #s.add_robot(WoodbotDef, WoodbotHard)
 ##s.add_robot(EpuckDef, WebotsBinder)
 

@@ -14,11 +14,17 @@ def bind_robot(robot_def, bind):
     # if they are tuple, first one is the robot and the rest is arguments
     robot_def_args = tuple()
     bind_args = tuple()
+
     if isinstance(robot_def, tuple):
         robot_def, *robot_def_args = robot_def
 
     if isinstance(bind, tuple):
         bind, *bind_args = bind
+
+    if robot_def is None: # if definition is none, then initiate without definition
+        robot = bind(*bind_args)
+        robot.define()
+        return robot
 
     class RobotDef(robot_def, bind):
         def __init__(self):

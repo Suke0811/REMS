@@ -190,12 +190,12 @@ class ArucoHelper:
 
     def get_frames(self, track_ids=None):
         """Track multiple tags at a time, Returns list of frames in the world frame"""
-        ret_frames = []
+        ret_frames = {}
         if track_ids is not None:
             self.track()
             for id in track_ids:
                 if id in self.frames.keys() and ARUCO.TAG_ARENA_ID[0] in self.frames.keys():
-                    ret_frames.append((self.frames[id]) + ARUCO.ARENA_ORIGIN_OFFSET)
+                    ret_frames[str(id)] = (self.frames[id]) + ARUCO.ARENA_ORIGIN_OFFSET
                 else:
                     self.frames[id] = (ARUCO.FRAME_INIT)
         return ret_frames
@@ -296,7 +296,7 @@ class ArucoHelper:
 
 if __name__ == "__main__":
     # camera id could be 1 if there is another one
-    a = ArucoHelper(camera_id=2)
+    a = ArucoHelper(camera_id=0)
     # init_camera tries to read calibration data
     a.init_camera()
     #a.calibrate(0.02)

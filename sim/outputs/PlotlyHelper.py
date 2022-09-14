@@ -4,7 +4,7 @@ import numpy as np
 
 DEFAULT_MARGIN = 0.1
 FPS_LIMIT = 10
-SCALE = 40
+SCALE = 50
 
 class PlotlyHelper:
     def __init__(self):

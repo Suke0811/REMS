@@ -11,11 +11,9 @@ class KeyboardInput(InputBase):
         self._inputs = self._keys
         self._start_capture_key()   # set listener
 
-    def get_inputs(self, inpt_def: DefDict=None, timestamp = None, prefix='inpt'):
-        if inpt_def is None:
-            return self._inputs
-        inpt_def.set(self._inputs)
-        return inpt_def
+    def get_inputs(self, timestamp = None, prefix='inpt', *args, **kwargs):
+        return self._inputs
+
 
     def if_exit(self):
         return self._quit

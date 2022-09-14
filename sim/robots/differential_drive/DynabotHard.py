@@ -18,7 +18,6 @@ class DynabotHard(RobotBase):
 
     def init_devices(self):
         self.add_device(Dynamixel(ID_LISTs, device_port=self.port))
-       # self.add_device(ArucoDevice(track_id=2, camera_id=2, video_name=f'video/aruco_{time_str()}.avi',dt=self.run.DT))
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)

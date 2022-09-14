@@ -64,7 +64,6 @@ class Simulation:
         :param outputs: tuple of outputs (child of OutputSystem)
         :param inpt: InputSystem specific to the robot. Default to system wide Inputsystem
         """
-
         robot = bind_robot(robot_def, robot)
         run = robot.run
         self.realtime += run.realtime
@@ -106,9 +105,9 @@ class Simulation:
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                robot.state.set(self._input_system.get_inputs(robot.state, timestamp=t, prefix='state'))
+                robot.state.set(self._input_system.get_inputs(timestamp=t, prefix='state'))
             else:
-                robot.state.set(inpt.get_inputs(robot.state, timestamp=t, prefix='state'))
+                robot.state.set(inpt.get_inputs(timestamp=t, prefix='state'))
             futs.append(robot_actor.reset(robot.state, t, block=False))
         done = ray.get(futs)
         time.sleep(1)
@@ -160,16 +159,16 @@ class Simulation:
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                i = self._input_system.get_inputs(robot.inpt, timestamp=t)
+                i = self._input_system.get_inputs(timestamp=t)
             else:
-                i = inpt.get_inputs(robot.inpt, timestamp=t)
+                i = inpt.get_inputs(timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)
 
     def process(self, t):
         if self._processes:
 
             #if self._processes_refs:
-            # this wait takes 0.04sec?
+            # this wait takes 0.04sec? #set time out for ray.wait
                 #finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
                 #if finished:
                     #pass
@@ -182,9 +181,9 @@ class Simulation:
         self.get_ret()
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-                i = self._input_system.get_inputs(robot.inpt, timestamp=t)
+                i = self._input_system.get_inputs(timestamp=t)
             else:
-                i = inpt.get_inputs(robot.inpt, timestamp=t)
+                i = inpt.get_inputs(timestamp=t)
             #######
             self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
             self.futs_time.append(t)
