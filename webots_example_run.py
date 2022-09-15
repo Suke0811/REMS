@@ -4,7 +4,7 @@ from sim.inputs import KeyboardInput, FileCsvInput, FileInput
 from sim.outputs import FileCsvOutput, AnimationOutput, FileOutput
 from sim.utils import time_str
 from sim.Config import SimConfig
-from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef,YoubotBaseDef
+from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
 from sim.robot_def.WoodbotDef import WoodbotDef
 from sim.device.webots.WebotsBinder import WebotsBinder
 from sim.robots.differential_drive.DynabotHard import DynabotHard
@@ -43,7 +43,7 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 
-s.add_robot(YoubotArmDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
+s.add_robot(YoubotDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 
 
 
@@ -64,4 +64,3 @@ s.add_robot(YoubotArmDef, WebotsBinder, AnimationOutput('video/test'+time_str()+
 #s.add_robot(Pioneer3AtDef, WebotsBinder)
 
 s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
-

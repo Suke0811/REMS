@@ -64,18 +64,11 @@ class MecanumDriveDef(RobotDefBase):
 
     def define(self, arrow_units, inpt_unit=AngVel(drange=(-10, 10)), drive_space=None, sense_space=None, *args, **kwargs):
         """Definitions of the robot"""
-
         self.rule = KeyMapRule(arrow_units)
         self.inpt.add_def({k: u for k, u in zip(ARROW_VEL.keys(), arrow_units.values())},  rules=self.rule.arrow) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
-        if drive_space is not None:
-            self.drive_space.add_def(drive_space)
-        if sense_space is not None:
-            self.sense_space.add_def(sense_space)
         self.jacobian.add_def(JACOB_2D, shape=(3, 4))
-        self.joint_space = None
-        self.task_space = None
-        super().define()
+        RobotDefBase.define(self, drive_space, sense_space)
 
     # def drive(self, inpt, t, *args, **kwargs):
     #     inpt =

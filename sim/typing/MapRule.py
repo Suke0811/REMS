@@ -46,14 +46,15 @@ class MapRule:
 
         if target is None:
             if target_data is not None:
-
                 target = DefDict(target_data)
         else:
             if isinstance(target_data, DefDict) and self.inherit_units:
+                new_target_def = target.DEF
                 for k, t_def in target_data.DEF.items():
                     if k in target.keys():
                         if target._definition[k][0] is Any:
-                            target._definition[k] = [t_def]
+                            new_target_def[k] = t_def
+                target = DefDict(new_target_def)
 
         if func is None:
             if target is None:

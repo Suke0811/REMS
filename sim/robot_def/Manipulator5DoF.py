@@ -74,34 +74,15 @@ class KeyMapRule:
         return self.joint_space
 
 
-
 class Manipulator5DoF(RobotDefBase):
-    def __init__(self, radius=0.01, length=0.1, width=0.1, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """init with a specific initial state (optional) """
         RobotDefBase.__init__(self, *args, **kwargs)
-        self.radius = radius
-        self.length = length
-        self.width = width
 
     def define(self, joint_units, drive_space=None, sense_space=None, *args, **kwargs):
         """Definitions of the robot"""
         self.rule = KeyMapRule()
         self.inpt.add_def({k: DefDict(joint_units) for k in JOINT_SPACE.keys()},  rules=self.rule.arrow) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
-        if drive_space is not None:
-            self.drive_space.add_def(drive_space)
-        if sense_space is not None:
-            self.sense_space.add_def(sense_space)
-        self.joint_space = None
-        self.task_space = None
-        super().define()
 
-    # def drive(self, inpt, t, *args, **kwargs):
-    #     inpt =
-    #     super().drive(inpt, t, args, kwargs)
-
-
-    def to_joint(self, vel_2d):
-        jb = self.jb().ndarray()
-        u = np.transpose(jb) @ vel_2d.ndarray().reshape((3, 1))
-        return u.flatten()
+        RobotDefBase.define(self, drive_space, sense_space, *args, **kwargs)

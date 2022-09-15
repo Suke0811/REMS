@@ -22,8 +22,31 @@ class RobotDefBase:
             except AttributeError:
                 pass
 
-    def define(self, *args, **kwargs):
+    def define(self, drive_space = None, sense_space = None, *args, **kwargs):
         """Definitions of the robot"""
+        if drive_space is not None:
+            for k, v in drive_space.items():
+                try:
+                    current = self.drive_space[k]
+                except KeyError:
+                    self.drive_space.add_def({k:v})
+                    continue
+                if not isinstance(current, DefDict):
+                    current = DefDict(current)
+                current.add_def(v)
+                self.drive_space[k] = v
+        if sense_space is not None:
+            for k, v in sense_space.items():
+                try:
+                    current = self.sense_space[k]
+                except KeyError:
+                    self.sense_space.add_def({k:v})
+                    continue
+                if not isinstance(current, DefDict):
+                    current = DefDict(current)
+                current.add_def(v)
+                self.sense_space[k] = v
+
         self.defs = dict(inpt=self.inpt, state=self.state, outpt=self.outpt, info=self.info,
                          joint_space=self.joint_space, task_space=self.task_space, jacobian=self.jacobian)
         for name, d in self.defs.items():

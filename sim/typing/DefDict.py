@@ -41,8 +41,11 @@ class DefDict:
                 suf = self._set_defs(d, dtype, nested_def)
                 if suffixes is not False:
                     suff_add.extend(suf)
-                if isinstance(d, DefDict) and suffixes is not False:
-                    self._add_suffix(d.list_keys())
+                if isinstance(d, DefDict):
+                    if suffixes is not False:
+                        suff_add.extend(d.list_keys())
+                    if d.rules is not None:
+                        self.rules.extend(d.rules)
         else:
             suf = self._set_defs(definition, dtype, nested_def)
             if suffixes is not False:
@@ -200,18 +203,19 @@ class DefDict:
         self._name = val
 
     
-    def set(self, ndata):
+    def set(self, ndata, apply_rule=True):
         if ndata is None:
             return self
-        if self.rules is not None:
-            ret = self._apply_rules(ndata)
-            if ret is not None:
-                ndata = ret
-        if self.format_rule is not None:
-            try:
-                ndata = self.format_rule.inv_bind(ndata)
-            except:
-                pass
+        if apply_rule:
+            if self.rules is not None:
+                ret = self._apply_rules(ndata)
+                if ret is not None:
+                    ndata = ret
+            if self.format_rule is not None:
+                try:
+                    ndata = self.format_rule.inv_bind(ndata)
+                except:
+                    pass
         if isinstance(ndata, DefDict):
             self._from_defdict(ndata)
         elif isinstance(ndata, dict):
@@ -251,6 +255,7 @@ class DefDict:
 
     def _apply_rules(self, data):
         ret = None
+        ret_defdict = None
         if isinstance(data, dict) or isinstance(data, DefDict):
             for rule in self.rules:
                 origin = rule.origin
@@ -260,8 +265,10 @@ class DefDict:
                 if all(elem in list(data.keys()) for elem in keys):
                     ret = rule.map(origin=data, target=self)
                     if ret is not None:
-                        break
-        return ret
+                        self.set(ret, apply_rule=False)
+                        continue
+
+        return ret_defdict
 
     def set_rule(self, rule):
         if self.rules is None:
@@ -670,7 +677,11 @@ class DefDict:
             current = self
         if np.isscalar(other):  # if scalar, then add the value to all elements
             for k in current._data.keys():
-                current._data[k][0] = func(current._data[k][0], other)
+                try:
+                    ret = func(current._data[k][0], other)
+                except TypeError:
+                    ret = current._data[k][0]
+                current._data[k][0] = ret
         else:  # other wise element wise
             if not isinstance(other, DefDict):
                 # if not DefDict, create one assuming
@@ -682,8 +693,11 @@ class DefDict:
             # sum for corresponding keys
             for k, o in zip(current.filter(other_defdict.keys()).list_keys(),
                         other_defdict.filter(other_defdict.list_keys()).list()):
-
-                current._data[k][0] = current._enforce_type(current.DEF[k], func(current._data[k][0],  current._enforce_type(current.DEF[k], o, other_defdict.DEF[k])))
+                try:
+                    ret = func(current._data[k][0],  current._enforce_type(current.DEF[k], o, other_defdict.DEF[k]))
+                except TypeError:
+                    ret = current._data[k][0]
+                current._data[k][0] = current._enforce_type(current.DEF[k], ret)
         return current
 
     def __iter__(self):

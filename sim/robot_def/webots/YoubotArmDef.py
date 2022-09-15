@@ -41,12 +41,13 @@ J = dict(pos=Ang(drange=(-3.14, 3.14)), vel=AngVel(drange=(-1.57, 1.57)))
 
 class YoubotArmDef(Manipulator5DoF):
     def __init__(self, *args, **kwargs):
-        super().__init__(radius=0.031, length=0.135878*2, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def define(self, *args, **kwargs):
         super().define(joint_units=J, drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
         to_position = MapRule(['j.0', 'j.1', 'j.2', 'j.3', 'j.4', 'g.0'],
                               self.set_pos,
+                              wb_drive.list_keys(),
                               with_target=True)
         self.drive_space['Webots'].set_rule(to_position)
         self.name = 'youBotArm'
@@ -60,6 +61,6 @@ class YoubotArmDef(Manipulator5DoF):
         if reset:
             t.pos().set_positional(o.pos())
         else:
-            t.pos().set_positional(t.pos() + o.vel().ndarray() * self.run.DT)
+            t.pos().set(t.pos() + o.vel().ndarray() * self.run.DT)
         t.pos().set({'finger2': t.pos().get('finger1')})
         return t

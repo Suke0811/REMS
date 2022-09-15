@@ -4,6 +4,7 @@ from sim.robots.differential_drive.CreateHard import CreateHard
 from sim.robots.differential_drive.DynabotHard import DynabotHard
 from sim.robots.differential_drive.WoodbotHard import WoodbotHard
 from sim.typing import MapRule, DefDict
+from typing import Any
 
 # sensor names and definitoins
 
@@ -35,15 +36,14 @@ class YoubotBaseDef(MecanumDriveDef):
         super().__init__(radius=0.05, length=0.228, width=0.158, *args, **kwargs)
 
     def define(self, *args, **kwargs):
-        DRIVE['Webots'].set_rule(MapRule(['th_z', 'd_x', 'd_y'],
-                             self.set_vel,
-                             with_target=True))
-
         super().define(arrow_units=ARROW_VEL, inpt_unit=AngVel(drange=(-14.8, 14.8)), drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
+        self.drive_space['Webots'].set_rule(MapRule(['th_z', 'd_x', 'd_y'],
+                             self.set_vel, ['wheel2', 'wheel1', 'wheel3', 'wheel4'],
+                             with_target=True))
         self.name = 'youBot'
 
     def set_vel(self, o, t):
         joint = self.to_joint(o)
         t.vel().set(joint)
-        t.pos().set([float('inf') for i in range(len(WHEEEL_VEL))])
+        t.pos().set({k: float('inf') for k, v in WHEEEL_VEL.items()})
         return t
