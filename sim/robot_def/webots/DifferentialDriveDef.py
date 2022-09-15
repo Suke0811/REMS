@@ -4,7 +4,7 @@ from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, Percent
 import numpy as np
 
 # space definitions
-POS_2D = dict(x=Pos, y=Pos, th_z=float)
+POS_2D = dict(x=Pos, y=Pos, th_z=Ang)
 VEL_2D = dict(d_x=float, d_y=float, d_th_z=float)
 MOTOR_PARAM = dict(pos=Ang(default=float('inf')), vel=AngVel, acc=AngAcc, on=bool, pid=list),
 JACOB_2D = dict(jb_x0=float, jb_x1=float,
@@ -80,13 +80,13 @@ class DifferentialDriveDef(RobotDefBase):
         super().define()
 
 
-    def jb(self, theta: DefDict, *args, **kwargs):
-        th = theta.get('th_z')
+    def jb(self, *args, **kwargs):
+        th = self.state.get('th_z')
         r = self.radius
         l = self.length
-        jacobian = np.array([r*np.cos(th), r*np.cos(th),
-                             r*np.sin(th), r*np.sin(th),
-                             -1/l, 1/l])
+        jacobian = np.array([r*np.cos(th)/2, r*np.cos(th)/2,
+                             r*np.sin(th)/2, r*np.sin(th)/2,
+                             -r/l, r/l])
         return self.jacobian.format(jacobian)
 
 

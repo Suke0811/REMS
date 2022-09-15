@@ -8,7 +8,7 @@ class ArucoBot(RobotBase):
     DEVICE_LIST = [ArucoDevice]
     def __init__(self, tracids=None, camera_id=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run.DT = 0.05
+        self.run.DT = 0.1
         self.run.name = 'Aruco'
         self.run.supress_info = True
         self.tracids = tracids

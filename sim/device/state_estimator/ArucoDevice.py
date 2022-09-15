@@ -64,6 +64,6 @@ class ShareAruco(ObserveStateBaseBasic):
         state = self.hock()
         try:
             ret = state.get(str(self.track_id))
-        except AttributeError:
+        except (AttributeError, KeyError):
             ret = state
         return ret

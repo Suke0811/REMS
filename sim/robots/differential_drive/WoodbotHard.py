@@ -28,44 +28,46 @@ class WoodbotHard(RobotBase):
         super().__init__(*args, **kwargs)
         self.run.DT = 0.2
         self.target = target_address
-        self.to_thread = False
 
-    def init(self, *args, **kwargs):
-        super().init()
-        self.dev_inpt = self.create_drive_space()
-        self.drive_send = DefDict({'wh.l': Fs90rSend, 'wh.r': Fs90rSend})
-        self.ws = websocket.WebSocket()
-        self.open()
+    def init_devices(self):
+        self.add_device(WebsocketDevice())
 
-    def enable(self, enable: bool, *args, **kwargs):
-        pass
-
-    def open(self, *args, **kwargs):
-        self.ws.connect(self.target)
-        print(self.ws.recv())  # "Connected to"
-        print(self.ws.recv())  # "ESP_xxxx"
-
-    def close(self, *args, **kwargs):
-        self.ws.send("#0")
-        self.ws.close()
-
-    def drive(self, inpt, timestamp, *args, **kwargs):
-        self.dev_inpt.set(inpt)
-        self.drive_send.set(self.dev_inpt)
-        cmd = [126] + [int(90 * -x/100 + 90) for x in self.drive_send.values()]
-        self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
-
-    def sense(self, *args, **kwargs):
-        self.ws.send("#S")
-        resp_opcode, msg = self.ws.recv_data()
-        sensors = struct.unpack("<HH", msg)
-        self.outpt.update([float(x) for x in sensors])
-        return self.outpt
-
-    @staticmethod
-    def create_drive_space(*args, **kwargs):
-        return DefDict({'wh.l': Fs90r, 'wh.r': Fs90r})
-
-    @staticmethod
-    def create_sense_space(*args, **kwargs):
-        return DefDict(dict(lidar_f = float, lidar_r = float,mag_x = float, mag_y = float, gyro_z = float))
+    # def init(self, *args, **kwargs):
+    #     super().init()
+    #     self.dev_inpt = self.create_drive_space()
+    #     self.drive_send = DefDict({'wh.l': Fs90rSend, 'wh.r': Fs90rSend})
+    #     self.ws = websocket.WebSocket()
+    #     self.open()
+    #
+    # def enable(self, enable: bool, *args, **kwargs):
+    #     pass
+    #
+    # def open(self, *args, **kwargs):
+    #     self.ws.connect(self.target)
+    #     print(self.ws.recv())  # "Connected to"
+    #     print(self.ws.recv())  # "ESP_xxxx"
+    #
+    # def close(self, *args, **kwargs):
+    #     self.ws.send("#0")
+    #     self.ws.close()
+    #
+    # def drive(self, inpt, timestamp, *args, **kwargs):
+    #     self.dev_inpt.set(inpt)
+    #     self.drive_send.set(self.dev_inpt)
+    #     cmd = [126] + [int(90 * -x/100 + 90) for x in self.drive_send.values()]
+    #     self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
+    #
+    # def sense(self, *args, **kwargs):
+    #     self.ws.send("#S")
+    #     resp_opcode, msg = self.ws.recv_data()
+    #     sensors = struct.unpack("<HH", msg)
+    #     self.outpt.update([float(x) for x in sensors])
+    #     return self.outpt
+    #
+    # @staticmethod
+    # def create_drive_space(*args, **kwargs):
+    #     return DefDict({'wh.l': Fs90r, 'wh.r': Fs90r})
+    #
+    # @staticmethod
+    # def create_sense_space(*args, **kwargs):
+    #     return DefDict(dict(lidar_f = float, lidar_r = float,mag_x = float, mag_y = float, gyro_z = float))

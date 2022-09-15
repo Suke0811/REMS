@@ -1,18 +1,39 @@
+import time
+
 from sim.device.DeviceBase import DeviceBase
 import websocket, struct
+from sim.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType, Percent
+from sim.typing import DefDict
+from sim.utils import tictoc
 
 TARGET = "ws://192.168.4.1:81"
 # ESP_00111404
 
+
+class Fs90r(AngVel):
+    default_unit = 'rad/s'
+    default_dtype = float
+    default_drange = (-6.8, 6.8)
+
+class Fs90rSend(Percent):
+    default_unit = 'percent'
+    default_dtype = float
+    # data scale. (-1, 1) -> -100% to 100%. (0, 1) -> 0% to 100%
+    defualt_drange_scale = (-1, 1)
+
+
 class WebsocketDevice(DeviceBase):
+    device_name = 'Woodbot'
     def __init__(self, target_address=TARGET, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.target = target_address
-        self.to_thread = False
+        self.to_thread = self.TO_THREAD
+        self.config.on().set([True, False, False])
 
     def init(self, *args, **kwargs):
+        self.dev_inpt = self.create_drive_space()
+        self.drive_send = DefDict({'wh.r': Fs90rSend, 'wh.l': Fs90rSend})
         self.ws = websocket.WebSocket()
-        self.open()
 
     def enable(self, enable: bool, *args, **kwargs):
         pass
@@ -27,13 +48,32 @@ class WebsocketDevice(DeviceBase):
         self.ws.close()
 
     def drive(self, inpt, timestamp, *args, **kwargs):
-        cmd = [126] + [int(90 * x + 90) for x in inpt.vel()]
+        self.dev_inpt.set(inpt)
+        self.drive_send.set(self.dev_inpt)
+        cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
+    @tictoc
     def sense(self, *args, **kwargs):
+        st = time.perf_counter()
         self.ws.send("#S")
+        print(time.perf_counter()-st)
         resp_opcode, msg = self.ws.recv_data()
+        print(time.perf_counter() - st)
         sensors = struct.unpack("<HH", msg)
-        return [float(x) for x in sensors]
+        print(time.perf_counter() - st)
+        self.sense_space.update([float(x) for x in sensors])
+        print(time.perf_counter() - st)
+        return self.sense_space
+
+    def create_drive_space(*args, **kwargs):
+        return DefDict({'wh.l': Fs90r, 'wh.r': Fs90r})
+
+    @staticmethod
+    def create_sense_space(*args, **kwargs):
+        return DefDict(dict(lidar_f=float, lidar_r=float, mag_x=float, mag_y=float, gyro_z=float))
+
+
+
 
 

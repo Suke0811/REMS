@@ -33,7 +33,7 @@ DRIVE = {
     "Webots": wb_drive.set_rule(rule_to_nested_vel),
     "Create2Device": CreateHard.drive_space_def().get("Create2Device"),
     "Dynamixel": DynabotHard.drive_space_def(IDs=ID_LISTs).get('Dynamixel').set_rule(rule_to_nested_vel),
-    "Woodbot": WoodbotHard.create_drive_space(),
+    "Woodbot": WoodbotHard.drive_space_def(),
 }
 
 

@@ -210,8 +210,7 @@ class ArucoHelper:
         No need to use this in the simulation implementation"""
         while True:
             fs = self.get_frames(track_ids)
-            for f in fs:
-                print(f[0:3], np.rad2deg(f[3:]))
+            print(fs)
             # Wait 3 milisecoonds for an interaction. Check the key and do the corresponding job.
             key = cv2.waitKey(int(1000/self.fps)) & 0xFF
             if key == ord('q'):  # Quit
@@ -296,7 +295,7 @@ class ArucoHelper:
 
 if __name__ == "__main__":
     # camera id could be 1 if there is another one
-    a = ArucoHelper(camera_id=0)
+    a = ArucoHelper(camera_id=6)
     # init_camera tries to read calibration data
     a.init_camera()
     #a.calibrate(0.02)
