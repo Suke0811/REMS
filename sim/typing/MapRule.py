@@ -36,11 +36,13 @@ class MapRule:
             origin = DefDict(origin_data)
         else:
             if isinstance(origin_data, DefDict) and self.inherit_units:
+                new_origin_def = origin.DEF
                 for k, o_def in origin_data.DEF.items():
                     if k in origin.keys():
-                        if origin._definition[k] is Any:
-                            origin._definition[k] = [o_def]
-            origin.set(origin_data)
+                        if origin._definition[k][0] is Any:
+                            new_origin_def[k] = o_def
+                origin = DefDict(new_origin_def)
+        origin.set(origin_data)
 
         if target is None:
             if target_data is not None:
@@ -50,7 +52,7 @@ class MapRule:
             if isinstance(target_data, DefDict) and self.inherit_units:
                 for k, t_def in target_data.DEF.items():
                     if k in target.keys():
-                        if target._definition[k] is Any:
+                        if target._definition[k][0] is Any:
                             target._definition[k] = [t_def]
 
         if func is None:

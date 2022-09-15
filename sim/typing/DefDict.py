@@ -367,12 +367,15 @@ class DefDict:
     def init_data(self, keys):
         for k, v in self.DEF.items():
             if k in keys:
-                if v is Any:
+                if isinstance(v, UnitType):
+                    self._data[k] = [v.default]
+                elif v is Any:
                     self._data[k] = [float()] # what should be the init value?
                 elif isinstance(v, type):
                     self._data[k] = [v()]
                 else:
                     self._data[k] = [v]   # maybe a different way of initialization?
+        return self
     
     def _from_defdict(self, data):
         for k, v in data.items():
@@ -412,7 +415,9 @@ class DefDict:
 
     
     def _enforce_type(self, d_type, value, vdef=None):
-        if isinstance(d_type, UnitType):
+        if value is None:     # None will bypass the enforcement
+            ret = None
+        elif isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
         elif isinstance(d_type, DefDict):
             ret = d_type.set(value)

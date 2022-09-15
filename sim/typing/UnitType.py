@@ -384,6 +384,9 @@ class UnitType:
         This will enforce the type and strip off the unit if unyt variables are given
         """
         enforced_val = val
+        if val is None:
+            return
+
         if self._is_defdict(self.dtype):
             self.dtype.set(val)
             return self.dtype

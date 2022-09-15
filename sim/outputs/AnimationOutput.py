@@ -55,6 +55,7 @@ class AnimationOutput(OutputBase):
         self.fig.canvas.draw()
         self.ax_cache = self.fig.canvas.copy_from_bbox(self.ax.bbox)
         plt.autoscale(True)
+        plt.rcParams["keymap.quit"] = "esc"
         plt.show(block=False)
 
     def _update_canvas(self, line=None, text=None):
