@@ -41,10 +41,10 @@ J = dict(pos=Ang(drange=(-3.14, 3.14)), vel=AngVel(drange=(-1.57, 1.57)))
 
 class YoubotArmDef(Manipulator5DoF):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(self, *args, **kwargs)
 
     def define(self, *args, **kwargs):
-        super().define(joint_units=J, drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
+        Manipulator5DoF.define(self, joint_units=J, drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
         to_position = MapRule(['j.0', 'j.1', 'j.2', 'j.3', 'j.4', 'g.0'],
                               self.set_pos,
                               wb_drive.list_keys(),

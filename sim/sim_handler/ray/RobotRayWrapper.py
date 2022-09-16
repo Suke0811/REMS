@@ -19,7 +19,7 @@ def get_vars(instance):
             rets.append(k)
     return rets
 
-
+RAY_LIMIT = 2
 
 class RobotRayWrapper(object):
     def __init__(self, robot, outputs, cache=False):
@@ -55,11 +55,15 @@ class RobotRayWrapper(object):
                     finished, ray_ret = ray.wait(ray_ret, num_returns=len(ray_ret), timeout=TIMEOUT)
                     if finished:
                         ret = ray.get(finished[-1])
+                if len(ray_ret) >= RAY_LIMIT:
+                    return
                 ray_ret.append(func(self, name, *args, **kwargs))
                 self._refs[name] = ray_ret
             elif 'block' in kwargs and not kwargs.pop('block'):
                 ret = func(self, name, *args, **kwargs)
             else:
+                if len(ray_ret) >= RAY_LIMIT:
+                    return
                 ret = ray.get(func(self, name, *args, **kwargs))
             return ret
 

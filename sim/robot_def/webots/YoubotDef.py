@@ -13,7 +13,14 @@ class YoubotDef(YoubotArmDef, YoubotBaseDef):
         YoubotArmDef.__init__(self, *args, **kwargs)
         YoubotBaseDef.__init__(self, *args, **kwargs)
 
+
+        # YoubotArmDef.__init__(self, *args, **kwargs)
+        # YoubotBaseDef.__init__(self, *args, **kwargs)
+
     def define(self, *args, **kwargs):
         YoubotArmDef.define(self, *args, **kwargs)
         YoubotBaseDef.define(self, *args, **kwargs)
+        # YoubotArmDef.define(self, *args, **kwargs)
+        # YoubotBaseDef.define(self, *args, **kwargs)
         self.name = 'youBot'
+

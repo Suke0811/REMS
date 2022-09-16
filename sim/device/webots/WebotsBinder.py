@@ -22,6 +22,7 @@ class WebotsBinder(RobotBase):
         super().__init__(*args, **kwargs)
         self.wb_state = DefDict((WEBOTS_POS, WEBOTS_ROT, WEBOTS_POS_VEL, WEBOTS_ROT_VEL))
         self.run.name = 'Webots'
+        self.run.DT = 0.05
         # gets robot instance from the webots
         #get robot node, and translation and rotation fields
 
@@ -35,16 +36,22 @@ class WebotsBinder(RobotBase):
             self._robot_node = self._robot.getSelf()
             if self._robot_node is None:
                 raise ImportError(f'the Webots robot {self.name} could not found')
+        print(self._robot.getName())
         self._trans_field = self._robot_node.getField("translation")
         self._rotation_field = self._robot_node.getField("rotation")
         # get the time step of the current world.
         self._timestep = int(self._robot.getBasicTimeStep())
         self.run.DT = self._timestep / 1000
-
+        #self._robot_node.getField('synchronization').setSFBool(True)
         self.add_device(WebotsDrive(self._robot, ))
         self.add_device(WebotsSense(self._robot, self._timestep))
         super().init()
         self._robot.step(self._timestep)
+        self.run.name = self.name
+
+    def close(self):
+        self._robot_node.getField('synchronization').setSFBool(False)
+        super().close()
 
     def reset(self, state, t):
         if state is not None:

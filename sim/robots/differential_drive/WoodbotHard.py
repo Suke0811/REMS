@@ -21,8 +21,6 @@ class Fs90rSend(Percent):
     defualt_drange_scale = (-1, 1)
 
 
-
-
 class WoodbotHard(RobotBase):
     def __init__(self, target_address=TARGET, *args, **kwargs):
         super().__init__(*args, **kwargs)

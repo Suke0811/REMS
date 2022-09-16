@@ -84,5 +84,4 @@ class Manipulator5DoF(RobotDefBase):
         self.rule = KeyMapRule()
         self.inpt.add_def({k: DefDict(joint_units) for k in JOINT_SPACE.keys()},  rules=self.rule.arrow) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
-
         RobotDefBase.define(self, drive_space, sense_space, *args, **kwargs)

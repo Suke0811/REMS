@@ -33,16 +33,16 @@ ARROW_VEL = {'th_z': AngVel(drange=(-0.5, 0.5)), 'd_x': Vel(drange=(-0.5, 0.5)),
 
 class YoubotBaseDef(MecanumDriveDef):
     def __init__(self, *args, **kwargs):
-        super().__init__(radius=0.05, length=0.228, width=0.158, *args, **kwargs)
+        MecanumDriveDef.__init__(self, radius=0.05, length=0.228, width=0.158, *args, **kwargs)
 
     def define(self, *args, **kwargs):
-        super().define(arrow_units=ARROW_VEL, inpt_unit=AngVel(drange=(-14.8, 14.8)), drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
+        MecanumDriveDef.define(self, arrow_units=ARROW_VEL, inpt_unit=AngVel(drange=(-14.8, 14.8)), drive_space=DRIVE, sense_space=SENSOR, *args, **kwargs)
         self.drive_space['Webots'].set_rule(MapRule(['th_z', 'd_x', 'd_y'],
-                             self.set_vel, ['wheel2', 'wheel1', 'wheel3', 'wheel4'],
+                             self._set_vel, ['wheel2', 'wheel1', 'wheel3', 'wheel4'],
                              with_target=True))
-        self.name = 'youBot'
+        self.name = 'youBotBase'
 
-    def set_vel(self, o, t):
+    def _set_vel(self, o, t):
         joint = self.to_joint(o)
         t.vel().set(joint)
         t.pos().set({k: float('inf') for k, v in WHEEEL_VEL.items()})
