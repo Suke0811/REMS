@@ -67,8 +67,8 @@ class Simulation:
         robot = bind_robot(robot_def, robot)
         run = robot.run
         self.realtime += run.realtime
-        if outputs is None:     # in no output is specified, then do file outputs
-            outputs = FileCsvOutput('out/' + robot.run.name + '_' + time_str() + '.csv')
+        # if outputs is None:     # in no output is specified, then do file outputs
+        #     outputs = FileCsvOutput('out/' + robot.run.name + '_' + time_str() + '.csv')
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
 
@@ -114,7 +114,6 @@ class Simulation:
                 ret = inpt.get_inputs(timestamp=t, prefix='state')
                 if ret is not None:
                     state = robot.state.set(ret)
-                robot.state.set()
             futs.append(robot_actor.reset(state, t, block=False))
         done = ray.get(futs)
         time.sleep(1)

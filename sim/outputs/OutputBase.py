@@ -31,12 +31,12 @@ class OutputBase:
         if dtype is not None:
             if dtype == 'float':
                 try:
-                    return list(map(lambda d: {**dict(d.to_float())}, data))
+                    return list(map(lambda d: {**dict(d.to_float().dict())}, data))
                 except AttributeError:
                     pass
             elif dtype == 'int':
                 try:
-                    return list(map(lambda d: {**dict(d.to_int())}, data))
+                    return list(map(lambda d: {**dict(d.to_int().dict())}, data))
                 except AttributeError:
                     pass
         return list(map(lambda d: {**dict(d)}, data))

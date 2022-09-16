@@ -34,6 +34,7 @@ class DeviceExecutor(DeviceBase):
         self.dev_timestep = 0.0
 
     def init(self, inpt, state, outpt,):
+        self.lock = Lock()
         self._inpt = inpt
         self._state = state
         self._outpt = outpt
@@ -101,39 +102,47 @@ class DeviceExecutor(DeviceBase):
 
     @property
     def inpt(self):
-        self._inpt.set(self.dev_inpt)
-        return self._inpt
+        with self.lock:
+            self._inpt.set(self.dev_inpt)
+            return self._inpt
 
     @inpt.setter
     def inpt(self, val):
-        self.dev_inpt.set(val)
+        with self.lock:
+            self.dev_inpt.set(val)
 
     @property
     def state(self):
-        self._state.set(self.dev_state)
-        return self._state
+        with self.lock:
+            self._state.set(self.dev_state)
+            return self._state
 
     @state.setter
     def state(self, val):
-        self.dev_state.set(val)
+        with self.lock:
+            self.dev_state.set(val)
 
     @property
     def outpt(self):
-        self._outpt.set(self.dev_outpt)
-        return self._outpt
+        with self.lock:
+            self._outpt.set(self.dev_outpt)
+            return self._outpt
 
     @outpt.setter
     def outpt(self, val):
-        self.dev_outpt.set(val)
+        with self.lock:
+            self.dev_outpt.set(val)
 
     @property
     def timestep(self):
-        self._timestep = copy.deepcopy(self.dev_timestep)
-        return self._timestep
+        with self.lock:
+            self._timestep = copy.deepcopy(self.dev_timestep)
+            return self._timestep
 
     @timestep.setter
     def timestep(self, val):
-        self.dev_timestep = val
+        with self.lock:
+            self.dev_timestep = val
 
 
 class DeviceHock(DeviceBase):

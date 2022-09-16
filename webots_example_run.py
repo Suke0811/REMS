@@ -30,13 +30,12 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-out_dir = 'out/'
+out_dir = 'out/ssssssssssssssssffffffffffffff'
 webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.csv at the same dir as the
 
 # add robots to simulation
 #robot_ref = s.add_robot(ScalerManipulator, (ScalerHard, '/dev/MOTOR_0', 2), arm2_csv)
 
-#aruco = s.add_robot(None, (ArucoBot, [3, 2, 1], 6))
 
 # s.add_robot(MooseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # s.add_robot(CreateDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
@@ -53,18 +52,27 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(YoubotBaseDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # s.add_robot(YoubotDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 
+#
+# s.add_robot(MooseDef, WebotsBinder)
+# s.add_robot(CreateDef, WebotsBinder)
+# s.add_robot(Pioneer3AtDef, WebotsBinder)
+# s.add_robot(Pioneer3DxDef, WebotsBinder)
+# s.add_robot(EpuckDef, WebotsBinder)
+#frf s.add_robot(WoodbotDef, WebotsBinder)
+#
+s.add_robot(YoubotDef, WebotsBinder,  FileOutput('out/0youbot.json'))#, inpt=FileInput('out/1youbot.yml'))
+# s.add_robot(YoubotArmDef, WebotsBinder)
+# s.add_robot(YoubotDef, WebotsBinder)
 
-s.add_robot(MooseDef, WebotsBinder)
-s.add_robot(CreateDef, WebotsBinder)
-s.add_robot(Pioneer3AtDef, WebotsBinder)
-s.add_robot(Pioneer3DxDef, WebotsBinder)
-s.add_robot(EpuckDef, WebotsBinder)
+#aruco = s.add_robot(None, (ArucoBot, [3, 2, 1], 6))
 
-s.add_robot(YoubotBaseDef, WebotsBinder)
-s.add_robot(YoubotArmDef, WebotsBinder)
-s.add_robot(YoubotDef, WebotsBinder)
-
-
+#
+# r = s.add_robot(WoodbotDef, WoodbotHard)
+# r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=1))
+# r = s.add_robot(CreateDef, (CreateHard, '/dev/ttyUSB0'))
+# r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
+# r = s.add_robot(Pioneer3AtDef, (DynabotHard, '/dev/ttyUSB1'), FileOutput('out/07.csv'))
+# r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=2))
 
 
 
@@ -77,7 +85,7 @@ s.add_robot(YoubotDef, WebotsBinder)
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
 
 # r = s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
-# r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=2))
+#
 #
 
 

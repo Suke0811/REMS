@@ -22,7 +22,7 @@ class WebotsBinder(RobotBase):
         super().__init__(*args, **kwargs)
         self.wb_state = DefDict((WEBOTS_POS, WEBOTS_ROT, WEBOTS_POS_VEL, WEBOTS_ROT_VEL))
         self.run.name = 'Webots'
-        self.run.DT = 0.05
+        self.run.DT = 0.01
         # gets robot instance from the webots
         #get robot node, and translation and rotation fields
 

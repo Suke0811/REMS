@@ -34,6 +34,7 @@ class FileInput(InputBase):
             inpt_ret = data.__dict__[prefix]()
         else:
             inpt_ret = data
+        print(inpt_ret)
         return inpt_ret
 
     def if_exit(self):
@@ -46,7 +47,7 @@ class FileInput(InputBase):
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'json':
             with open(self._filepath, 'r') as f:
-                df = pd.json_normalize(json.load(f))
+                df = json.load(f)
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'csv':
             df = pd.read_csv(self._filepath)
@@ -63,7 +64,6 @@ class FileInput(InputBase):
         self._timestamps = list(df_dict[TIMESTAMP])
         # initiate _inpt with the first data
         self._inpt.set(list(self.data[0]))
-
 
     def _find_input_by_timestamp(self, timestamp):
         # Zero-order hold: return most recently specified inputs

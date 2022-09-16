@@ -98,7 +98,13 @@ class DefDict:
         return ret
 
     def dict(self):
-        return self.data    # return dictionary
+        ret = {}
+        for k, v in self.data.items():
+            if isinstance(v, DefDict):
+                ret[k] = v.dict()
+            else:
+                ret[k] = v
+        return ret  # return dictionary
 
     def keys(self, to_int=False):
         if to_int:
@@ -422,7 +428,7 @@ class DefDict:
 
     
     def _enforce_type(self, d_type, value, vdef=None):
-        if value is None:     # None will bypass the enforcement
+        if value is None or value == 'None':     # None will bypass the enforcement
             ret = None
         elif isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
@@ -537,10 +543,11 @@ class DefDict:
             if isinstance(v, np.ndarray):
                 v.astype(float)
             elif isinstance(v, DefDict):
-                v.to_float()
+                self._data[k][0] = v.to_float()
             else:
                 try:
-                    self._data[k][0] = float(v)
+                    if v is not None:
+                        self._data[k][0] = float(v)
                 except ValueError:
                     pass
         return self
@@ -550,10 +557,11 @@ class DefDict:
             if isinstance(v, np.ndarray):
                 v.astype(int)
             elif isinstance(v, DefDict):
-                v.to_int()
+                self._data[k][0] = v.to_int()
             else:
                 try:
-                    self._data[k][0] = int(v)
+                    if v is not None:
+                        self._data[k][0] = int(v)
                 except ValueError:
                     pass
         return self

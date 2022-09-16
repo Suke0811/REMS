@@ -34,10 +34,13 @@ class SimActor:
         if np.round(self.t - t_sys, ROUND) >= DT:
             return
         #set input here
+        print(inpt)
         inpt = self.robot.inpt.update(inpt)
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
 
         for out in self.outputs:
+            if out is None:
+                continue
             out.process(state, inpt, outpt, t, info)
         disp = []
         for r in [inpt, state, outpt]:
@@ -74,6 +77,8 @@ class SimActor:
     def make_outputs(self):
         # right now make outputs can be called only once
         for out in self.outputs:
+            if out is None:
+                continue
             out.make_output()
 
 
