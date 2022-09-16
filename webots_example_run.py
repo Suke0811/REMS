@@ -30,7 +30,7 @@ s.set_input(i)  # specify inputs to run
 # each robot can have multiple output system
 # Robot simulation using kinematics model
 
-out_dir = 'out/ssssssssssssssssffffffffffffff'
+out_dir = 'out/'
 webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.csv at the same dir as the
 
 # add robots to simulation
@@ -60,7 +60,7 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(EpuckDef, WebotsBinder)
 #frf s.add_robot(WoodbotDef, WebotsBinder)
 #
-s.add_robot(YoubotDef, WebotsBinder,  FileOutput('out/0youbot.json'))#, inpt=FileInput('out/1youbot.yml'))
+s.add_robot(YoubotDef, WebotsBinder,  FileOutput('out/1youbot.json'), inpt=FileInput('out/0youbot.json'))
 # s.add_robot(YoubotArmDef, WebotsBinder)
 # s.add_robot(YoubotDef, WebotsBinder)
 

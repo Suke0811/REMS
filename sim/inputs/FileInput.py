@@ -43,11 +43,11 @@ class FileInput(InputBase):
     def _open_file(self):
         if self.file_extension == 'yml' or self.file_extension == 'yaml':
             with open(self._filepath, 'r') as f:
-                df = pd.json_normalize(yaml.safe_load(f))
+                df = pd.json_normalize(yaml.safe_load(f), max_level=1)
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'json':
             with open(self._filepath, 'r') as f:
-                df = json.load(f)
+                df = pd.json_normalize(json.load(f), max_level=1)
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'csv':
             df = pd.read_csv(self._filepath)
