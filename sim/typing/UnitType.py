@@ -357,27 +357,32 @@ class UnitType:
     def to_percent(self, val, vdef=None):
         if vdef is None:
             vdef = self
-        if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
-            raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
+        drange = self.drange
+        if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+            drange = vdef.drange
+            if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+                raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         if not isinstance(val, unyt.unyt_array):
             val = self.enforce_unit(val)
-        p_val = (val - self.drange[MIN]) / (self.drange[MAX] - self.drange[MIN]) # percent 0-1 scale
+        p_val = (val - drange[MIN]) / (drange[MAX] - drange[MIN]) # percent 0-1 scale
         s_val = p_val * (vdef.drange_scale[MAX] - vdef.drange_scale[MIN]) + vdef.drange_scale[MIN] # scale back to as defined
         return vdef.enforce_type(100*s_val) # percent)
 
     def from_percent(self, val, vdef=None):
         if vdef is None:
             vdef = self
-        if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
-            raise ValueError(f'{val} cannot converted from % from a value because data range is {self.drange}')
+        drange = self.drange
+        if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+            drange = vdef.drange
+            if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+                raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         val = val/100
         #scale percent i.e. [-100%, 100%], [0,100%]
         p_val = (val - vdef.drange_scale[MIN]) / (vdef.drange_scale[MAX] - vdef.drange_scale[MIN])
-        s_val = p_val * (self.drange[MAX] - self.drange[MIN]) + self.drange[MIN]
+        s_val = p_val * (drange[MAX] - drange[MIN]) + drange[MIN]
         return self.enforce_unit(s_val)
-
 
     def enforce_type(self, val):
         """
@@ -432,3 +437,5 @@ class UnitType:
 
     def __repr__(self):
         return  f"{self.unit.units, tuple([d.to_string() for d in self.drange]), self.dtype}"
+
+

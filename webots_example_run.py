@@ -66,14 +66,14 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(YoubotDef, WebotsBinder, inpt=FileInput('out/1youbot.yml', init_state=False))
 
 
-aruco = s.add_robot(None, (ArucoBot, [3, 2, 1], 6))
+aruco = s.add_robot(None, (ArucoBot, [3, 2, 1], 0))
 
 #
 # r = s.add_robot(WoodbotDef, WoodbotHard, inpt=FileInput('out/0create+.csv'))
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=1))
 # r = s.add_robot(CreateDef, (CreateHard, '/dev/ttyUSB0'), inpt=FileInput('out/0create+.csv'))#inpt=FileInput('out/01.csv'))
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
-r = s.add_robot(Pioneer3AtDef, (DynabotHard, '/dev/ttyUSB1'), inpt=FileInput('out/02.csv'))
+r = s.add_robot(Pioneer3AtDef, (DynabotHard, 'COM3'))
 r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=2))
 
 
