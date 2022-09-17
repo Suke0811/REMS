@@ -12,14 +12,16 @@ SEPARATOR = '.'
 
 
 class FileInput(InputBase):
-    def __init__(self, filepath, loop=False):
+    def __init__(self, filepath, loop=False, init_state=True):
         super().__init__()
         if filepath.find('.') == -1:
             filepath = filepath + '.' + DEFAULT_EXTENSION
         self._filepath = filepath
         self.file_extension = filepath.split('.')[-1]
         self.loop = loop
+        self._init_state = init_state
         self.timestamp_offset = 0.0
+
         # required call
         self.data = []
         self.set_data_from_df(self._open_file())
@@ -31,10 +33,11 @@ class FileInput(InputBase):
         """ """
         data = self._find_input_by_timestamp(timestamp - self.timestamp_offset)
         if prefix in data.prefixes:
+            if prefix == 'state' and not self._init_state:
+                return
             inpt_ret = data.__dict__[prefix]()
         else:
             inpt_ret = data
-        print(inpt_ret)
         return inpt_ret
 
     def if_exit(self):

@@ -57,13 +57,9 @@ class WebsocketDevice(DeviceBase):
     def sense(self, *args, **kwargs):
         st = time.perf_counter()
         self.ws.send("#S")
-        print(time.perf_counter()-st)
         resp_opcode, msg = self.ws.recv_data()
-        print(time.perf_counter() - st)
         sensors = struct.unpack("<HH", msg)
-        print(time.perf_counter() - st)
         self.sense_space.update([float(x) for x in sensors])
-        print(time.perf_counter() - st)
         return self.sense_space
 
     def create_drive_space(*args, **kwargs):

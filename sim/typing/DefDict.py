@@ -389,6 +389,17 @@ class DefDict:
                 else:
                     self._data[k] = [v]   # maybe a different way of initialization?
         return self
+
+    def to_default(self, keys=None):
+        if keys is None:
+            keys = self.list_keys()
+        else:
+            try:
+                iter(keys)
+            except:
+                keys = [keys]
+        return self.init_data(keys)
+
     
     def _from_defdict(self, data):
         for k, v in data.items():
@@ -428,7 +439,7 @@ class DefDict:
 
     
     def _enforce_type(self, d_type, value, vdef=None):
-        if value is None or value == 'None':     # None will bypass the enforcement
+        if value is None:     # None will bypass the enforcement
             ret = None
         elif isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)

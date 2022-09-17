@@ -82,7 +82,6 @@ class Simulation:
 
     def add_process(self, process, *args):
         r, r2, t = args
-        print(r.state)
         self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
 
     def init(self):
@@ -121,6 +120,7 @@ class Simulation:
     def close(self):
         futs = []
         for inpt, robot, robot_actor, outputs in self._robots:
+            futs.append(robot_actor.drive(robot.inpt.to_default(), 0, block=False))
             futs.append(robot_actor.close(block=False))
         done = ray.get(futs)
         time.sleep(0.5)

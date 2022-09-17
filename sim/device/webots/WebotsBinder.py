@@ -39,10 +39,11 @@ class WebotsBinder(RobotBase):
         print(self._robot.getName())
         self._trans_field = self._robot_node.getField("translation")
         self._rotation_field = self._robot_node.getField("rotation")
+        if self._trans_field is None:
+            raise ImportError(f'the Webots {self.name} can\'t be connected, maybe you are trying to connect to the same robot twice?')
         # get the time step of the current world.
         self._timestep = int(self._robot.getBasicTimeStep())
         self.run.DT = self._timestep / 1000
-        #self._robot_node.getField('synchronization').setSFBool(True)
         self.add_device(WebotsDrive(self._robot, ))
         self.add_device(WebotsSense(self._robot, self._timestep))
         super().init()
@@ -54,6 +55,7 @@ class WebotsBinder(RobotBase):
         super().close()
 
     def reset(self, state, t):
+        # self._robot_node.getField('synchronization').setSFBool(True)
         if state is not None:
             self.wb_state.set(state)
             self._trans_field.setSFVec3f(self.wb_state.filter(WEBOTS_POS).list())  # move robot to the init state
