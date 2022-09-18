@@ -1,5 +1,6 @@
 from sim.typing import DefDict
 
+
 class BasicDeviceBase:
     TO_THREAD = 'to_thread'
     TO_PROCESS = 'to_process'

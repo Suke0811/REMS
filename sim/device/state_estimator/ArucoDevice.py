@@ -58,7 +58,7 @@ class ShareAruco(ObserveStateBaseBasic):
         self.hock = observe_state
         self.track_id = track_id
         self.config.on().set([False, False, True])
-        self.to_thread = self.TO_THREAD
+        self.to_thread = False
 
     def observe_state(self, *args, **kwargs):
         state = self.hock()

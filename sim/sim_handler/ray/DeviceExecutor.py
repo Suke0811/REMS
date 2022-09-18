@@ -64,7 +64,8 @@ class DeviceExecutor(DeviceBase):
                 if self.if_time('sense'):
                     self.dev_outpt.update(self.device.sense(cache=True))
                 if self.if_time('observe_state'):
-                    self.dev_state.update(self.device.observe_state(cache=True))
+                    s = self.device.observe_state(cache=True)
+                    self.dev_state.update(s)
                 next_time += self.dev_step
                 # print(perf_counter()-st)
             time.sleep(self.dev_step/10)

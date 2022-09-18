@@ -19,7 +19,7 @@ def get_vars(instance):
             rets.append(k)
     return rets
 
-RAY_LIMIT = 2
+RAY_LIMIT = 5
 
 class RobotRayWrapper(object):
     def __init__(self, robot, outputs, cache=False):

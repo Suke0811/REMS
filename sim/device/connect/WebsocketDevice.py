@@ -15,6 +15,13 @@ class Fs90r(AngVel):
     default_dtype = float
     default_drange = (-6.8, 6.8)
 
+class Fs90rCount(UnitType):
+    default_unit = 'count'
+    default_dtype = int
+    default_drange = (150, 600)
+    default_drange_map = ('-6.8rad/s', '6.8rad/s')
+
+
 class Fs90rSend(Percent):
     default_unit = 'percent'
     default_dtype = float
@@ -48,9 +55,10 @@ class WebsocketDevice(DeviceBase):
         self.ws.close()
 
     def drive(self, inpt, timestamp, *args, **kwargs):
-        self.dev_inpt.set(inpt)
-        self.drive_send.set(self.dev_inpt)
-        cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
+        self.dev_inpt.update(inpt)
+        self.drive_send.update(self.dev_inpt)
+        #cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
+        cmd = [127] + self.dev_inpt.list()
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
     @tictoc

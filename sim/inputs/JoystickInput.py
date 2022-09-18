@@ -6,12 +6,16 @@ from sim.typing import DefDict
 
 
 class JoystickInput(InputBase):
-    def __init__(self, ):
+    def __init__(self, stick_id=None, stick_name=None):
         super().__init__()
         self._inpts = {}
         # for pygame
         self._joysticks = {}
-        self.stick_name = []
+        if stick_id is None and stick_name is None:
+            stick_id = 0
+        self.stick_id = stick_id
+        self.stick_name = stick_name
+        self.stick_names = []
         self.buttons = {}
         self.axes = {}
         self.axes_deadzone = {}
@@ -29,7 +33,7 @@ class JoystickInput(InputBase):
                 joystick = pygame.joystick.Joystick(i)
                 joystick.init()
                 name = joystick.get_name()
-                self.stick_name.append(name)
+                self.stick_names.append(name)
                 self._joysticks[name] = joystick
                 MAP: JOYSTIC_BASE = SUPPORTED_JOYSTICKs.get(name)
                 if MAP is None:
@@ -39,10 +43,12 @@ class JoystickInput(InputBase):
                 self.axes[name] = DefDict(MAP.axis)
                 self.axes_deadzone[name] = DefDict(MAP.axis).set(MAP.axis_deadzone)
 
-                logging.info("Joystick name: {}".format(self.stick_name))
+                logging.info("Joystick name: {}".format(self.stick_names))
             except ConnectionError:
                 logging.error("Connection Failed")
                 self.close = True
+        if self.stick_id > i:
+            raise ModuleNotFoundError(f'Joystick ID {self.stick_id} was not found. Available id: 0-{i}')
 
     def __del__(self):
         try:
@@ -51,11 +57,13 @@ class JoystickInput(InputBase):
             pass
 
     def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
-        if not self.stick_name:
+        if not self.stick_names:
             self.init()
         self._capture_joystick()
-
-        main_stick = self.stick_name[0]
+        if self.stick_id is not None:
+            main_stick = self.stick_names[self.stick_id]
+        else:
+            main_stick = self.stick_name
 
         return {**self.axes[main_stick], **self.buttons[main_stick]}
 
@@ -72,9 +80,6 @@ class JoystickInput(InputBase):
             buttons = []
             # capture joystick values
             num_axes = joystick.get_numaxes()
-            print([joystick.get_button(b) for b in range(joystick.get_numbuttons())])
-            print([joystick.get_axis(b) for b in range(joystick.get_numaxes())])
-            print([joystick.get_hat(b) for b in range(joystick.get_numhats())])
             for i in range(min(num_axes, len(deadzone))):
                 axes.append(self._filter_stick(joystick.get_axis(i), deadzone[i]))
 
