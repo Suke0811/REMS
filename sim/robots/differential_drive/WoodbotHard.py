@@ -28,7 +28,7 @@ class WoodbotHard(RobotBase):
         self.target = target_address
 
     def init_devices(self):
-        self.add_device(WebsocketDevice())
+        self.add_device(WebsocketDevice(target_address=self.target))
 
     # def init(self, *args, **kwargs):
     #     super().init()

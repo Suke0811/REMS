@@ -101,7 +101,7 @@ if __name__ == "__main__":
     import time
     j = JoystickInput()
     while True:
-        j.get_inputs()
+        print(j.get_inputs())
         #print(j.axes[j.stick_name[0]].data)
         #print(j.buttons[j.stick_name[0]].data)
         time.sleep(1)
