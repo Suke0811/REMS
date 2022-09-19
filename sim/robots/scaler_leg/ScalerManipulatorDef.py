@@ -1,5 +1,5 @@
 from sim.robots.RobotDefBase import RobotDefBase
-from sim.typing import DefDict, BindRule
+from sim.typing import DefDict, MapRule
 from sim.typing.definitions import *
 from sim.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
 
@@ -10,10 +10,10 @@ class ScalerManipulator(RobotDefBase):
         RobotDefBase.__init__(self)
         self.kin = ScalerKinematics()
         self.unit = 1000.0
-        self.rule = BindRule(bind_from=POS_3D,
-                             bind_func=lambda *xs: [x / self.unit for x in xs],
-                             bind_to=POS_3D,
-                             inv_bind_func=lambda *xs: [x * self.unit for x in xs])
+        self.rule = MapRule(origin=POS_3D,
+                             func=lambda *xs: [x / self.unit for x in xs],
+                             target=POS_3D,
+                             inv_func=lambda *xs: [x * self.unit for x in xs], to_list=True)
         self.which_leg = 3
 
     def define(self, *args, **kwargs):
@@ -34,13 +34,13 @@ class ScalerManipulator(RobotDefBase):
     def fk(self, jointspace: DefDict, *args, **kwargs):
         d = self.kin.scalar_forward_kinematics(which_leg=self.which_leg,
                                                joint_angles=self.joint_space.format(jointspace).list())
-        return self.rule.bind(self.task_space.format(d))
+        return self.rule.map(self.task_space.format(d))
 
     def ik(self, taskspace: DefDict, *args, **kwargs):
         self.task_space.data = dict(r11=1, r22=-1, r33=-1,
                                     r12=0, r13=0, r21=0, r23=0, r31=0, r32=0)
         t = self.task_space.format(taskspace)
-        t.set(self.rule.inv_bind(t))
+        t.set(self.rule.inv_map(t))
         return self.joint_space.format(
             self.kin.scalar_inverse_kinematics(which_leg=self.which_leg,
                                                T_shi_wrist3=t.as_ruled(),

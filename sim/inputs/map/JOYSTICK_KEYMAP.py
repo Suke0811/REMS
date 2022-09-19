@@ -41,7 +41,7 @@ class X56Stick(JOYSTIC_BASE):
 
 class SwitchPro(JOYSTIC_BASE):
     name = 'Nintendo Switch Pro Controller'
-    button = ['BUTTON_B', 'BUTTON_A', 'BUTTON_Y', 'BUTTON_X',  'BUTTON_L', 'BUTTON_R', 'BUTTON_ZL', 'BUTTON_ZR',
+    button = ['BUTTON_A', 'BUTTON_B', 'BUTTON_Y', 'BUTTON_X',  'BUTTON_L', 'BUTTON_R', 'BUTTON_ZL', 'BUTTON_ZR',
               'BUTTON_-', 'BUTTON_+', 'BUTTON_STICK_L', 'BUTTON_STICK_R'
           'BUTTON_HOME', 'BUTTON_CAPTURE']
     axis = ['STICK_LEFT_X', 'STICK_LEFT_Y', 'STICK_RIGHT_X', 'STICK_RIGHT_Y']

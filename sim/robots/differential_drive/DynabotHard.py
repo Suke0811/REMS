@@ -7,18 +7,22 @@ from sim.utils import time_str
 ID_LISTs = [2, 1]
 
 
-class DynamixelbotHard(RobotBase):
+
+class DynabotHard(RobotBase):
+    DEVICE_LIST = [Dynamixel, ArucoDevice]
     def __init__(self, port, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run.DT = 0.04
+        self.run.DT = 0.05
         self.run.name = 'Hard'
-        self.add_device(Dynamixel, id_lists=ID_LISTs, slave_ids=None, device_port=port)
-        self.add_device(ArucoDevice, track_id=2, camera_id=6, video_name=f'video/aruco_{time_str()}.avi', dt=self.run.DT)
+        self.port = port
+
+    def init_devices(self):
+        self.add_device(Dynamixel(ID_LISTs, device_port=self.port))
+        self.add_device(ArucoDevice(track_id=2, camera_id=0))
 
     def init(self, *args, **kwargs):
         super().init(*args, **kwargs)
 
-    def drive(self, inpt, timestamp):
-        #inpt /= 3
-        super(DynamixelbotHard, self).drive(inpt, timestamp)
+
+
 

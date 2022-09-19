@@ -33,7 +33,7 @@ class UnitType:
     defualt_drange_scale: Tuple[(Union[int, float], Union[int, float])] = (-1, 1)
     default_conversion_rules: list = []
 
-    def __init__(self, unit=None, drange=None, default=None, dim=None, drange_map=None, drange_scale=None, dtype=None, strict=False, data=None):
+    def __init__(self, unit=None, drange=None, default=None, dim=None, mapping=None, scale=None, dtype=None, strict=False, data=None):
         if unit is None:
             unit = self.default_unit
         if drange is None:
@@ -42,17 +42,17 @@ class UnitType:
             dim = self.default_dim
         if dtype is None:
             dtype = self.default_dtype
-        if drange_map is None:
-            drange_map = self.default_drange_map
-        if drange_scale is None:
-            drange_scale = self.defualt_drange_scale
+        if mapping is None:
+            mapping = self.default_drange_map
+        if scale is None:
+            scale = self.defualt_drange_scale
 
         self.unit = unit
         self.dtype = dtype
         self.dim = dim
         self.drange = drange
-        self.drange_map = drange_map
-        self.drange_scale = drange_scale
+        self.drange_map = mapping
+        self.drange_scale = scale
         self.strict = strict
         self.custom_unit = None
 
@@ -357,33 +357,41 @@ class UnitType:
     def to_percent(self, val, vdef=None):
         if vdef is None:
             vdef = self
-        if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
-            raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
+        drange = self.drange
+        if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+            drange = vdef.drange
+            if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+                raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         if not isinstance(val, unyt.unyt_array):
             val = self.enforce_unit(val)
-        p_val = (val - self.drange[MIN]) / (self.drange[MAX] - self.drange[MIN]) # percent 0-1 scale
+        p_val = (val - drange[MIN]) / (drange[MAX] - drange[MIN]) # percent 0-1 scale
         s_val = p_val * (vdef.drange_scale[MAX] - vdef.drange_scale[MIN]) + vdef.drange_scale[MIN] # scale back to as defined
         return vdef.enforce_type(100*s_val) # percent)
 
     def from_percent(self, val, vdef=None):
         if vdef is None:
             vdef = self
-        if all([vd == float('inf') or vd == -float('inf') for vd in self.drange]):
-            raise ValueError(f'{val} cannot converted from % from a value because data range is {self.drange}')
+        drange = self.drange
+        if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+            drange = vdef.drange
+            if all([vd == float('inf') or vd == -float('inf') for vd in drange]):
+                raise ValueError(f'{val} cannot converted to % because data range is {self.drange}')
 
         val = val/100
         #scale percent i.e. [-100%, 100%], [0,100%]
         p_val = (val - vdef.drange_scale[MIN]) / (vdef.drange_scale[MAX] - vdef.drange_scale[MIN])
-        s_val = p_val * (self.drange[MAX] - self.drange[MIN]) + self.drange[MIN]
+        s_val = p_val * (drange[MAX] - drange[MIN]) + drange[MIN]
         return self.enforce_unit(s_val)
-
 
     def enforce_type(self, val):
         """
         This will enforce the type and strip off the unit if unyt variables are given
         """
         enforced_val = val
+        if val is None:
+            return
+
         if self._is_defdict(self.dtype):
             self.dtype.set(val)
             return self.dtype
@@ -429,3 +437,5 @@ class UnitType:
 
     def __repr__(self):
         return  f"{self.unit.units, tuple([d.to_string() for d in self.drange]), self.dtype}"
+
+

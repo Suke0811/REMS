@@ -5,17 +5,21 @@ from sim.inputs.map.KEYBOARD_KEYMAP import KEYBOARD_DEF
 import numpy as np
 
 class KeyboardInput(InputBase):
-    def __init__(self):
+    def __init__(self, init_state=False):
         super().__init__()
+        self._init_state = init_state
         self._keys = KEYBOARD_DEF
         self._inputs = self._keys
         self._start_capture_key()   # set listener
 
-    def get_inputs(self, inpt_def: DefDict=None, timestamp = None, prefix='inpt'):
-        if inpt_def is None:
-            return self._inputs
-        inpt_def.set(self._inputs)
-        return inpt_def
+    def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
+        if prefix is 'state':
+            if self._init_state:
+                return self._inputs
+            else:
+                return
+        return self._inputs
+
 
     def if_exit(self):
         return self._quit

@@ -12,14 +12,16 @@ SEPARATOR = '.'
 
 
 class FileInput(InputBase):
-    def __init__(self, filepath, loop=False):
+    def __init__(self, filepath, loop=False, init_state=True):
         super().__init__()
         if filepath.find('.') == -1:
             filepath = filepath + '.' + DEFAULT_EXTENSION
         self._filepath = filepath
         self.file_extension = filepath.split('.')[-1]
         self.loop = loop
+        self._init_state = init_state
         self.timestamp_offset = 0.0
+
         # required call
         self.data = []
         self.set_data_from_df(self._open_file())
@@ -27,14 +29,16 @@ class FileInput(InputBase):
         self.inpt = None
         self.time_index = 0
 
-    def get_inputs(self, inpt: DefDict, timestamp=None, prefix='inpt'):
+    def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
         """ """
         data = self._find_input_by_timestamp(timestamp - self.timestamp_offset)
         if prefix in data.prefixes:
-            inpt.set(data.__dict__[prefix]())
+            if prefix == 'state' and not self._init_state:
+                return
+            inpt_ret = data.__dict__[prefix]()
         else:
-            inpt.set(data)
-        return inpt
+            inpt_ret = data
+        return inpt_ret
 
     def if_exit(self):
         return self._quit
@@ -42,11 +46,11 @@ class FileInput(InputBase):
     def _open_file(self):
         if self.file_extension == 'yml' or self.file_extension == 'yaml':
             with open(self._filepath, 'r') as f:
-                df = pd.json_normalize(yaml.safe_load(f))
+                df = pd.json_normalize(yaml.safe_load(f), max_level=1)
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'json':
             with open(self._filepath, 'r') as f:
-                df = pd.json_normalize(json.load(f))
+                df = pd.json_normalize(json.load(f), max_level=1)
                 df = df.rename(columns={TIMESTAMP+'.'+TIMESTAMP: TIMESTAMP})
         elif self.file_extension == 'csv':
             df = pd.read_csv(self._filepath)
@@ -63,7 +67,6 @@ class FileInput(InputBase):
         self._timestamps = list(df_dict[TIMESTAMP])
         # initiate _inpt with the first data
         self._inpt.set(list(self.data[0]))
-
 
     def _find_input_by_timestamp(self, timestamp):
         # Zero-order hold: return most recently specified inputs

@@ -2,7 +2,7 @@ import time
 
 from sim.robots.RobotBase import RobotBase
 from sim.device.Dynamixel.Dynamixel import Dynamixel
-from sim.typing import BindRule as rule
+from sim.typing import MapRule as rule
 from sim.robots.scaler_leg.kinematics.wrap_to_pi import *
 import numpy as np
 import ray
@@ -64,7 +64,7 @@ class ScalerHard(RobotBase):
         # Hardware offset (inverse of frame2hard)
         self.dynamiexl_actor = DynamiexlActor.remote(self)
         ray.get(self.dynamiexl_actor.init.remote())
-        motor = ray.get(self.dynamiexl_actor.get.remote('dynamixel', 'motors_outpt'))
+        motor = ray.get(self.dynamiexl_actor.get.remote('dynamixel', 'sense_space'))
         self.hard2frame = rule(motor.list_keys()[0:6],
                                lambda *vals: wrap_to_pi(np.array(vals) * self.DIR - self.OFFSET))
 
@@ -78,7 +78,7 @@ class ScalerHard(RobotBase):
         # TODO: implement auto binding mechanism to remove this part
         self.inpt.set(inpt)
         self.joint_space.set(self.ik(inpt))
-        joint = self.frame2hard.bind(self.joint_space)
+        joint = self.frame2hard.map(self.joint_space)
         self.dynamiexl_actor.drive.remote(joint)
 
     def sense(self):
@@ -87,7 +87,7 @@ class ScalerHard(RobotBase):
             finished, self.sense_ref = ray.wait(self.sense_ref, num_returns=len(self.sense_ref))
             if finished:
                 ret = ray.get(finished[-1])
-                self.outpt.j().set(self.hard2frame.bind(ret.pos()))
+                self.outpt.j().set(self.hard2frame.map(ret.pos()))
                 self.outpt.d_j().set(ret.vel().list())
         self.sense_ref.append(self.dynamiexl_actor.sense.remote())
         return self.outpt

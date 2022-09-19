@@ -17,13 +17,13 @@ class InputBase:
     def init(self, input_def=None):
         pass
 
-    def get_inputs(self, inpt_def: DefDict, timestamp=None, prefix='inpt'):
+    def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
         """prefix specify what data to get, if noe"""
         if prefix in self.inpt.prefixes:
-            inpt_def.set(self.inpt.__dict__[prefix]())
+            ret_inpt = self.inpt.__dict__[prefix]()
         else:
-            inpt_def.set(self.inpt)
-        return inpt_def
+            ret_inpt = self.inpt
+        return ret_inpt
 
     def get_command(self):
         """For general key handling such as setting commands"""

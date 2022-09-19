@@ -33,10 +33,13 @@ class SimActor:
     def step(self, inpt, t_sys, DT):
         if np.round(self.t - t_sys, ROUND) >= DT:
             return
-
+        #set input here
+        inpt = self.robot.inpt.update(inpt)
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
 
         for out in self.outputs:
+            if out is None:
+                continue
             out.process(state, inpt, outpt, t, info)
         disp = []
         for r in [inpt, state, outpt]:
@@ -45,8 +48,8 @@ class SimActor:
             except TypeError:
                 disp.append(r)
 
-        #if not self.suppress_info:
-        logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
+        if not self.robot.run.supress_info:
+            logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
             self.robot.run.name,
             np.round(dt_actual, 5), np.round(t, ROUND), disp[0], disp[1], disp[2], info))
 
@@ -73,6 +76,8 @@ class SimActor:
     def make_outputs(self):
         # right now make outputs can be called only once
         for out in self.outputs:
+            if out is None:
+                continue
             out.make_output()
 
 

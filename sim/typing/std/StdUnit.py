@@ -93,24 +93,24 @@ class CountVel(UnitType):
     default_drange_map = ('-5rad/s', '5rad/s')
     defualt_drange_scale = (0, 1)
 
-from time import perf_counter
-
-v = VelCreate()
-p = Percent()
-c = CountVel()
-v.to(5, p)
-v.to(5, c)
-c.from_count(500)
-d = DefDict(dict(x=Pos, y=Pos)).set([1,2])
-nd = DefDict(dict(x=Pos(unit='mm'), y=Pos(unit='cm'))).update([100,10])
-
-dv = DefDict({'wh.r': VelCreate, 'wh.l': VelCreate}).set([1,2])
-dc = DefDict({'wh.r': CountVel(),'wh.l': CountVel()})
-dc.clone()
-print(d+nd)
-dc.set(dv)
-
-pass
+# from time import perf_counter
+#
+# v = VelCreate()
+# p = Percent()
+# c = CountVel()
+# v.to(5, p)
+# v.to(5, c)
+# c.from_count(500)
+# d = DefDict(dict(x=Pos, y=Pos)).set([1,2])
+# nd = DefDict(dict(x=Pos(unit='mm'), y=Pos(unit='cm'))).update([100,10])
+#
+# dv = DefDict({'wh.r': VelCreate, 'wh.l': VelCreate}).set([1,2])
+# dc = DefDict({'wh.r': CountVel(),'wh.l': CountVel()})
+# dc.clone()
+# print(d+nd)
+# dc.set(dv)
+#
+# pass
 # Rotation
 # if you do
 # dict(qw=float, qx=float, qy=float, qz=float)

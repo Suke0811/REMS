@@ -41,8 +41,11 @@ class DefDict:
                 suf = self._set_defs(d, dtype, nested_def)
                 if suffixes is not False:
                     suff_add.extend(suf)
-                if isinstance(d, DefDict) and suffixes is not False:
-                    self._add_suffix(d.list_keys())
+                if isinstance(d, DefDict):
+                    if suffixes is not False:
+                        suff_add.extend(d.list_keys())
+                    if d.rules is not None:
+                        self.rules.extend(d.rules)
         else:
             suf = self._set_defs(definition, dtype, nested_def)
             if suffixes is not False:
@@ -95,7 +98,13 @@ class DefDict:
         return ret
 
     def dict(self):
-        return self.data    # return dictionary
+        ret = {}
+        for k, v in self.data.items():
+            if isinstance(v, DefDict):
+                ret[k] = v.dict()
+            else:
+                ret[k] = v
+        return ret  # return dictionary
 
     def keys(self, to_int=False):
         if to_int:
@@ -124,6 +133,7 @@ class DefDict:
                     k_seq.remove(prefix)
                     d._set_defs({SEPARATOR.join(k_seq): self.DEF[k]})
                     d._data[SEPARATOR.join(k_seq)] = self._data.get(k)
+
         return d
 
     def _add_prefixes(self, prefixes):
@@ -199,18 +209,19 @@ class DefDict:
         self._name = val
 
     
-    def set(self, ndata):
+    def set(self, ndata, apply_rule=True):
         if ndata is None:
             return self
-        if self.rules is not None:
-            ret = self._apply_rules(ndata)
-            if ret is not None:
-                ndata = ret
-        if self.format_rule is not None:
-            try:
-                ndata = self.format_rule.inv_bind(ndata)
-            except:
-                pass
+        if apply_rule:
+            if self.rules is not None:
+                ret = self._apply_rules(ndata)
+                if ret is not None:
+                    ndata = ret
+            if self.format_rule is not None:
+                try:
+                    ndata = self.format_rule.inv_bind(ndata)
+                except:
+                    pass
         if isinstance(ndata, DefDict):
             self._from_defdict(ndata)
         elif isinstance(ndata, dict):
@@ -226,23 +237,51 @@ class DefDict:
             self._list2dict([ndata])
         return self
 
+    def set_positional(self, ndata):
+        if isinstance(ndata, DefDict):
+            ndata = self._positional_rule(ndata, self)
+        elif isinstance(ndata, dict):
+            ndata = list(ndata.values())
+        return self.set(ndata)
+
+    @staticmethod
+    def _positional_rule(origin, target):
+        length = min([len(origin), len(target)])
+        count = 0
+
+        new_def = {}
+        values = []
+        for k_o, k_t in zip(origin.keys(), target.keys()):
+            if count > length:
+                break
+            new_def[k_t] = origin._definition[k_o][0]
+            values.append(origin._data[k_o][0])
+        o = DefDict(new_def).update(values)
+        return target.set(o)
+
     def _apply_rules(self, data):
         ret = None
+        ret_defdict = None
         if isinstance(data, dict) or isinstance(data, DefDict):
             for rule in self.rules:
-                if rule.bind_from is None:
+                origin = rule.origin
+                if origin is None:
                     continue
-                keys = rule.bind_from.list_keys()
+                keys = origin.list_keys()
                 if all(elem in list(data.keys()) for elem in keys):
-                    ret = rule.bind(data)
+                    ret = rule.map(origin=data, target=self)
                     if ret is not None:
-                        break
-        return ret
+                        self.set(ret, apply_rule=False)
+                        continue
+
+        return ret_defdict
 
     def set_rule(self, rule):
         if self.rules is None:
             self.rules = []
-        self.rules.append(rule)
+        if not isinstance(rule, list):
+            rule = [rule]
+        self.rules.extend(rule)
         return self
 
     def clear_rules(self):
@@ -289,8 +328,17 @@ class DefDict:
     def _set_defs(self, ndef, dtype=Any, nested_dict=False):
         keys = []
         suffixes = []
+
         if inspect.isclass(dtype) and issubclass(dtype, UnitType):
             dtype = dtype()
+
+        if isinstance(dtype, dict) and nested_dict:
+            dtype = DefDict(dtype)
+            suffixes.extend(dtype.list_keys())
+
+        if isinstance(ndef, DefDict):
+            ndef = ndef.DEF # if DefDict is hand over, get definition dict
+
         if isinstance(ndef, dict):
             for k, v in ndef.items():
                 if isinstance(v, dict) and nested_dict:
@@ -309,7 +357,7 @@ class DefDict:
                    # keys.append(k)
                     self._data[k] = [v]
                 elif isinstance(v, type) or v is Any:
-                    self._definition[k] = [dtype]
+                    self._definition[k] = [v]
                     keys.append(k)
                     self._data[k] = [0.0]
                 else:
@@ -330,14 +378,28 @@ class DefDict:
 
 
     def init_data(self, keys):
-        for k, v in self._definition.items():
+        for k, v in self.DEF.items():
             if k in keys:
-                if v is Any:
+                if isinstance(v, UnitType):
+                    self._data[k] = [v.default]
+                elif v is Any:
                     self._data[k] = [float()] # what should be the init value?
                 elif isinstance(v, type):
                     self._data[k] = [v()]
                 else:
                     self._data[k] = [v]   # maybe a different way of initialization?
+        return self
+
+    def to_default(self, keys=None):
+        if keys is None:
+            keys = self.list_keys()
+        else:
+            try:
+                iter(keys)
+            except:
+                keys = [keys]
+        return self.init_data(keys)
+
     
     def _from_defdict(self, data):
         for k, v in data.items():
@@ -377,7 +439,9 @@ class DefDict:
 
     
     def _enforce_type(self, d_type, value, vdef=None):
-        if isinstance(d_type, UnitType):
+        if value is None:     # None will bypass the enforcement
+            ret = None
+        elif isinstance(d_type, UnitType):
             ret = self._unit_type(d_type, value, vdef)
         elif isinstance(d_type, DefDict):
             ret = d_type.set(value)
@@ -388,8 +452,8 @@ class DefDict:
                 ret = d_type(value)
             except (TypeError, AttributeError):
                 ret = value
-            if not isinstance(ret, d_type):
-                raise TypeError(f'{ret} is not type of {d_type}')
+            # if not isinstance(ret, d_type):
+            #     raise TypeError(f'{ret} is not type of {d_type}')
         return ret    # Enforce type in the corresponding definition
 
     def _unit_type(self, dtype, value, vdef=None):
@@ -400,13 +464,13 @@ class DefDict:
     def bind(self, bind_rule, val=None):
         if val is None:
             val = self.dict()
-        self.set(bind_rule.bind(val))
+        self.set(bind_rule.map(val))
         return self
 
     def inv_bind(self, bind_rule, val=None):
         if val is None:
             val = self.dict()
-        self.set(bind_rule.inv_bind(val))
+        self.set(bind_rule.inv_map(val))
         return self
 
     def assert_data(self, data=None):
@@ -436,12 +500,19 @@ class DefDict:
         else:
             key_list.extend(self._to_key_list(keys))
 
-        key_list = map(str, key_list)
+        key_list = list(map(str, key_list))
         d = copy.deepcopy(self)
-        for k in self.DEF:
-            if k not in key_list:
-                d.remove(k)
-        return d    #DefDict
+        # for k in self.DEF:
+        #     if k not in key_list:
+        #         d.remove(k)
+        # return d    #DefDict
+
+        d.clear()
+        for k in key_list:
+            if k in self.keys():
+                d._set_defs({k: self.DEF[k]})
+                d._data[k] = self._data.get(k)
+        return d  # DefDict
 
     def remove(self, key):
         self._data.pop(key)
@@ -483,10 +554,11 @@ class DefDict:
             if isinstance(v, np.ndarray):
                 v.astype(float)
             elif isinstance(v, DefDict):
-                v.to_float()
+                self._data[k][0] = v.to_float()
             else:
                 try:
-                    self._data[k][0] = float(v)
+                    if v is not None:
+                        self._data[k][0] = float(v)
                 except ValueError:
                     pass
         return self
@@ -496,10 +568,11 @@ class DefDict:
             if isinstance(v, np.ndarray):
                 v.astype(int)
             elif isinstance(v, DefDict):
-                v.to_int()
+                self._data[k][0] = v.to_int()
             else:
                 try:
-                    self._data[k][0] = int(v)
+                    if v is not None:
+                        self._data[k][0] = int(v)
                 except ValueError:
                     pass
         return self
@@ -510,7 +583,7 @@ class DefDict:
     def clear(self):  # real signature unknown; restored from __doc__
         """ D.clear() -> None.  Remove all items from D. """
         self._data.clear()
-        self.DEF.clear()
+        self._definition.clear()
 
     def copy(self):  # real signature unknown; restored from __doc__
         """ D.copy() -> a shallow copy of D """
@@ -570,6 +643,11 @@ class DefDict:
         """ D.values() -> an object providing a view on D's values """
         return self.data.values()
 
+    @staticmethod
+    def fromkeys(keys, value):
+        return DefDict(keys, dtype=value)
+
+
     def __setitem__(self, key, value):
         if key in self.DEF.keys():
             if isinstance(self._data[key][0], DefDict):  # for nested def dict
@@ -601,7 +679,7 @@ class DefDict:
 ##############################################################
     # magic methods
     def __len__(self):
-        return len(d._data)
+        return len(self._data)
 
     def __repr__(self):
         return {k: v[0].__str__() for k, v in self._data.items()}.__str__()
@@ -618,7 +696,11 @@ class DefDict:
             current = self
         if np.isscalar(other):  # if scalar, then add the value to all elements
             for k in current._data.keys():
-                current._data[k][0] = func(current._data[k][0], other)
+                try:
+                    ret = func(current._data[k][0], other)
+                except TypeError:
+                    ret = current._data[k][0]
+                current._data[k][0] = ret
         else:  # other wise element wise
             if not isinstance(other, DefDict):
                 # if not DefDict, create one assuming
@@ -630,8 +712,11 @@ class DefDict:
             # sum for corresponding keys
             for k, o in zip(current.filter(other_defdict.keys()).list_keys(),
                         other_defdict.filter(other_defdict.list_keys()).list()):
-
-                current._data[k][0] = current._enforce_type(current.DEF[k], func(current._data[k][0],  current._enforce_type(current.DEF[k], o, other_defdict.DEF[k])))
+                try:
+                    ret = func(current._data[k][0],  current._enforce_type(current.DEF[k], o, other_defdict.DEF[k]))
+                except TypeError:
+                    ret = current._data[k][0]
+                current._data[k][0] = current._enforce_type(current.DEF[k], ret)
         return current
 
     def __iter__(self):

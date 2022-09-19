@@ -4,6 +4,7 @@ import numpy as np
 
 DEFAULT_MARGIN = 0.1
 FPS_LIMIT = 10
+SCALE = 100
 
 class PlotlyHelper:
     def __init__(self):
@@ -15,6 +16,7 @@ class PlotlyHelper:
             th = np.zeros(len(x))
 
         x_range, y_range = self.axis_limit(x, y, DEFAULT_MARGIN)
+        x_l, y_l = self._get_axis_size(x_range, y_range)
 
         duration = round(1000/fps)
         n = 1   # if need to drop some data points
@@ -61,8 +63,8 @@ class PlotlyHelper:
                             # ayref="y",
                            # ax=x[k] + 0.2 * np.cos(th[k]),
                            # ay=y[k] + 0.2 * np.sin(th[k]),
-                            ax= 30 * np.cos(th[k]),
-                            ay= 30 * np.sin(th[k]),
+                            ax = SCALE * x_l * np.cos(th[k]),
+                            ay = - SCALE * y_l * np.sin(th[k]),
                             #text=f"State: x: {round(x[k], 2)}, y: {round(y[k], 2)}, th: {round(th[k], 2)}",
                             arrowside='end+start',
                             showarrow=True,
@@ -78,6 +80,11 @@ class PlotlyHelper:
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
         fig.show()
 
+    def _get_axis_size(self, x, y):
+        l = []
+        for v in (x, y):
+            l.append(max(v) - min(v))
+        return tuple(l)
 
 
     def axis_limit(self, x, y, margin):

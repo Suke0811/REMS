@@ -1,6 +1,6 @@
 import copy
 
-from sim.typing import DefDict, BindRule
+from sim.typing import DefDict, MapRule
 from typing import Any
 import numpy as np
 
@@ -76,7 +76,7 @@ def Tmat2dict(row0,row1,row2,row3):
 
 
 T_keys = list(ROT_MAT_3D.keys()) + list(POS_3D.keys())
-T_MAT = DefDict(definition=(ROT_MAT_3D,POS_3D), format_rule=BindRule(T_keys, bind_func=T_mat_rule, inv_bind_func=Tmat2dict))
+T_MAT = DefDict(definition=(ROT_MAT_3D,POS_3D), format_rule=MapRule(T_keys, func=T_mat_rule, inv_func=Tmat2dict, to_list=True))
 
 
 
