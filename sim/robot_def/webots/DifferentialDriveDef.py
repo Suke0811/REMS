@@ -71,7 +71,7 @@ class DifferentialDriveDef(RobotDefBase):
 
     def define(self, inpt_unit, drive_space, sense_space, *args, **kwargs):
         """Definitions of the robot"""
-        self.inpt.add_def({k: inpt_unit for k in WHEEEL_VEL.keys()},  rules=self.rule.arrow) # same definitino as input but with unit specified
+        self.inpt.add_def({k: inpt_unit for k in WHEEEL_VEL.keys()},  rules=[self.rule.arrow, self.rule.joy_direct]) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
         self.drive_space.add_def(drive_space)
         self.sense_space.add_def(sense_space)

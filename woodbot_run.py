@@ -27,12 +27,13 @@ s.set_input(i)  # specify inputs to run
 out_dir = 'out/'
 webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.csv at the same dir as the
 
+s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.4.1:81"), None, JoystickInput(0))
 # add robots to simulation
-
-s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.5"), None, JoystickInput(0))
-s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.7"), None, JoystickInput(1))
-s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.14"), None, JoystickInput(2))
-s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.15"), None, JoystickInput(3))
+#
+# s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.5"), None, JoystickInput(0))
+# s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.7"), None, JoystickInput(1))
+# s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.14"), None, JoystickInput(2))
+# s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.15"), None, JoystickInput(3))
 
 
 
