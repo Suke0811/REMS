@@ -28,8 +28,8 @@ class KeyMapRule:
         self.arrow = MapRule(
             ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
         self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
-        self.joy_direct = MapRule(['X', 'Y'],
-                                  self.direct_drive,
+        self.joy_direct = MapRule(['STICK_LEFT_Y', 'STICK_RIGHT_Y'],
+                                  self.joystick_drive,
                                   {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},
                                   to_list=True)
 
@@ -41,8 +41,9 @@ class KeyMapRule:
         elif r_b: r*=-1
         return 100*l, 100*r
 
-    def joystick_drive(self):
-        pass
+    def joystick_drive(self, l_y, r_y):
+        return 100*l_y, 100*r_y
+
 
 
     def arrow_drive(self, page_up, page_down, right, left, up, down):

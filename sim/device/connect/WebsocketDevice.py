@@ -57,8 +57,7 @@ class WebsocketDevice(DeviceBase):
     def drive(self, inpt, timestamp, *args, **kwargs):
         self.dev_inpt.update(inpt)
         self.drive_send.update(self.dev_inpt)
-        #cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
-        cmd = [127] + self.dev_inpt.list()
+        cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
     @tictoc

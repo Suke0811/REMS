@@ -220,7 +220,7 @@ class UnitType:
         elif self.unit.units == unyt.percent:
             val = vdef.to_percent(val, vdef=self)
         elif self.unit.units == unyt.count:
-            val = self.to_count(val, vdef=self)
+            val = self.to_count(val, vdef=vdef)
         elif vdef.unit.units == unyt.count:
             val = vdef.from_count(val)
         elif vdef.unit.units == unyt.percent:
@@ -323,7 +323,7 @@ class UnitType:
         """
         if vdef is None:
             vdef = self
-        scaled_val = vdef._to_unyt(val, vdef.drange_map[0].units)
+        scaled_val = vdef._to_unyt(val, vdef.unit)
         if self.drange_map is None:
             return scaled_val
         drange_map = iter(self.drange_map)
@@ -335,7 +335,7 @@ class UnitType:
             try:
                 nv_map = next(drange_map)
                 lv = next(drange)
-                if sv <= val and val <= lv:
+                if sv_map  <= val and val <= nv_map:
                     if not callable(nv_map):  # if not callable not function -> this is the next value
                         lv_map = nv_map
                         func = lambda o_val, sv, lv, sv_map, lv_map: (((lv - sv)/(lv_map - sv_map)) * (o_val - sv_map) + sv)

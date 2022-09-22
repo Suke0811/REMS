@@ -13,7 +13,7 @@ class KeyboardInput(InputBase):
         self._start_capture_key()   # set listener
 
     def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
-        if prefix is 'state':
+        if prefix == 'state':
             if self._init_state:
                 return self._inputs
             else:
