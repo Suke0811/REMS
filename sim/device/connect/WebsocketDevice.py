@@ -47,8 +47,8 @@ class WebsocketDevice(DeviceBase):
 
     def open(self, *args, **kwargs):
         self.ws.connect(self.target)
-        print(self.ws.recv())  # "Connected to"
-        print(self.ws.recv())  # "ESP_xxxx"
+        # print(self.ws.recv())  # "Connected to"
+        # print(self.ws.recv())  # "ESP_xxxx"
 
     def close(self, *args, **kwargs):
         self.ws.send("#0")
