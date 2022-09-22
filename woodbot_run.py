@@ -12,7 +12,7 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=False)    # Create instance of Robot testing system
+s = Simulation(debug_mode=True)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -37,6 +37,6 @@ s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.15"), None, JoystickInput(
 
 
 
-s.run(SimConfig(max_duration=3000, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=1000, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
 
 

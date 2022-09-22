@@ -26,13 +26,15 @@ class JoystickInput(InputBase):
         pygame.init()
         pygame.joystick.init()
         count = pygame.joystick.get_count()
+        ('Number of Joysticks detected: ' + str(count))
+
         if count <= 0:
             raise ModuleNotFoundError('No Joystick is detected')
         for i in range(count):
             try:
                 joystick = pygame.joystick.Joystick(i)
                 joystick.init()
-                name = joystick.get_guid()
+                name = joystick.get_instance_id()
                 self.stick_names.append(name)
                 self._joysticks[name] = joystick
                 MAP: JOYSTIC_BASE = SUPPORTED_JOYSTICKs.get(joystick.get_name())
@@ -64,7 +66,6 @@ class JoystickInput(InputBase):
             main_stick = self.stick_names[self.stick_id]
         else:
             main_stick = self.stick_name
-
         return {**self.axes[main_stick], **self.buttons[main_stick]}
 
 
