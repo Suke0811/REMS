@@ -10,7 +10,7 @@ setup(
     description='Robotics Educational Middleware System',
     author='LEMUR UCLA',
     license='LGPLv3',
-    packages=find_packages(),
+    packages=find_packages(include=['rems', 'rems.*']),
     install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
