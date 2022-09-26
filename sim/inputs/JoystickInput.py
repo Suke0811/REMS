@@ -103,6 +103,4 @@ if __name__ == "__main__":
     j = JoystickInput()
     while True:
         print(j.get_inputs())
-        #print(j.axes[j.stick_name[0]].data)
-        #print(j.buttons[j.stick_name[0]].data)
         time.sleep(1)
