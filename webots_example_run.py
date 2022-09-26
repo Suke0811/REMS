@@ -1,18 +1,18 @@
 import logging
-from sim import Simulation
-from sim.inputs import KeyboardInput, FileCsvInput, FileInput, JoystickInput
-from sim.outputs import FileCsvOutput, AnimationOutput, FileOutput
-from sim.utils import time_str
-from sim.Config import SimConfig
-from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
-from sim.robot_def.WoodbotDef import WoodbotDef
-from sim.device.webots.WebotsBinder import WebotsBinder
-from sim.robots.differential_drive.DynabotHard import DynabotHard
-from sim.robots.differential_drive.WoodbotHard import WoodbotHard
-from sim.robots.differential_drive.CreateHard import CreateHard
-from sim.device.state_estimator.ArucoDevice import ShareAruco
-from sim.robots.ArucoBot import ArucoBot
-from sim.robots import JacobianModel
+from rems import Simulation
+from rems.inputs import KeyboardInput, FileCsvInput, FileInput, JoystickInput
+from rems.outputs import FileCsvOutput, AnimationOutput, FileOutput
+from rems.utils import time_str
+from rems.Config import SimConfig
+from rems.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
+from rems.robot_def.WoodbotDef import WoodbotDef
+from rems.device.webots.WebotsBinder import WebotsBinder
+from rems.robots.differential_drive.DynabotHard import DynabotHard
+from rems.robots.differential_drive.WoodbotHard import WoodbotHard
+from rems.robots.differential_drive.CreateHard import CreateHard
+from rems.device.state_estimator.ArucoDevice import ShareAruco
+from rems.robots.ArucoBot import ArucoBot
+from rems.robots import JacobianModel
 
 
 logging.basicConfig(level=logging.INFO)

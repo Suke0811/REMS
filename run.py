@@ -1,16 +1,16 @@
 import logging, os
-from sim import Simulation
-from sim.inputs import FileCsvInput
-from sim.inputs.JoyManipulator import JoyManipulator
-from sim.outputs import FileCsvOutput
-from sim.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
-from sim.robots.scaler_leg.ScalarHard import ScalerHard
-from sim.device.kinematic_model.KinematicModel import KinematicModel
-from sim.robots.scaler_leg.Pybullet import Pybullet
-from sim.utils import time_str
-from sim.Config import SimConfig
+from rems import Simulation
+from rems.inputs import FileCsvInput
+from rems.inputs.JoyManipulator import JoyManipulator
+from rems.outputs import FileCsvOutput
+from rems.robots.scaler_leg.ScalerManipulatorDef import ScalerManipulator
+from rems.robots.scaler_leg.ScalarHard import ScalerHard
+from rems.device.kinematic_model.KinematicModel import KinematicModel
+from rems.robots.scaler_leg.Pybullet import Pybullet
+from rems.utils import time_str
+from rems.Config import SimConfig
 
-from sim.robots.scaler import ScalerMode, ScalerDef, SimScaler
+from rems.robots.scaler import ScalerMode, ScalerDef, SimScaler
 import ray
 
 
@@ -21,7 +21,7 @@ s = Simulation()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-#i = FileCsvInput('sim/utils/target_robot_circle_line.csv', loop=True)
+#i = FileCsvInput('rems/utils/target_robot_circle_line.csv', loop=True)
 
 #i_video = FileCsvInput('trajectory/r2k/target_robot_video.csv', loop=False)
 i_helix = FileCsvInput('trajectory/target_robot_circle_line.csv', loop=True)

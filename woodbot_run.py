@@ -1,11 +1,11 @@
 import logging
-from sim import Simulation
-from sim.inputs import KeyboardInput, FileInput, JoystickInput
-from sim.outputs import FileOutput
-from sim.utils import time_str
-from sim.Config import SimConfig
-from sim.robot_def.WoodbotDef import WoodbotDef
-from sim.robots.differential_drive.WoodbotHard import WoodbotHard
+from rems import Simulation
+from rems.inputs import KeyboardInput, FileInput, JoystickInput
+from rems.outputs import FileOutput
+from rems.utils import time_str
+from rems.Config import SimConfig
+from rems.robot_def.WoodbotDef import WoodbotDef
+from rems.robots.differential_drive.WoodbotHard import WoodbotHard
 
 import ray
 

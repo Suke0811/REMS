@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from sim.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
-from sim.typing import DefDict
-from sim.typing.definitions import *
+from rems.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
+from rems.typing import DefDict
+from rems.typing.definitions import *
 import pandas as pd
 # add straight line trajectory
 add_line = True

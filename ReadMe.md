@@ -73,7 +73,7 @@ kinematics
 └───sim
     │   fromulation.py            (You need to modify)
     │   constants.py
-    │   Simulation.py 
+    │   Operator.py 
     │
     └───inputs
     │     │   InputSystem         (Base class)
