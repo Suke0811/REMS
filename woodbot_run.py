@@ -1,5 +1,5 @@
 import logging
-from rems import Simulation
+from rems import Operator
 from rems.inputs import KeyboardInput, FileInput, JoystickInput
 from rems.outputs import FileOutput
 from rems.utils import time_str
@@ -12,7 +12,7 @@ import ray
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=True)    # Create instance of Robot testing system
+s = Operator(debug_mode=True)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test

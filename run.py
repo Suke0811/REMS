@@ -1,5 +1,5 @@
 import logging, os
-from rems import Simulation
+from rems import Operator
 from rems.inputs import FileCsvInput
 from rems.inputs.JoyManipulator import JoyManipulator
 from rems.outputs import FileCsvOutput
@@ -17,7 +17,7 @@ import ray
 logging.basicConfig(level=logging.INFO)
 
 ray.init(local_mode=True)
-s = Simulation()    # Create instance of Robot testing system
+s = Operator()    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
