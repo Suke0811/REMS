@@ -132,7 +132,6 @@ class Operator:
             futs.append(r.set_DT(self.DT, block=False))
         done = ray.get(futs)
 
-    @tictoc
     def run(self, config: SimConfig):
         """Run robots with the given settings for max_duration seconds
         :param max_duration: the maximum duration of test
