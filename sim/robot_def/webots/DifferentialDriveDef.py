@@ -28,8 +28,8 @@ class KeyMapRule:
         self.arrow = MapRule(
             ['page_up', 'page_down', 'right', 'left', 'up', 'down'], self.arrow_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
         self.direct = MapRule(['q', 'e', 'a', 'd'], self.direct_drive, {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},to_list=True)
-        self.joy_direct = MapRule(['X', 'Y'],
-                                  self.direct_drive,
+        self.joy_direct = MapRule(['STICK_LEFT_Y', 'STICK_RIGHT_Y'],
+                                  self.joystick_drive,
                                   {'wh.l': Percent(scale=(-1, 1)), 'wh.r': Percent(scale=(-1, 1))},
                                   to_list=True)
 
@@ -41,8 +41,9 @@ class KeyMapRule:
         elif r_b: r*=-1
         return 100*l, 100*r
 
-    def joystick_drive(self):
-        pass
+    def joystick_drive(self, l_y, r_y):
+        return 100*l_y, 100*r_y
+
 
 
     def arrow_drive(self, page_up, page_down, right, left, up, down):
@@ -70,7 +71,7 @@ class DifferentialDriveDef(RobotDefBase):
 
     def define(self, inpt_unit, drive_space, sense_space, *args, **kwargs):
         """Definitions of the robot"""
-        self.inpt.add_def({k: inpt_unit for k in WHEEEL_VEL.keys()},  rules=self.rule.arrow) # same definitino as input but with unit specified
+        self.inpt.add_def({k: inpt_unit for k in WHEEEL_VEL.keys()},  rules=[self.rule.arrow, self.rule.joy_direct]) # same definitino as input but with unit specified
         self.state.add_def(POS_2D)
         self.drive_space.add_def(drive_space)
         self.sense_space.add_def(sense_space)

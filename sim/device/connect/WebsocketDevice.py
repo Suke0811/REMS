@@ -39,7 +39,7 @@ class WebsocketDevice(DeviceBase):
 
     def init(self, *args, **kwargs):
         self.dev_inpt = self.create_drive_space()
-        self.drive_send = DefDict({'wh.r': Fs90rCount, 'wh.l': Fs90rCount})
+        self.drive_send = DefDict({'wh.r': Fs90rSend, 'wh.l': Fs90rSend})
         self.ws = websocket.WebSocket()
 
     def enable(self, enable: bool, *args, **kwargs):
@@ -47,8 +47,8 @@ class WebsocketDevice(DeviceBase):
 
     def open(self, *args, **kwargs):
         self.ws.connect(self.target)
-        print(self.ws.recv())  # "Connected to"
-        print(self.ws.recv())  # "ESP_xxxx"
+        # print(self.ws.recv())  # "Connected to"
+        # print(self.ws.recv())  # "ESP_xxxx"
 
     def close(self, *args, **kwargs):
         self.ws.send("#0")
@@ -57,13 +57,12 @@ class WebsocketDevice(DeviceBase):
     def drive(self, inpt, timestamp, *args, **kwargs):
         self.dev_inpt.update(inpt)
         self.drive_send.update(self.dev_inpt)
-        #cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
-        cmd = [127] + self.dev_inpt.list()
+        cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
     @tictoc
     def sense(self, *args, **kwargs):
-        st = time.perf_counter()
+        return
         self.ws.send("#S")
         resp_opcode, msg = self.ws.recv_data()
         sensors = struct.unpack("<HH", msg)
