@@ -43,7 +43,7 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # #s.add_robot(WoodbotDef, JacobianModel, (AnimationOutput('video/test'+time_str()+'.gif'), FileOutput('out/model'+time_str()+'.csv')))
-s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'.gif'),  FileOutput('out/sim'+time_str()+'.csv')))
+#s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'.gif'),  FileOutput('out/sim'+time_str()+'.csv')))
 # #s.add_robot(WoodbotDef, WoodbotHard, AnimationOutput('video/test'+time_str()+'.gif'))
 #
 # #s.add_robot(CreateDef, JacobianModel, AnimationOutput('video/test'+time_str()+'.gif'))
@@ -82,7 +82,7 @@ s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'
 # r = s.add_robot(WoodbotDef, WoodbotHard, (AnimationOutput('video/test'+time_str()+'.gif'),  FileOutput('out/woodbot'+time_str()+'.csv')))
 # r.add_device(ShareAruco(observe_state=aruco.obseeddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeddddedddddrve_state, track_id=1))
 
-# r = s.add_robot(EpuckDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
+r = s.add_robot(EpuckDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
 
 # r = s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
