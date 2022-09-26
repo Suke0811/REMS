@@ -9,7 +9,7 @@ def read(rel_path):
         return fp.read()
 
 def get_metadata(field):
-    rel_path = "rocolib/__init__.py"
+    rel_path = "sim/__init__.py"
     for line in read(rel_path).splitlines():
         if line.startswith(f'__{field}__'):
             delim = '"' if '"' in line else "'"
@@ -27,7 +27,7 @@ def get_version_and_cmdclass(pkg_path):
     spec.loader.exec_module(module)
     return module.__version__, module.get_cmdclass(pkg_path)
 
-version, cmdclass = get_version_and_cmdclass('rocolib')
+version, cmdclass = get_version_and_cmdclass('rems')
 
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
