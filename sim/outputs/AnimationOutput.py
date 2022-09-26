@@ -49,7 +49,7 @@ class AnimationOutput(OutputBase):
         #marker = (3, 0, i * 90), markersize = 20, linestyle = 'None')
         self.fig, self.ax = plt.subplots()
         self.line, = self.ax.plot([], lw=3)
-        self.ann = self.ax.annotate('', xy=(0,0),
+        self.ann = self.ax.annotate('', xy=(0, 0),
                                     arrowprops=dict(arrowstyle="<-", color='red', lw=3))
         self.text = self.ax.text(0.0, 0.0, "")
         self.fig.canvas.draw()
