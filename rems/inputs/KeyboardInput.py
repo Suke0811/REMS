@@ -25,15 +25,17 @@ class KeyboardInput(InputBase):
                 return
 
         inpt_ret = self._inputs.filter(self._enable_keys)
-        while self.wait_for:
+        if self.wait_for:
             print('waiting for keyboard inputs')
-            inpt_ret = self._inputs.filter(self._enable_keys)
-            if any(inpt_ret):
+        while self.wait_for:
+            inpt = self._inputs.filter(self._enable_keys)
+            if any(inpt):
+                inpt_ret = inpt.clone()
                 while self.wait_for:
                     if not any(self._inputs.filter(self._enable_keys)):
                         return inpt_ret
-                    time.sleep(0.25)
-            time.sleep(0.25)
+                    time.sleep(0.1)
+            time.sleep(0.1)
 
         return inpt_ret
 
