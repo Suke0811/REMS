@@ -24,7 +24,7 @@ class OutputBase:
 
     def make_output(self):
         """make proper output from the data"""
-        raise NotImplementedError
+        pass
 
     def to_dict(self, data, dtype=None):
         "make all DefDict to dict format"

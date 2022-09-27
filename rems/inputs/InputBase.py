@@ -25,10 +25,6 @@ class InputBase:
             ret_inpt = self.inpt
         return ret_inpt
 
-    def get_command(self):
-        """For general key handling such as setting commands"""
-        pass
-
     def if_exit(self):
         """if exit is pressed"""
         return self._quit
