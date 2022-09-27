@@ -9,6 +9,9 @@ class OutputBase:
         self._info = []
         self._timestamps = []
 
+    def init(self, *args, **kwargs):
+        pass
+
     def process(self, state, inpt, outpt, timestamp, info):
         """save data to dynamic memory
         :param state: state space
