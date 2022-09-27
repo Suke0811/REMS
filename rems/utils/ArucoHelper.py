@@ -8,9 +8,6 @@ from scipy.spatial.transform import Rotation as R
 from pathlib import Path
 
 
-import pyrealsense2 as rs
-
-
 class ENV:
     LENGTH = 0.88   # [m]
     WIDTH =  1.15   # [m]
@@ -35,8 +32,6 @@ class ARUCO:
 
 
     CAMERA_RES = [int(480),int(640)]
-    REALSENSE_RES = [int(480), int(848)]
-    REALSENSE_FPS = 30
 
     EULER = 'zyx'
 
@@ -50,8 +45,7 @@ class ARUCO:
 
 
 class ArucoHelper:
-    CAMERA_ID_REALSENSE = 255
-    def __init__(self, camera_id=CAMERA_ID_REALSENSE, calib_file_dir=ARUCO.CALIBRATION_PATH, tag_size=ARUCO.TAG_SIZE,fps=ARUCO.FPS, video_name=ARUCO.VIDEO_NAME):
+    def __init__(self, camera_id=0, calib_file_dir=ARUCO.CALIBRATION_PATH, tag_size=ARUCO.TAG_SIZE,fps=ARUCO.FPS, video_name=ARUCO.VIDEO_NAME):
         self.calib_file_dir = calib_file_dir.resolve()
         self.id_tack =[]
         self.pipe = None
@@ -69,24 +63,12 @@ class ArucoHelper:
         self.t = 0.0
 
     def get_camera(self):
-        if self.camera_id is self.CAMERA_ID_REALSENSE:
-            self.pipe = rs.pipeline()
-            self.config = rs.config()
-            self.profile = self.pipe.start()
-            self.config.enable_stream(rs.stream.color, ARUCO.REALSENSE_RES[1], ARUCO.REALSENSE_RES[0], rs.format.bgr8, ARUCO.REALSENSE_FPS)
-            RES = ARUCO.REALSENSE_RES
-            # Start streaming
-            try:
-                self.pipe.stop()
-            except RuntimeError:
-                pass
-            self.pipe.start(self.config)
-        else:
-            self.camera = cv2.VideoCapture(self.camera_id)
-            assert self.camera.isOpened()
-            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
-            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
-            RES = ARUCO.CAMERA_RES
+
+        self.camera = cv2.VideoCapture(self.camera_id)
+        assert self.camera.isOpened()
+        self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, ARUCO.CAMERA_RES[0])
+        self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, ARUCO.CAMERA_RES[1])
+        RES = ARUCO.CAMERA_RES
 
         # Video Feeds
         fourcc = cv2.VideoWriter_fourcc(*'XVID')

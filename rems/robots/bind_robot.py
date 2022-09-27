@@ -22,9 +22,15 @@ def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
         bind, *bind_args = bind
 
     if robot_def is None: # if definition is none, then initiate without definition
-        robot = bind(*bind_args)
+        if bind_dict_args is not None:
+            robot = bind(*bind_args, **bind_dict_args)
+        else:
+            robot = bind(*bind_args)
         robot.define()
         return robot
+
+    if bind is None:
+        bind = RobotBase
 
     class RobotDef(robot_def, bind):
         def __init__(self):
