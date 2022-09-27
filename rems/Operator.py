@@ -57,7 +57,7 @@ class Operator:
         input_system.init()
         self._input_system = input_system
 
-    def add_robot(self, robot_def, robot, def_args=None, robot_args=None, outputs=None, inpt=None):
+    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
