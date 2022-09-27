@@ -12,7 +12,9 @@ class SimActor:
     def __init__(self, robot, outputs):
         self.robot = robot
         self.outputs = outputs
-        [o.init() for o in self.outputs]
+        for o in self.outputs:
+            if o is not None:
+                o.init()
         self.t = 0.0
         logging.getLogger().setLevel(logging.INFO)
 

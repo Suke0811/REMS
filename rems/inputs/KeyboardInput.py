@@ -3,9 +3,10 @@ from pynput.keyboard import Key, Listener
 from rems.typing import DefDict
 from rems.inputs.map.KEYBOARD_KEYMAP import KEYBOARD_DEF
 import numpy as np
+import time
 
 class KeyboardInput(InputBase):
-    def __init__(self, init_state=False, enable_keys=None):
+    def __init__(self, init_state=False, enable_keys=None, wait_for=False):
         super().__init__()
         self._init_state = init_state
         if enable_keys is None:
@@ -13,6 +14,7 @@ class KeyboardInput(InputBase):
         self._enable_keys = enable_keys
         self._keys = KEYBOARD_DEF
         self._inputs = self._keys
+        self.wait_for = wait_for
         self._start_capture_key()   # set listener
 
     def get_inputs(self, timestamp=None, prefix='inpt', *args, **kwargs):
@@ -21,7 +23,19 @@ class KeyboardInput(InputBase):
                 return self._inputs
             else:
                 return
-        return self._inputs.filter(self._enable_keys)
+
+        inpt_ret = self._inputs.filter(self._enable_keys)
+        while self.wait_for:
+            print('waiting for keyboard inputs')
+            inpt_ret = self._inputs.filter(self._enable_keys)
+            if any(inpt_ret):
+                while self.wait_for:
+                    if not any(self._inputs.filter(self._enable_keys)):
+                        return inpt_ret
+                    time.sleep(0.25)
+            time.sleep(0.25)
+
+        return inpt_ret
 
 
     def if_exit(self):
@@ -59,7 +73,7 @@ class KeyboardInput(InputBase):
 
 if __name__ == '__main__':
     import time
-    k = KeyboardInput()
+    k = KeyboardInput(wait_for=True)
     while True:
         print(k.get_inputs())
         time.sleep(1)
