@@ -3,7 +3,7 @@ from rems.robots.RobotBase import RobotBase
 from rems.robots.RobotDefBase import RobotDefBase
 
 
-def bind_robot(robot_def, bind):
+def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
     """
     Inherit a class at run time
     :param robot_def: subclass of RobotDefBase
@@ -28,8 +28,14 @@ def bind_robot(robot_def, bind):
 
     class RobotDef(robot_def, bind):
         def __init__(self):
-            robot_def.__init__(self, *robot_def_args)
-            bind.__init__(self, *bind_args)
+            if def_dict_args is not None:
+                robot_def.__init__(self, *robot_def_args, **def_dict_args)
+            else:
+                robot_def.__init__(self, *robot_def_args)
+            if bind_dict_args is not None:
+                bind.__init__(self, *bind_args, **bind_dict_args)
+            else:
+                bind.__init__(self, *bind_args)
             # call define
             robot_def.define(self)
     return RobotDef()

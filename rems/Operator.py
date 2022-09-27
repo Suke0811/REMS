@@ -57,14 +57,14 @@ class Operator:
         input_system.init()
         self._input_system = input_system
 
-    def add_robot(self, robot_def, robot, outputs=None, inpt=None):
+    def add_robot(self, robot_def, robot, def_args=None, robot_args=None, outputs=None, inpt=None):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
         :param outputs: tuple of outputs (child of OutputSystem)
         :param inpt: InputSystem specific to the robot. Default to system wide Inputsystem
         """
-        robot = bind_robot(robot_def, robot)
+        robot = bind_robot(robot_def, robot, def_args, robot_args)
         run = robot.run
         self.realtime += run.realtime
         # if outputs is None:     # in no output is specified, then do file outputs
