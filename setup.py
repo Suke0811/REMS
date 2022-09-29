@@ -30,14 +30,12 @@ def get_version_and_cmdclass(pkg_path):
 version, cmdclass = get_version_and_cmdclass('rems')
 
 
-
-
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
 setup(
     name='rems',
-    version='0.1.1',
+    version=version,
     cmdclass=cmdclass,
     description=get_metadata('description'),
     author=get_metadata('author'),
