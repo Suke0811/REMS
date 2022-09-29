@@ -1,17 +1,33 @@
 
-## Installation
-- Python 3.9
+## PreRequirements 
+- Platform Ubuntu(Recommended), Windows, Mac
+- Python 3.8/3.9/ (3.10)
 - IDE: Pycharm(recommended) or Visual Studio
 - git
-- libraries in requirement.txt (Updated, 2/3/22)
 
-Your Python has to be these listed versions above since Webots simulation (Used in the next lab) does not support other versions.
-IDE is strongly recommended. 
-All required libraries are in requirement.txt. IDE usually install all automatically, or 
+Python 3.10 may not work on Windows environments.
+Generally speaking, Windows causes more problems than the others. 
+
+# Install
+### Pip install from repo (as library)
+```shell
+pip install git+https://github.com/Suke0811/REMS.git@setup_py
+```
+This installs Rems currently from a branch. 
+
+### Pip install from repo (as an edible library)
+```shell
+pip install -e git+https://github.com/Suke0811/REMS.git@setup_py
+```
+This installs Rems currently from a branch as edible. 
+
+### Alternative methods (no pip)
 
 ```bash
+clone https://github.com/Suke0811/REMS.git
 pip install -r requirements.txt
 ```
+This installs all requirements for you.
 
 
 ## How to Run
