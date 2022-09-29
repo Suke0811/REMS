@@ -35,7 +35,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='rems',
-    version=version,
+    version='0.1.1',
     cmdclass=cmdclass,
     description=get_metadata('description'),
     author=get_metadata('author'),
