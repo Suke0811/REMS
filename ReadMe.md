@@ -1,3 +1,5 @@
+# REMS (Robotics Educational Middleware System)
+Currently in early beta (v0.1.1)
 
 ## PreRequirements 
 - Platform Ubuntu(Recommended), Windows, Mac
