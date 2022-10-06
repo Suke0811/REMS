@@ -1,23 +1,41 @@
+# REMS (Robotics Educational Middleware System)
+Currently in early beta (v0.1.1)
 
-## Installation
-- Python 3.9
+## PreRequirements 
+- Platform Ubuntu(Recommended), Windows, Mac
+- Python 3.8/3.9/ (3.10)
 - IDE: Pycharm(recommended) or Visual Studio
 - git
-- libraries in requirement.txt (Updated, 2/3/22)
 
-Your Python has to be these listed versions above since Webots simulation (Used in the next lab) does not support other versions.
-IDE is strongly recommended. 
-All required libraries are in requirement.txt. IDE usually install all automatically, or 
+Python 3.10 may not work on Windows environments.
+Generally speaking, Windows causes more problems than the others. 
+
+# Install
+### Pip install from repo (as library)
+```shell
+pip install git+https://github.com/Suke0811/REMS.git@setup_py
+```
+This installs Rems currently from a branch. 
+
+### Pip install from repo (as an edible library)
+```shell
+pip install -e git+https://github.com/Suke0811/REMS.git@setup_py
+```
+This installs Rems currently from a branch as edible. 
+
+### Alternative methods (no pip)
 
 ```bash
+clone https://github.com/Suke0811/REMS.git
 pip install -r requirements.txt
 ```
+This installs all requirements for you.
 
 
 ## How to Run
 - Run.py has an example of how to run it
 - You can pick one of input options: FileInput, KeyboardInput, or JoystickInput
-- You can have outputs as you want: FileOutput
+- You can have outputs as you want: FileOutput, AnimationOutputs
 - You can add as many robot as you want: KinematicsModel, WebotsModel, NOPModel
 - If you use FileOutput, you can reproduce the result with FileInput
 
@@ -46,13 +64,22 @@ pip install -r requirements.txt
   - ID 255 (right top), 254, 253, 252 (right bottom) 5by5 50mm marker at https://chev.me/arucogen/.
   - Camera calibration board and follow advices in https://aliyasineser.medium.com/opencv-camera-calibration-e9a48bdd1844
   - To run calibration, change your picture names to image0, image1, image2, ..., and then run ArucoHelper.py. You may need to change the box size (currently 0.022m)
-  
-## Run speed 
-- Now you Python version MUST be 3.9. If you were using other versions, you meed to add path to Webots Python39 library and delete old path. 
-- Now you have an option to run simulation either realtime or as fast as possible. If you add hardware woodbots, it runs at realtime.
-- You may need to increase TEST.DT (in constants.py) if you get info saying actual DT is larger than specified DT. Hardware has communication latency of about 100-200ms. You can start with 0.25s and increase or decrease as necessary. 
-- Let Webots run as fast as possible (not real speed). Woodbot may not move smoothly because it finishes running one time step faster than hardware. 
-- Please follow Paperbot repo for how to connect the woodbot. 
+
+___
+## Debugging
+### With Operator
+You can do two ways:
+- breakpoint()
+- Operator(debug_mode=True)
+
+Adding breakpoint() works for all situations, but not as convenient as IDE debuggers.
+
+Operator(debug_mode=True) lets you use IDE debuggers (Pycarm_pydev), but this won't run robots in multi-process. 
+
+### With LiteOperator
+- No special methods are required with LiteOperator
+- LiteOperator is NOT appropriate for hardware
+- A multi-agent Webots simulation is NOT possible, but 1 Webots robot works Ok.
 
 ## Process system
 - ProcessSystem allows you to conduct a process after every timesteps
@@ -73,7 +100,7 @@ kinematics
 └───sim
     │   fromulation.py            (You need to modify)
     │   constants.py
-    │   Simulation.py 
+    │   Operator.py 
     │
     └───inputs
     │     │   InputSystem         (Base class)

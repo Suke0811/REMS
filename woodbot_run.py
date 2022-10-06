@@ -1,18 +1,18 @@
 import logging
-from sim import Simulation
-from sim.inputs import KeyboardInput, FileInput, JoystickInput
-from sim.outputs import FileOutput
-from sim.utils import time_str
-from sim.Config import SimConfig
-from sim.robot_def.WoodbotDef import WoodbotDef
-from sim.robots.differential_drive.WoodbotHard import WoodbotHard
+from rems import Operator
+from rems.inputs import KeyboardInput, FileInput, JoystickInput
+from rems.outputs import FileOutput
+from rems.utils import time_str
+from rems.Config import SimConfig
+from rems.robot_def.WoodbotDef import WoodbotDef
+from rems.robots.differential_drive.WoodbotHard import WoodbotHard
 
 import ray
 
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=True)    # Create instance of Robot testing system
+s = Operator(debug_mode=False)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
@@ -27,7 +27,6 @@ s.set_input(i)  # specify inputs to run
 out_dir = 'out/'
 webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.csv at the same dir as the
 
-# s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.4.1:81"), None, JoystickInput(0))
 # add robots to simulation
 #
 s.add_robot(WoodbotDef, (WoodbotHard, "ws://192.168.1.5"), None, JoystickInput(0))

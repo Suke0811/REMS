@@ -1,5 +1,5 @@
 pygame
-matplotlib
+matplotlib==3.5.0
 pandas
 pynput
 numpy
@@ -11,10 +11,8 @@ sklearn
 ray
 redis
 dynamixel_sdk
-pybullet
 protobuf~=3.19.0
 plotly
 pycreate2
-pyrealsense2
 unyt
 scipy

@@ -1,28 +1,28 @@
 import logging
-from sim import Simulation
-from sim.inputs import KeyboardInput, FileCsvInput, FileInput, JoystickInput
-from sim.outputs import FileCsvOutput, AnimationOutput, FileOutput
-from sim.utils import time_str
-from sim.Config import SimConfig
-from sim.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
-from sim.robot_def.WoodbotDef import WoodbotDef
-from sim.device.webots.WebotsBinder import WebotsBinder
-from sim.robots.differential_drive.DynabotHard import DynabotHard
-from sim.robots.differential_drive.WoodbotHard import WoodbotHard
-from sim.robots.differential_drive.CreateHard import CreateHard
-from sim.device.state_estimator.ArucoDevice import ShareAruco
-from sim.robots.ArucoBot import ArucoBot
-from sim.robots import JacobianModel
+from rems import Operator
+from rems.inputs import KeyboardInput, FileCsvInput, FileInput, JoystickInput
+from rems.outputs import FileCsvOutput, AnimationOutput, FileOutput
+from rems.utils import time_str
+from rems.Config import SimConfig
+from rems.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
+from rems.robot_def.WoodbotDef import WoodbotDef
+from rems.device.webots.WebotsBinder import WebotsBinder
+from rems.robots.differential_drive.DynabotHard import DynabotHard
+from rems.robots.differential_drive.WoodbotHard import WoodbotHard
+from rems.robots.differential_drive.CreateHard import CreateHard
+from rems.device.state_estimator.ArucoDevice import ShareAruco
+from rems.robots.ArucoBot import ArucoBot
+from rems.robots import JacobianModel
 
 
 logging.basicConfig(level=logging.INFO)
 
-s = Simulation(debug_mode=True)    # Create instance of Robot testing system
+s = Operator(debug_mode=True)    # Create instance of Robot testing system
 
 # Create instance of inputs system.
 # You can only have one type of inputs per test
-i = FileInput('trajectory/sim09_14_2022_23_45_37.csv', loop=False)
-i = KeyboardInput()
+#i = FileInput('trajectory/sim09_14_2022_23_45_37.csv', loop=False)
+i = KeyboardInput(wait_for=True)
 #i = JoystickInput(0)
 
 s.set_input(i)  # specify inputs to run
@@ -43,7 +43,7 @@ webots_csv = FileOutput(out_dir+'webots'+time_str()+'.csv')      # save to test.
 # s.add_robot(Pioneer3AtDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # s.add_robot(EpuckDef, WebotsBinder, AnimationOutput('video/test'+time_str()+'.gif'))
 # #s.add_robot(WoodbotDef, JacobianModel, (AnimationOutput('video/test'+time_str()+'.gif'), FileOutput('out/model'+time_str()+'.csv')))
-s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'.gif'),  FileOutput('out/sim'+time_str()+'.csv')))
+s.add_robot(WoodbotDef,)
 # #s.add_robot(WoodbotDef, WoodbotHard, AnimationOutput('video/test'+time_str()+'.gif'))
 #
 # #s.add_robot(CreateDef, JacobianModel, AnimationOutput('video/test'+time_str()+'.gif'))
@@ -82,7 +82,7 @@ s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'
 # r = s.add_robot(WoodbotDef, WoodbotHard, (AnimationOutput('video/test'+time_str()+'.gif'),  FileOutput('out/woodbot'+time_str()+'.csv')))
 # r.add_device(ShareAruco(observe_state=aruco.obseeddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeddddedddddrve_state, track_id=1))
 
-# r = s.add_robot(EpuckDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
+#r = s.add_robot(EpuckDef, (CreateHard, 'COM7', 0),  AnimationOutput('video/test'+time_str()+'.gif'))
 # r.add_device(ShareAruco(observe_state=aruco.observe_state, track_id=3))
 
 # r = s.add_robot(CreateDef, (DynabotHard, 'COM3'),  AnimationOutput('video/test'+time_str()+'.gif'))
@@ -96,4 +96,4 @@ s.add_robot(WoodbotDef, WebotsBinder, (AnimationOutput('video/test'+time_str()+'
 #s.add_robot(Pioneer3DxDef, WebotsBinder)
 #s.add_robot(Pioneer3AtDef, WebotsBinder)
 
-s.run(SimConfig(max_duration=10, dt=0.01, realtime=True, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.
+s.run(SimConfig(max_duration=10, dt=0.01, realtime=False, start_time=0, run_speed=1))  # run 10sec, at the end of run, automatically do outputs.

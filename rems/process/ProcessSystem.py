@@ -1,0 +1,23 @@
+from rems.sim_handler.job_background import job_return_type
+from rems.sim_handler.job_background.job_type import job_type
+
+
+class ProcessSystem:
+    def process(self, t):
+        """Called every timestep
+        :return job_type, job to submit"""
+        return [job_type(self.job)]
+
+    def job(self, **kwargs):
+        """a job that is done in background
+        :return job_return_type: instance to self.done and **kwargs """
+        return job_return_type(self.done, **kwargs)
+
+    def done(self, **kwargs):
+        """called when the job is done"""
+
+    def process_callback(self, *args, **kwargs):
+        """
+        callback for SimRay
+        """
+
