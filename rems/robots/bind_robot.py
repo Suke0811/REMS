@@ -1,7 +1,11 @@
 from rems.typing import DefDict
 from rems.robots.RobotBase import RobotBase
 from rems.robots.RobotDefBase import RobotDefBase
+import inspect
 
+def module_check(obj):
+    if inspect.ismodule(obj):
+        raise ImportError(f'{obj} is module not a class')
 
 def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
     """
@@ -17,9 +21,10 @@ def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
 
     if isinstance(robot_def, tuple):
         robot_def, *robot_def_args = robot_def
-
+    module_check(robot_def)
     if isinstance(bind, tuple):
         bind, *bind_args = bind
+    module_check(bind)
 
     if robot_def is None: # if definition is none, then initiate without definition
         if bind_dict_args is not None:
@@ -31,6 +36,8 @@ def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
 
     if bind is None:
         bind = RobotBase
+
+
 
     class RobotDef(robot_def, bind):
         def __init__(self):
@@ -45,3 +52,4 @@ def bind_robot(robot_def, bind, def_dict_args, bind_dict_args):
             # call define
             robot_def.define(self)
     return RobotDef()
+
