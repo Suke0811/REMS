@@ -68,11 +68,13 @@ class DefDict:
         return self
 
     def _find_all_prefixes(self, data_list):
-        prefix =[]
+        prefix = {}
         for d in data_list:
+            if not isinstance(d, str):
+                d = str(d)
             if d.find(SEPARATOR) >= 1:
-                prefix.append(d.split(SEPARATOR)[0])
-        return prefix
+                prefix.setdefault(d.split(SEPARATOR)[0], d.split(SEPARATOR)[0])
+        return list(prefix.keys())
 
 
     def ndarray(self, reshape: tuple = None):
