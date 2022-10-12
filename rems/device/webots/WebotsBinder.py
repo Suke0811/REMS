@@ -89,5 +89,5 @@ class WebotsBinder(RobotBase):
 
     @classmethod
     def sense_space_def(cls, sensor_names, *args, **kwargs):
-        return DefDict({device.device_name: device.create_drive_space(sensor_names) for device in cls.DEVICE_LIST})
+        return DefDict({device.device_name: device.create_sense_space(sensor_names) for device in cls.DEVICE_LIST})
 
