@@ -577,6 +577,18 @@ class DefDict:
                     pass
         return self
 
+    @tictoc
+    def flatten(self):
+        d = dict()
+        for k, v in self.items():
+            if isinstance(v, DefDict):
+                for kk, vv in v.items():
+                    d.update({k + SEPARATOR + kk: vv})
+            else:
+                d.update({k: v})
+        return DefDict(d)
+        pass
+
 
 ###################################################################
     #dictionary methods
@@ -811,5 +823,6 @@ class DefDict:
 
 
 if __name__ == '__main__':
-    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2},),'leg.1':DefDict({'j.0':1, 'j.1':2},)})
+    print(d.flatten())
     print(d)
