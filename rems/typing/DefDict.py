@@ -117,7 +117,7 @@ class DefDict:
     def as_ruled(self):
         if self.format_rule is None:
             return self.data
-        return self.format_rule.bind(self.data)
+        return self.format_rule.map(self.data)
 
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
