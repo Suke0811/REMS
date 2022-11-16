@@ -1,12 +1,13 @@
+# for shorter path import
+from .typing import DefDict, MapRule, UnitType
+from .typing.std import StdUnit, StdDefinitions
+
+
+
+# configs
 from .Config import *
 from .Operator import Operator
 
-
-"""
-rocolib.
-
-The Robot Compiler backend library
-"""
 
 from os.path import dirname
 from os.path import realpath
