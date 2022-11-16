@@ -1,5 +1,5 @@
 pygame
-matplotlib==3.5.0
+matplotlib
 pandas
 pynput
 numpy
