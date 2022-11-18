@@ -26,7 +26,7 @@ class Imu(SenseBase):
     def close(self):
         self.imu.close()
 
-    def enable(self, enable):
+    def enable(self, enable, *args, **kwargs):
         if enable:
             self.imu.node.resume()
 

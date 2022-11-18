@@ -16,3 +16,4 @@ plotly
 pycreate2
 unyt
 scipy
+geomdl
