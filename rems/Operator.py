@@ -84,15 +84,26 @@ class Operator:
         r, r2, t = args
         self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
 
-    def init(self):
+    def init(self, t):
         futs = []
+
         for inpt, robot, robot_actor, outputs in self._robots:
             futs.append(robot_actor.init_devices(block=False))
         done = ray.get(futs)
 
         for inpt, robot, robot_actor, outputs in self._robots:
-            futs.append(robot_actor.init(block=False))
+            state = None
+            if inpt is None:
+                ret = self._input_system.get_inputs(timestamp=t, prefix='state')
+            else:
+                ret = inpt.get_inputs(timestamp=t, prefix='state')
+                if ret is not None:
+                    state = robot.state.set(ret)
+            if state is None:
+                state = robot_actor.state
+            futs.append(robot_actor.init(init_state=state, block=False))
         done = ray.get(futs)
+
         time.sleep(1)
 
     def open(self):
@@ -143,7 +154,7 @@ class Operator:
         t = config.start_time
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
-        self.init()
+        self.init(t)
         self.open()
         self.reset(t)
         st = time.perf_counter()
