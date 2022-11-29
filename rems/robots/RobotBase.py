@@ -71,7 +71,6 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         """
-        self.inpt.update(inpt)
         for device in self.devices:
             device.drive(self.inpt, timestamp)
 

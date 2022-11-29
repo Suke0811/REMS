@@ -34,24 +34,33 @@ class Dynamixel(DeviceBase):
         self.slave_ids = slave_ids
         self.offset_func = offset_func
         self.id_lists = id_lists
+        slave_bind = None
 
         # flags i dont like
         self.read_vel = False
         self.vel_mode = False
         self.to_thread = True
 
-    def init(self, *args, **kwargs):
+    def add_slave_rule(self):
         if self.slave_ids and self.slave_ids is not None:
-            self.ids.extend(self.slave_ids)
-
-            slave_bind = rule(DEF.define(prefix=ID, num=self.id_lists),
+            m = []
+            s = []
+            for pair in self.slave_ids:
+                m.append(pair[0])
+                s.append(pair[1])
+            self.ids.extend(s)
+            self.id_lists = m
+            self.slave_ids = s
+            slave_bind = rule(DEF.define(prefix=ID, num=m, dtype=motor),
                                    None,
-                                   DEF.define(prefix=ID, num=self.slave_ids), to_list=True)
+                                   DEF.define(prefix=ID, num=s, dtype=motor), to_list=True)
+            self.slave_bind = slave_bind
             self.drive_space.set_rule(slave_bind)
 
-        self.toDynamixel = rule(None, self.offset_func[0], to_list=True)
+    def init(self, *args, **kwargs):
+        self.add_slave_rule()
+        self.toDynamixel = rule(DEF.define(prefix=ID, num=self.id_lists), self.offset_func[0], to_list=True)
         self.fromDynamixel = rule(self.sense_space.pos().list_keys(), self.offset_func[1], to_list=True)
-
         self.packet = x.PacketHandler(DynamixelX.PROTOCOL_VERSION)
         self.port = x.PortHandler(self.device_port)
 
@@ -110,7 +119,9 @@ class Dynamixel(DeviceBase):
         if self.velocity_mode():
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.GOAL_VELOCITY)
         else:
-            self._sync_write(self.drive_space.pos().bind(self.toDynamixel).ID(), DynamixelX.GOAL_POSITION)
+            self.drive_space.pos().bind(self.toDynamixel)
+
+            self._sync_write(self.drive_space.bind(self.slave_bind).pos().ID(), DynamixelX.GOAL_POSITION)
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
 
     def sense(self, *args, **kwargs):

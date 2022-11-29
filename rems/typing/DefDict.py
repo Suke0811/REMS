@@ -68,11 +68,13 @@ class DefDict:
         return self
 
     def _find_all_prefixes(self, data_list):
-        prefix =[]
+        prefix = {}
         for d in data_list:
+            if not isinstance(d, str):
+                d = str(d)
             if d.find(SEPARATOR) >= 1:
-                prefix.append(d.split(SEPARATOR)[0])
-        return prefix
+                prefix.setdefault(d.split(SEPARATOR)[0], d.split(SEPARATOR)[0])
+        return list(prefix.keys())
 
 
     def ndarray(self, reshape: tuple = None):
@@ -115,7 +117,7 @@ class DefDict:
     def as_ruled(self):
         if self.format_rule is None:
             return self.data
-        return self.format_rule.bind(self.data)
+        return self.format_rule.map(self.data)
 
     def remove_prefix(self, prefix=None):
         d = copy.deepcopy(self)
@@ -577,6 +579,18 @@ class DefDict:
                     pass
         return self
 
+    @tictoc
+    def flatten(self):
+        d = dict()
+        for k, v in self.items():
+            if isinstance(v, DefDict):
+                for kk, vv in v.items():
+                    d.update({k + SEPARATOR + kk: vv})
+            else:
+                d.update({k: v})
+        return DefDict(d)
+        pass
+
 
 ###################################################################
     #dictionary methods
@@ -811,5 +825,6 @@ class DefDict:
 
 
 if __name__ == '__main__':
-    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2}, prefixes=['j']),'leg.1':DefDict({'j.0':1, 'j.1':2},prefixes=['j'])},prefixes=['leg'], suffixes=['j'])
+    d =DefDict({'leg.0':DefDict({'j.0':1, 'j.1':2},),'leg.1':DefDict({'j.0':1, 'j.1':2},)})
+    print(d.flatten())
     print(d)

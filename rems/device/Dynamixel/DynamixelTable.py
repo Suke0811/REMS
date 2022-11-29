@@ -258,7 +258,7 @@ class DynamixelX:
         VEL_MODE = 1
         POS_MODE = 3
 
-class Dynamixel (DynamixelX):
+class DynamixelLegacy(DynamixelX):
     """
     Control tables for Dynamixel legacy series.
     The same as DynamiexX
