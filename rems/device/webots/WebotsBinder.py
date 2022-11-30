@@ -1,10 +1,9 @@
 import numpy as np
 from rems.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
-
+from rems import DefDict
 from rems.robots import RobotBase
 from rems.device.webots.WebotsDrive import WebotsDrive
 from rems.device.webots.WebotsSense import WebotsSense
-from rems.typing.definitions import *
 from controller import Supervisor, Robot
 from scipy.spatial.transform import Rotation as R
 import os

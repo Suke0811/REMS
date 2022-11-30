@@ -1,6 +1,5 @@
 from rems.device import DriveBase
 from rems.typing import DefDict
-from rems.typing import definitions as DEF
 from rems.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
 
 

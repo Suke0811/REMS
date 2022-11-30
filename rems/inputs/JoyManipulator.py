@@ -2,7 +2,7 @@ import time
 
 from rems.inputs.JoystickInput import JoystickInput
 from rems.typing import DefDict, MapRule
-from rems.typing.definitions import *
+from rems.typing.std.StdDefinitions import *
 
 
 class JoyManipulator(JoystickInput):

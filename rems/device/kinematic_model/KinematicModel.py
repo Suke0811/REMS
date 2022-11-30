@@ -1,5 +1,5 @@
 from rems.robots.RobotBase import RobotBase
-from rems.typing.definitions import *
+from rems.typing.std.StdDefinitions import *
 from rems.utils import tictoc
 
 class KinematicModel(RobotBase):

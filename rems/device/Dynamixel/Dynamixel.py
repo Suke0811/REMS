@@ -1,6 +1,6 @@
 from rems.device.DeviceBase import DeviceBase
 from rems.typing import DefDict
-from rems.typing import definitions as DEF
+from rems.typing.std import StdDefinitions as DEF
 from rems.device.Dynamixel.DynamixelTable import DynamixelX
 from rems.typing import MapRule as rule
 from rems.typing.std.StdUnit import Count, Pos, Vel, Acc, Ang, AngVel, AngAcc
