@@ -8,7 +8,7 @@ scipy
 websocket-client
 opencv-contrib-python
 sklearn
-ray
+ray[default]
 redis
 dynamixel_sdk
 protobuf~=3.19.0

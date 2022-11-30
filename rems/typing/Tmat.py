@@ -1,5 +1,5 @@
 from rems import DefDict, MapRule
-from rems.typing.std.StdDefinitions import POS_3D, ROT_MAT_3D
+from rems.typing.std.StdDefinitions import POS_3D, ROT_MAT
 
 import numpy as np
 import copy
@@ -59,8 +59,8 @@ class Tmat:
                         r31=row2[0], r32=row2[1], r33=row2[2],
                         x=row0[3], y=row1[3], z=row2[3])
 
-        T_keys = list(ROT_MAT_3D.keys()) + list(POS_3D.keys())
-        return DefDict(definition=(ROT_MAT_3D, POS_3D),
+        T_keys = list(ROT_MAT.keys()) + list(POS_3D.keys())
+        return DefDict(definition=(ROT_MAT, POS_3D),
                     format_rule=MapRule(T_keys, func=T_mat_rule, inv_func=Tmat2dict, to_list=True))
 
 
