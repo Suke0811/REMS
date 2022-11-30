@@ -16,17 +16,17 @@ class Operator:
     DT_ERR = 0.01
     DT_DEFAULT = 0.25
 
-    def __init__(self, debug_mode=False, suppress_info=False, ray_init_options: dict=None):
+    def __init__(self, debug_mode=False, suppress_info=False, ray_init_options: dict=None, runtime_env: dict = None):
         """
         :param suppress_info: no log outputs to console
         """
-        if ray_init_options is not None:
-            ray_init_options.setdefault('local_mode', debug_mode)
-            ray_init_options.setdefault('num_gpus', 1)
-            ray.init(**ray_init_options)
-        else:
-            ray.init(local_mode=debug_mode, num_gpus=1) # for windows, not setting num_gpu cause an error
-
+        if ray_init_options is None:
+            ray_init_options = {}
+        ray_init_options.setdefault('local_mode', debug_mode)
+        ray_init_options.setdefault('num_gpus', 1)  # for windows, not setting num_gpu cause an error
+        if runtime_env is not None:
+            ray_init_options.setdefault('runtime_env', runtime_env)  # for remote cluster environment
+        ray.init(**ray_init_options)
 
         self.suppress_info = suppress_info
         self._input_system = None
@@ -57,7 +57,7 @@ class Operator:
         input_system.init()
         self._input_system = input_system
 
-    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None):
+    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None, remote_ip=None):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
@@ -72,7 +72,7 @@ class Operator:
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
 
-        r = ray_robot(robot, outputs)
+        r = ray_robot(robot, outputs, remote_ip=remote_ip)
 
         self._robots.append((inpt, robot, r, outputs))
         self.robot_actors.append(r)
