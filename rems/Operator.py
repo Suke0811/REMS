@@ -153,11 +153,11 @@ class Operator:
         self.runconfig = config
         self.set_dt(config.dt)
         self.realtime += config.realtime
-
         t = config.start_time
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init(t)
+        self.init_process()
         self.open()
         self.reset(t)
         st = time.perf_counter()
