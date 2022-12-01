@@ -579,7 +579,6 @@ class DefDict:
                     pass
         return self
 
-    @tictoc
     def flatten(self):
         d = dict()
         for k, v in self.items():
