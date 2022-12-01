@@ -13,7 +13,7 @@ class ProcessActor:
         self.jHandler = JobHandler()
 
     def init(self, *args, **kwargs):
-        pass
+        self.process_system.init()
 
     def process(self, t):
         rets = self.process_system.process(t)
