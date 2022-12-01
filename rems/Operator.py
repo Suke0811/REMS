@@ -103,7 +103,11 @@ class Operator:
             futs.append(robot_actor.init(init_state=state, block=False))
         done = ray.get(futs)
 
+
         time.sleep(1)
+    def init_process(self):
+        for p in self._processes:
+            p.init.remote()
 
     def open(self):
         futs = []

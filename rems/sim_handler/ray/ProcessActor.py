@@ -12,6 +12,9 @@ class ProcessActor:
         self.process_system = process(*args)
         self.jHandler = JobHandler()
 
+    def init(self, *args, **kwargs):
+        pass
+
     def process(self, t):
         rets = self.process_system.process(t)
         self.jHandler.find_job(rets)
