@@ -81,7 +81,6 @@ class Operator:
         return r  # robot reference (virtually the same as the robot)
 
     def add_process(self, process, *args):
-        r, r2, t = args
         self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
 
     def init(self, t):
