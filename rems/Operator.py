@@ -80,8 +80,8 @@ class Operator:
             self._input_system = inpt
         return r  # robot reference (virtually the same as the robot)
 
-    def add_process(self, process, *args):
-        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
+    def add_process(self, process, *args, **kwargs):
+        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args, **kwargs))
 
     def init(self, t):
         futs = []
