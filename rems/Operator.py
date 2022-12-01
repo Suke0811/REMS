@@ -81,7 +81,9 @@ class Operator:
         return r  # robot reference (virtually the same as the robot)
 
     def add_process(self, process, *args, **kwargs):
-        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args, **kwargs))
+        p = ProcessActor.options(max_concurrency=2).remote(process, *args, **kwargs)
+        self._processes.append(p)
+        return p
 
     def init(self, t):
         futs = []

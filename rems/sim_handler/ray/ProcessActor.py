@@ -20,3 +20,6 @@ class ProcessActor:
         self.jHandler.find_job(rets)
         self.jHandler.execute()
 
+    def get_inpt(self):
+        return self.process_system.get_inpt()
+
