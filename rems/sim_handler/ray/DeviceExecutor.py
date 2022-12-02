@@ -10,6 +10,7 @@ from rems.utils import tictoc
 from threading import Thread, Lock
 
 
+
 class DeviceExecutor(DeviceBase):
     def __init__(self, device, *args, **kwargs):
         self._inpt = None

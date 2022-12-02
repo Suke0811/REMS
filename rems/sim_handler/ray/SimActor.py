@@ -37,7 +37,7 @@ class SimActor:
         if np.round(self.t - t_sys, ROUND) >= DT:
             return
         #set input here
-        inpt = self.robot.inpt.update(inpt)
+        inpt = self.robot.inpt.format(inpt)
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
 
         for out in self.outputs:

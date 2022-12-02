@@ -183,7 +183,7 @@ class Operator:
                 i = inpt.get_inputs(timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)
 
-    @tictoc
+
     def process(self, t):
         if self._processes:
 
@@ -196,7 +196,6 @@ class Operator:
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote(t))
 
-    @tictoc
     def run_robot(self, t):
         self.get_ret()
         for inpt, robot, robot_actor, outputs in self._robots:
