@@ -72,7 +72,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         :param inpts: left, right wheel velocities
         """
         for device in self.devices:
-            device.drive(self.inpt, timestamp)
+            device.drive(inpt, timestamp)
 
     def sense(self):
         """generate the sensor reading

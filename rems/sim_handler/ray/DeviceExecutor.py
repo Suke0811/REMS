@@ -61,6 +61,7 @@ class DeviceExecutor(DeviceBase):
             if perf_counter() >= next_time:
                 # st = perf_counter()
                 if self.if_time('drive'):
+                    print(self.dev_inpt)
                     self.device.drive(self.dev_inpt, self.dev_timestep, block=False)
                 if self.if_time('sense'):
                     self.dev_outpt.update(self.device.sense(cache=True))
@@ -73,8 +74,10 @@ class DeviceExecutor(DeviceBase):
 
     def drive(self, inpt, t, *args, **kwargs):
         if self.dev_info.get('drive').get('on'):
+            print(self.dev_info.get('drive').get('t'), self.dev_info.get('drive').get('step'))
             if self.threading:
-                self.dev_inpt.update(inpt)
+                self.dev_inpt = inpt.clone()
+                #self.dev_inpt.update(inpt)
                 self.timestep = t
             else:
                 self.device.drive(inpt, t)

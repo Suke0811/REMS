@@ -1,3 +1,5 @@
+import copy
+
 from rems.device.DeviceBase import DeviceBase
 from rems.typing import DefDict
 from rems.typing.std import StdDefinitions as DEF
@@ -9,8 +11,8 @@ import logging, time
 import numpy as np
 import dynamixel_sdk as x
 
-DEFAULT_SPEED = 2
-DEFAULT_ACC = 20
+DEFAULT_SPEED = 50
+DEFAULT_ACC = 500
 ID = 'ID'
 
 default_func = (None, None)
@@ -33,13 +35,13 @@ class Dynamixel(DeviceBase):
         self.ids = id_lists
         self.slave_ids = slave_ids
         self.offset_func = offset_func
-        self.id_lists = id_lists
+        self.id_lists = copy.deepcopy(id_lists)
         slave_bind = None
 
         # flags i dont like
         self.read_vel = False
         self.vel_mode = False
-        self.to_thread = True
+        self.to_thread = False
 
     def add_slave_rule(self):
         if self.slave_ids and self.slave_ids is not None:
@@ -49,7 +51,10 @@ class Dynamixel(DeviceBase):
                 m.append(pair[0])
                 s.append(pair[1])
             self.ids.extend(s)
-            self.id_lists = m
+            try:
+                [self.id_lists.remove(slave) for slave in s]
+            except ValueError:
+                pass
             self.slave_ids = s
             slave_bind = rule(DEF.define(prefix=ID, num=m, dtype=motor),
                                    None,
