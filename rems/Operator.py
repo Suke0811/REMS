@@ -178,7 +178,9 @@ class Operator:
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
+
                 i = self._input_system.get_inputs(timestamp=t)
+
             else:
                 i = inpt.get_inputs(timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)
@@ -186,13 +188,6 @@ class Operator:
 
     def process(self, t):
         if self._processes:
-
-            #if self._processes_refs:
-            # this wait takes 0.04sec? #set time out for ray.wait
-                #finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
-                #if finished:
-                    #pass
-                    #rets = (ray.get(finished[-1]))
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote(t))
 
@@ -207,7 +202,6 @@ class Operator:
             self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
             self.futs_time.append(t)
             self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
-
             ####### ~0.0001s
 
     def get_ret(self):

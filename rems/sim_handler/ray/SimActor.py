@@ -44,6 +44,7 @@ class SimActor:
             if out is None:
                 continue
             out.process(state, inpt, outpt, t, info)
+
         disp = []
         for r in [inpt, state, outpt]:
             try:
@@ -51,10 +52,12 @@ class SimActor:
             except TypeError:
                 disp.append(r)
 
+
         if not self.robot.run.supress_info:
             logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
             self.robot.run.name,
             np.round(dt_actual, 5), np.round(t, ROUND), disp[0], disp[1], disp[2], info))
+
 
     def set_DT(self, DT):
         if self.robot.run.DT is None:

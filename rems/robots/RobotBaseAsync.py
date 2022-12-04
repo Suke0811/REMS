@@ -70,7 +70,6 @@ class RobotBaseAsync(RobotDefBase, BasicDeviceBase):
     def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
-
         [device.init(self.inpt, self.state, self.outpt) for device in self.devices]
 
 

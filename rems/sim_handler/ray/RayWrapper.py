@@ -39,7 +39,6 @@ class RayWrapper(object):
         for v in self._ray_vars:
             self._add_var(v)
 
-
     def _add_method(self, name, remote_class_method=True):
         if remote_class_method:
             func_str = "self._ray_class._call_func.remote(name, *args, **kwargs)"
