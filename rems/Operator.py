@@ -178,9 +178,7 @@ class Operator:
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
             if inpt is None:
-
                 i = self._input_system.get_inputs(timestamp=t)
-
             else:
                 i = inpt.get_inputs(timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)

@@ -11,8 +11,8 @@ import logging, time
 import numpy as np
 import dynamixel_sdk as x
 
-DEFAULT_SPEED = 50
-DEFAULT_ACC = 500
+DEFAULT_SPEED = 5
+DEFAULT_ACC = 100
 ID = 'ID'
 
 default_func = (None, None)
@@ -41,7 +41,7 @@ class Dynamixel(DeviceBase):
         # flags i dont like
         self.read_vel = False
         self.vel_mode = False
-        self.to_thread = False
+        self.to_thread = True
 
     def add_slave_rule(self):
         if self.slave_ids and self.slave_ids is not None:
@@ -113,7 +113,7 @@ class Dynamixel(DeviceBase):
             else:
                 if enable:
                     logging.info(f'Could not enabled {self.drive_space.on()}')
-                    raise ConnectionError(f"Dynamixel could not enabled {self.drive_space.on()}")
+#                    raise ConnectionError(f"Dynamixel could not enabled {self.drive_space.on()}")
                 else:
                     logging.info('Disabled')
         return False
@@ -125,7 +125,8 @@ class Dynamixel(DeviceBase):
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.GOAL_VELOCITY)
         else:
             self.drive_space.pos().bind(self.toDynamixel)
-
+            if timestamp == 0.0:
+                return
             self._sync_write(self.drive_space.bind(self.slave_bind).pos().ID(), DynamixelX.GOAL_POSITION)
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
 
