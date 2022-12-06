@@ -5,7 +5,6 @@ from rems.device.BasicDeviceBase import BasicDeviceBase
 from rems.robots.RobotDefBase import RobotDefBase
 from rems.typing import DefDict
 from rems.sim_handler.ray.DeviceExecutor import DeviceExecutor
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -62,7 +61,6 @@ class RobotBaseAsync(RobotDefBase, BasicDeviceBase):
         if self.executor is None:
             self.executor = ThreadPoolExecutor()
         self.futs = [self.executor.submit(device.start) for device in self.devices]
-        #self.futs = [threading.Thread(target=device.start, args=()) for device in self.devices]
 
 
     def control(self, inpt, timestamp):

@@ -103,7 +103,8 @@ class RayWrapper(object):
         if self._not_serializable:
             ret = self._local_class
         else:
-            ret = ray.get(self._ray_class.get_class.remote())
+            ret = self._local_class
+            #ret = ray.get(self._ray_class.get_class.remote())
         return ret
 
 

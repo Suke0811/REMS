@@ -2,8 +2,10 @@ from ray.util.scheduling_strategies import NodeAffinitySchedulingStrategy
 from rems.sim_handler.ray.SimActor import SimActor
 import time
 import ray
+from ray.util import inspect_serializability
+
 TIMEOUT = 0.0005
-EXCLUDE = [] #['call_func', 'get_variable', 'set_variable']
+EXCLUDE = ['get_robot'] #['call_func', 'get_variable', 'set_variable']
 def get_methods(instance):
     rets = []
     for attr in dir(instance):
