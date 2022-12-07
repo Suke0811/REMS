@@ -4,10 +4,12 @@ from rems.sim_handler.job_background.job_type import job_type
 
 class ProcessSystem:
     def __init__(self, *args, **kwargs):
-        pass
+        self.robot = None
+        self.to_thread = False
+        self.dt = 0.01
 
-    def init(self, *args, **kwargs):
-        pass
+    def init(self, robot=None, *args, **kwargs):
+        self.robot = robot
 
     def process(self, t, *args, **kwargs):
         """Called every timestep
@@ -26,4 +28,3 @@ class ProcessSystem:
         """
         callback for SimRay
         """
-

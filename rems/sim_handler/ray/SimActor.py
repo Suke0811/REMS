@@ -25,15 +25,10 @@ class SimActor:
         observe = None
         info = None
         while np.round(self.t - t_sys, ROUND) < DT:
-            td = time.perf_counter()
+            self.robot.process(self.t)
             self.robot.drive(inpt, self.t)
-            print(f'drive{time.perf_counter()-td}')
-            ts = time.perf_counter()
             observe = self.robot.sense()
-            print(f'sense{time.perf_counter() - ts}')
-            to = time.perf_counter()
             state = self.robot.observe_state()
-            print(f'observe{time.perf_counter() - to}')
 
             self.t = self.robot.clock(self.t)
             info = self.robot.info
@@ -44,10 +39,8 @@ class SimActor:
         if np.round(self.t - t_sys, ROUND) >= DT:
             return
         #set input here
-        st = time.perf_counter()
         inpt = self.robot.inpt.format(inpt)
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
-        print(time.perf_counter()-st)
         for out in self.outputs:
             if out is None:
                 continue
@@ -60,12 +53,10 @@ class SimActor:
             except TypeError:
                 disp.append(r)
 
-
         if not self.robot.run.supress_info:
             logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
             self.robot.run.name,
             np.round(dt_actual, 5), np.round(t, ROUND), disp[0], disp[1], disp[2], info))
-
 
     def set_DT(self, DT):
         if self.robot.run.DT is None:
@@ -85,7 +76,6 @@ class SimActor:
         #getattr(self.robot, name)
 
     def get_robot(self):
-        return
         return self.robot
 
     def make_outputs(self):

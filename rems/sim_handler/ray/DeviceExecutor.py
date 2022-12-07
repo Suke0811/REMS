@@ -32,7 +32,7 @@ class DeviceExecutor(DeviceBase):
         self.dev_step = min(self.dev_info.step())
         self.dev_timestep = 0.0
 
-    def init(self, inpt, state, outpt,):
+    def init(self):
         self.lock = Lock()
         self.device.init()
 

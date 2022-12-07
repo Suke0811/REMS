@@ -28,11 +28,6 @@ class RobotBaseAsync(RobotDefBase, BasicDeviceBase):
 
     def add_device(self, device, *args, **kwargs):
         pass
-        # curframe = inspect.currentframe()
-        # calframe = inspect.getouterframes(curframe, 2)
-        # if  calframe[1][3] != 'init_devices':
-        #     raise SyntaxError(f'add_device should be called only in init_device, called from {calframe[1][3]}')
-       # if isinstance()
 
 
     def init_devices(self):

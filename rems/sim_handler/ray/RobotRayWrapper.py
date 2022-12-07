@@ -23,7 +23,7 @@ def get_vars(instance):
 
 RAY_LIMIT = 5
 
-class RobotRayWrapper(object):
+class RobotRayWrapper:
     def __init__(self, robot, outputs, cache=False, remote_ip=None):
         self._local_robot = robot
         self._cache = cache

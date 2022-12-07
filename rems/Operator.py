@@ -173,7 +173,6 @@ class Operator:
         logging.info(f"loop time {time.perf_counter()-st}")
         self.close()
         self.make_outputs()
-        # self.close()
 
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
@@ -183,34 +182,10 @@ class Operator:
                 i = inpt.get_inputs(timestamp=t)
             robot_actor.step(i, t, self.DT, block=False)
 
-
     def process(self, t):
         if self._processes:
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote(t))
-
-    def run_robot(self, t):
-        self.get_ret()
-        for inpt, robot, robot_actor, outputs in self._robots:
-            if inpt is None:
-                i = self._input_system.get_inputs(timestamp=t)
-            else:
-                i = inpt.get_inputs(timestamp=t)
-            #######
-            self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
-            self.futs_time.append(t)
-            self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
-            ####### ~0.0001s
-
-    def get_ret(self):
-        if self.futs:
-            finished, self.futs = ray.wait(self.futs, num_returns=len(self.robot_actors))
-            futs_time = self.futs_time[0:len(finished)]
-            fut_robot = self.futs_robots[0:len(finished)]
-            self.futs_time = self.futs_time[len(finished):-1]
-            self.fut_robot = self.futs_robots[len(finished):-1]
-            for t, f, f_r in zip(futs_time, finished, fut_robot):
-                self.return_handle(ray.get(f), t, f_r)
 
     def return_handle(self, ret, t, ret_robot):
         inpt, robot, robot_actor, outputs = ret_robot
