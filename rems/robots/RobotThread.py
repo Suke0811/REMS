@@ -39,7 +39,7 @@ class RobotThread(RobotBase):
         self._devices.append(DeviceExecutor(device))
 
     def init_devices(self):
-        self.start_device()
+        pass
 
 
 
@@ -55,19 +55,22 @@ class RobotThread(RobotBase):
         if self.executor is None:
             self.executor = ThreadPoolExecutor()
         self.dev_futs = [self.executor.submit(device.start) for device in self._devices]
+        def exception_call(fut):
+            fut.result()
+        [fut.add_done_callback(exception_call) for fut in self.dev_futs]
 
     def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
         self._processes = [ProcessExecutor(p) for p in self.pros]
-        [device.init(self.inpt, self.state, self.outpt) for device in self._devices]
+        [device.init() for device in self._devices]
         [process.init(robot=self) for process in self._processes]
+        self.start_device()
         self.start_process()
 
     def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
-        [device.reset() for device in self._devices]
-
+        pass
 
     def drive(self, inpt, timestamp):
         """drive the robot to the next state
