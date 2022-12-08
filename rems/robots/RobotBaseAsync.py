@@ -4,7 +4,7 @@ from rems.robots.RunConfig import RunConfig
 from rems.device.BasicDeviceBase import BasicDeviceBase
 from rems.robots.RobotDefBase import RobotDefBase
 from rems.typing import DefDict
-from rems.sim_handler.ray.DeviceExecutor import DeviceExecutor
+from rems.sim_handler.thread import DeviceExecutor
 from concurrent.futures import ThreadPoolExecutor
 
 

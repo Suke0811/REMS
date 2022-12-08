@@ -1,18 +1,18 @@
 from rems.robots import RobotBase
 from concurrent.futures import ThreadPoolExecutor
-from rems.sim_handler.ray.DeviceExecutor import DeviceExecutor
+from rems.sim_handler.thread import DeviceExecutor, ProcessExecutor
 
 class RobotThread(RobotBase):
     def __init__(self, debug_mode=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.debug_mode = debug_mode
         self.executor = None
+        self._controllers = []
+        self._processes = []
+        self._devices = []
 
-    def add_controller(self, *args, **kwargs):
-        pass
-
-    def add_process(self, *args, **kwargs):
-        pass
+    def add_process(self, process, *args, **kwargs):
+        self._processes.append(ProcessExecutor(process))
 
     def add_device(self, device, *args, **kwargs):
         name = device.device_name
@@ -36,52 +36,50 @@ class RobotThread(RobotBase):
         for k, c in config.step().items():
             if c == 0.0 or c is None:
                 config.step()[k] = self.run.DT
-        self.devices.append(DeviceExecutor(device))
+        self._devices.append(DeviceExecutor(device))
 
-    def start_controller(self):
-        if self.executor is None:
-            self.executor = ThreadPoolExecutor()
-        self.cntrl_futs = [self.executor.submit(device.start) for device in self.devices]
+    def init_devices(self):
+        self.start_device()
+
+
 
     def start_process(self):
         if self.executor is None:
             self.executor = ThreadPoolExecutor()
-        self.pro_futs = [self.executor.submit(device.start) for device in self.devices]
+        self.pro_futs = [self.executor.submit(process.start) for process in self._processes]
+        def exception_call(fut):
+            fut.result()
+        [fut.add_done_callback(exception_call) for fut in self.pro_futs]
 
     def start_device(self):
         if self.executor is None:
             self.executor = ThreadPoolExecutor()
-        self.dev_futs = [self.executor.submit(device.start) for device in self.devices]
+        self.dev_futs = [self.executor.submit(device.start) for device in self._devices]
 
     def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
-        [device.init(self.inpt, self.state, self.outpt) for device in self.devices]
-
-
+        self._processes = [ProcessExecutor(p) for p in self.pros]
+        [device.init(self.inpt, self.state, self.outpt) for device in self._devices]
+        [process.init(robot=self) for process in self._processes]
+        self.start_process()
 
     def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
-        [device.reset() for device in self.devices]
-        #self.futs = [threading.Thread(target=device.start, args=()) for device in self.devices]
+        [device.reset() for device in self._devices]
 
-
-    def control(self, inpt, timestamp):
-        self.inpt.set(inpt)
-        self.joint_space.set(self.inpt)
-        return self.joint_space
 
     def drive(self, inpt, timestamp):
         """drive the robot to the next state
         :param inpts: left, right wheel velocities
         """
-        for device in self.devices:
+        for device in self._devices:
             device.drive(inpt, timestamp)
 
     def sense(self):
         """generate the sensor reading
         :return output"""
-        for device in self.devices:
+        for device in self._devices:
             ret = device.sense()
             if ret is not None:
                 self.outpt.update(ret)
@@ -89,22 +87,25 @@ class RobotThread(RobotBase):
 
     def observe_state(self):
         """get current state"""
-        for device in self.devices:
+        for device in self._devices:
             ret = device.observe_state()
             if ret is not None:
                 self.state.update(ret)
         return self.state
 
+    def process(self, t, *args, **kwargs):
+        [process.process(t, *args, **kwargs) for process in self._processes]
+
     def open(self):
-        [device.open() for device in self.devices]
+        [device.open() for device in self._devices]
         self.enable(True)
 
     def enable(self, enable):
-        [device.enable(enable) for device in self.devices]
+        [device.enable(enable) for device in self._devices]
 
     def close(self):
         self.enable(False)
-        [device.close() for device in self.devices]
+        [device.close() for device in self._devices]
 
 
 
