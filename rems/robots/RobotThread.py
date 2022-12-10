@@ -42,7 +42,6 @@ class RobotThread(RobotBase):
         pass
 
 
-
     def start_process(self):
         if self.executor is None:
             self.executor = ThreadPoolExecutor()
