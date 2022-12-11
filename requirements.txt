@@ -10,7 +10,6 @@ opencv-contrib-python
 sklearn
 ray[default]
 redis
-dynamixel_sdk
 protobuf~=3.19.0
 plotly
 pycreate2

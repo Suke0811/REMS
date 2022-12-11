@@ -6,23 +6,24 @@ from rems.typing.std import StdDefinitions as DEF
 from rems.device.Dynamixel.DynamixelTable import DynamixelX
 from rems.typing import MapRule as rule
 from rems.typing.std.StdUnit import Count, Pos, Vel, Acc, Ang, AngVel, AngAcc
-
+from rems.utils import tictoc
 import logging, time
 import numpy as np
-import dynamixel_sdk as x
+from rems.device.Dynamixel import dynamixel_sdk as x
 
-DEFAULT_SPEED = 5
-DEFAULT_ACC = 100
+DEFAULT_SPEED = 20
+DEFAULT_ACC = 500
 ID = 'ID'
 
 default_func = (None, None)
 
-motor = DefDict(dict(pos=Ang,
-             vel=AngVel(unit='rad/s', drange=('-52rpm', '52rpm'), default=DEFAULT_SPEED),
-             acc=Acc(default=DEFAULT_ACC),
+motor = DefDict(dict(pos=float,#Ang,
+             vel=float,#AngVel(unit='rad/s', drange=('-52rpm', '52rpm'), default=DEFAULT_SPEED),
+             acc=float,#Acc(default=DEFAULT_ACC),
              on=bool))
 
-sensor = DefDict(dict(pos=Ang, vel=AngVel(unit='rad/s', drange=('-52rpm', '52rpm'))))
+sensor = DefDict(dict(pos=float,#Ang,
+                        vel=float,))#AngVel(unit='rad/s', drange=('-52rpm', '52rpm'))))
 
 
 class Dynamixel(DeviceBase):
@@ -36,6 +37,7 @@ class Dynamixel(DeviceBase):
         self.slave_ids = slave_ids
         self.offset_func = offset_func
         self.id_lists = copy.deepcopy(id_lists)
+        self.config.step().update([0.01,0.01,0.01])
         slave_bind = None
 
         # flags i dont like
@@ -100,6 +102,7 @@ class Dynamixel(DeviceBase):
         time.sleep(1)   # TODO: wait till the motor reach the target position
 
     def enable(self, enable, *args, **kwargs):
+        time.sleep(0.1)
         if self.port.is_open:
             for i, id in enumerate(self.ids):
                 result = self.func_retry(self.packet.write1ByteTxRx,
@@ -120,17 +123,22 @@ class Dynamixel(DeviceBase):
 
     def drive(self, inpt: DefDict, timestamp, *args, **kwargs):
         # TODO: change this so that each motor could have different mode
+        stt = time.perf_counter()
         self.drive_space.set(inpt)
+        print('INPT-DEVICE', time.perf_counter() - stt)
         if self.velocity_mode():
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.GOAL_VELOCITY)
         else:
             self.drive_space.pos().bind(self.toDynamixel)
             if timestamp == 0.0:
                 return
-            self._sync_write(self.drive_space.bind(self.slave_bind).pos().ID(), DynamixelX.GOAL_POSITION)
-            self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
+            val = self.drive_space.bind(self.slave_bind).pos().ID()
+            print('settime',time.perf_counter() - stt)
+            self._sync_write(val, DynamixelX.GOAL_POSITION)
+            #self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
 
     def sense(self, *args, **kwargs):
+        return
         if not self.read_vel and not self.vel_mode:
             self._sync_read(self.sense_space.ID().pos(), DynamixelX.PRESENT_POSITION)
             self.sense_space.pos().bind(self.fromDynamixel)

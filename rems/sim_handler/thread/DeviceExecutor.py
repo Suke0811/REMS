@@ -59,7 +59,7 @@ class DeviceExecutor(DeviceBase):
                     self.dev_state = s
                 next_time += self.dev_step
                 # print(perf_counter()-st)
-            time.sleep(self.dev_step/10)
+            #time.sleep(self.dev_step/10)
 
     def drive(self, inpt, t, *args, **kwargs):
         if self.dev_info.get('drive').get('on'):

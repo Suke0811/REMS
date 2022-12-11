@@ -20,30 +20,38 @@ class ProcessExecutor(ProcessSystem):
         self.threading = process.to_thread and not debug_mode
         self.lock = Lock()
         self.timestep = 0.0
+        self.run_process = False
 
-    def start(self):
-        next_time = perf_counter()
-        self.t_current = perf_counter()
+    def start(self, realtime=False):
+        if realtime:
+            self.t_current = perf_counter()
         while self.threading:   # if threading is false, then this job simply dies
-            if perf_counter() >= next_time:
-                # st = perf_counter()
-                if self.if_time():
-                    with self.lock:
-                        self.pro.process(self.timestep, block=False)
-                next_time += self.dt
-                # print(perf_counter()-st)
-            time.sleep(self.dt/10)
+            if self.if_time():
+                with self.lock:
+                    self.pro.process(self.timestep, block=False)
+                    self.run_process = False
+            time.sleep(0.0001)
 
     def init(self, robot=None, *args, **kwargs):
         self.pro.init(robot, *args, **kwargs)
 
     def if_time(self):
-        if perf_counter() >= self.t_current + self.dt:
+        return self.run_process
+
+        if self.timestep >= self.t_current + self.dt:
             self.t_current += self.dt
             return True
+
+        # if perf_counter() >= self.t_current + self.dt:
+        #     self.t_current += self.dt
+        #     return True
         return False
 
     def process(self, t, *args, **kwargs):
+        if t == 0.0:
+            return
+        self.run_process = True
+        return
         if self.threading:
             self.timestep = t
         else:
