@@ -21,7 +21,7 @@
 
 from .robotis_def import *
 import time
-
+from rems.utils import tictoc
 TXPACKET_MAX_LEN = 1 * 1024
 RXPACKET_MAX_LEN = 1 * 1024
 

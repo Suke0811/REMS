@@ -29,7 +29,6 @@ class SimActor:
             self.robot.drive(inpt, self.t)
             observe = self.robot.sense()
             state = self.robot.observe_state()
-
             self.t = self.robot.clock(self.t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st

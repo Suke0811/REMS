@@ -37,7 +37,6 @@ class ProcessExecutor(ProcessSystem):
 
     def if_time(self):
         return self.run_process
-
         if self.timestep >= self.t_current + self.dt:
             self.t_current += self.dt
             return True
@@ -48,11 +47,10 @@ class ProcessExecutor(ProcessSystem):
         return False
 
     def process(self, t, *args, **kwargs):
-        if t == 0.0:
-            return
-        self.run_process = True
-        return
+        # if t == 0.0:
+        #     return
         if self.threading:
             self.timestep = t
+            self.run_process = True
         else:
             self.pro.process(t, *args, **kwargs)

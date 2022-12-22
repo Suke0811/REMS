@@ -11,8 +11,8 @@ import logging, time
 import numpy as np
 from rems.device.Dynamixel import dynamixel_sdk as x
 
-DEFAULT_SPEED = 20
-DEFAULT_ACC = 500
+DEFAULT_SPEED = 6.0
+DEFAULT_ACC = 17.5
 ID = 'ID'
 
 default_func = (None, None)
@@ -30,6 +30,8 @@ class Dynamixel(DeviceBase):
     device_name = 'Dynamixel'
     def __init__(self, id_lists, slave_ids=None, device_port='/dev/ttyUSB0', offset_func=default_func, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.realtime = 0.0
+
         self.device_port = device_port
         # motor sensing is only for masters
         # motor input is for all
@@ -37,7 +39,7 @@ class Dynamixel(DeviceBase):
         self.slave_ids = slave_ids
         self.offset_func = offset_func
         self.id_lists = copy.deepcopy(id_lists)
-        self.config.step().update([0.01,0.01,0.01])
+        self.config.step().update([0.02,0.02,0.01])
         slave_bind = None
 
         # flags i dont like
@@ -89,7 +91,9 @@ class Dynamixel(DeviceBase):
             for key, acc in self.drive_space.acc().items():
                 if acc == 0:
                     self.drive_space.acc()[key] = DEFAULT_ACC
+                    self.drive_space.vel()[key] = DEFAULT_SPEED
             self._sync_write(self.drive_space.ID().acc(), DynamixelX.PROFILE_ACCELERATION)
+            self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
 
     def close(self, *args, **kwargs):
         if self.port.is_open:
@@ -123,29 +127,26 @@ class Dynamixel(DeviceBase):
 
     def drive(self, inpt: DefDict, timestamp, *args, **kwargs):
         # TODO: change this so that each motor could have different mode
-        stt = time.perf_counter()
         self.drive_space.set(inpt)
-        print('INPT-DEVICE', time.perf_counter() - stt)
         if self.velocity_mode():
             self._sync_write(self.drive_space.ID().vel(), DynamixelX.GOAL_VELOCITY)
         else:
             self.drive_space.pos().bind(self.toDynamixel)
-            if timestamp == 0.0:
+            if timestamp <= 0.0:
                 return
             val = self.drive_space.bind(self.slave_bind).pos().ID()
-            print('settime',time.perf_counter() - stt)
             self._sync_write(val, DynamixelX.GOAL_POSITION)
             #self._sync_write(self.drive_space.ID().vel(), DynamixelX.PROFILE_VELOCITY)
 
     def sense(self, *args, **kwargs):
-        return
-        if not self.read_vel and not self.vel_mode:
+        if True: # not self.read_vel and not self.vel_mode:
             self._sync_read(self.sense_space.ID().pos(), DynamixelX.PRESENT_POSITION)
             self.sense_space.pos().bind(self.fromDynamixel)
             self.read_vel = True
         else:
             self._sync_read(self.sense_space.ID().vel(), DynamixelX.PRESENT_VELOCITY)
             self.read_vel = False
+        #print(self.sense_space)
         return self.sense_space
 
     def _sync_write(self, values:DefDict, table, value_overwrite=None):
@@ -178,7 +179,9 @@ class Dynamixel(DeviceBase):
         for i in self.ids:
             self.func_retry(self.packet.reboot, args=(self.port, i), success_condition=x.COMM_SUCCESS)
 
+
     def velocity_mode(self):
+        return self.vel_mode
         if self.vel_mode is False and any(self.drive_space.pos() == float('inf')):
             self._sync_write(self.drive_space.ID(), DynamixelX.OPERATING_MODE, DynamixelX.OPERATING_MODE.VEL_MODE)
             self.vel_mode = True
@@ -196,8 +199,10 @@ class Dynamixel(DeviceBase):
     def func_retry(func, args=None, retry_max=DynamixelX.RETRY_MAX, success_condition=True):
         result = None
         for retry_count in range(retry_max):
-            if args is None:    result = func()
-            else:               result = func(*args)
+            if args is None:
+                result = func()
+            else:
+                result = func(*args)
             try:
                 iterator = iter(result)
                 result = next(iterator)
