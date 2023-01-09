@@ -13,13 +13,13 @@ Generally speaking, Windows causes more problems than the others.
 # Install
 ### Pip install from repo (as library)
 ```shell
-pip install git+https://github.com/Suke0811/REMS.git@setup_py
+pip install git+https://github.com/Suke0811/REMS.git@main
 ```
 This installs Rems currently from a branch. 
 
 ### Pip install from repo (as an edible library)
 ```shell
-pip install -e git+https://github.com/Suke0811/REMS.git@setup_py
+pip install -e git+https://github.com/Suke0811/REMS.git@main
 ```
 This installs Rems currently from a branch as edible. 
 
