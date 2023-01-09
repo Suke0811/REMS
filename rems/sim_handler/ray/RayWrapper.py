@@ -39,7 +39,6 @@ class RayWrapper(object):
         for v in self._ray_vars:
             self._add_var(v)
 
-
     def _add_method(self, name, remote_class_method=True):
         if remote_class_method:
             func_str = "self._ray_class._call_func.remote(name, *args, **kwargs)"
@@ -104,7 +103,8 @@ class RayWrapper(object):
         if self._not_serializable:
             ret = self._local_class
         else:
-            ret = ray.get(self._ray_class.get_class.remote())
+            ret = self._local_class
+            #ret = ray.get(self._ray_class.get_class.remote())
         return ret
 
 

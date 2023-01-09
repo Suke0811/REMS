@@ -4,11 +4,11 @@ from rems.robots.RunConfig import RunConfig
 from rems.device.BasicDeviceBase import BasicDeviceBase
 from rems.robots.RobotDefBase import RobotDefBase
 from rems.typing import DefDict
-from rems.sim_handler.thread.DeviceExecutor import DeviceExecutor
-import threading
+from rems.sim_handler.thread import DeviceExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 
-class RobotBase(RobotDefBase, BasicDeviceBase):
+class RobotBaseAsync(RobotDefBase, BasicDeviceBase):
     DEVICE_LIST = []
 
     def __init__(self, *args, **kwargs):
@@ -22,34 +22,27 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         # Run settings
         self.run = RunConfig()
         self.home_position = self.joint_space
+        self.executor = None
+        self._processes = []
+        self._pro_futs = []
 
     def add_device(self, device, *args, **kwargs):
-        # curframe = inspect.currentframe()
-        # calframe = inspect.getouterframes(curframe, 2)
-        # if  calframe[1][3] != 'init_devices':
-        #     raise SyntaxError(f'add_device should be called only in init_device, called from {calframe[1][3]}')
-       # if isinstance()
-        name = device.device_name
-        try:
-            drive_space = self.drive_space.get(name)
-        except KeyError:
-            drive_space = None
-        try:
-            sense_space = self.sense_space.get(name)
-        except KeyError:
-            sense_space = None
-        try: device.set_drive_space(drive_space)
-        except AttributeError: pass
-        try: device.set_sense_space(sense_space)
-        except AttributeError: pass
-        config = device.config
-        for k, c in config.step().items():
-            if c == 0.0 or c is None:
-                config.step()[k] = self.run.DT
-        self.devices.append(DeviceExecutor(device))
+        pass
+
 
     def init_devices(self):
         pass
+
+    def add_process(self,  process):
+        self._processes.append(process)
+
+    def init_process(self):
+        [pro.init() for pro in self._processes]
+
+    def reset_process(self):
+        if self.executor is None:
+            self.executor = ThreadPoolExecutor()
+        self._pro_futs = [self.executor.submit(pro.start) for pro in self._processes]
 
 
     def init(self, *args, **kwargs):
@@ -57,10 +50,13 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         """
         [device.init(self.inpt, self.state, self.outpt) for device in self.devices]
 
+
     def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
-        self.futs = [threading.Thread(target=device.start, args=()) for device in self.devices]
-        [t.start() for t in self.futs]
+        if self.executor is None:
+            self.executor = ThreadPoolExecutor()
+        self.futs = [self.executor.submit(device.start) for device in self.devices]
+
 
     def control(self, inpt, timestamp):
         self.inpt.set(inpt)

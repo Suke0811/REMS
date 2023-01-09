@@ -1,9 +1,11 @@
-from rems.sim_handler.ray import autocounter
+from ray.util.scheduling_strategies import NodeAffinitySchedulingStrategy
 from rems.sim_handler.ray.SimActor import SimActor
 import time
 import ray
+from ray.util import inspect_serializability
+
 TIMEOUT = 0.0005
-EXCLUDE = [] #['call_func', 'get_variable', 'set_variable']
+EXCLUDE = ['get_robot'] #['call_func', 'get_variable', 'set_variable']
 def get_methods(instance):
     rets = []
     for attr in dir(instance):
@@ -21,13 +23,18 @@ def get_vars(instance):
 
 RAY_LIMIT = 5
 
-class RobotRayWrapper(object):
-    def __init__(self, robot, outputs, cache=False):
+class RobotRayWrapper:
+    def __init__(self, robot, outputs, cache=False, remote_ip=None):
         self._local_robot = robot
         self._cache = cache
         self._not_serializable = True
         #self._ray_robot = SimActor.options(name=robot.run.name+str(time.time()), max_concurrency=2).remote(robot, outputs)
-        self._ray_robot = SimActor.options(name=robot.run.name + str(time.time())).remote(robot, outputs)
+
+        ray_options = dict(name=robot.run.name + str(time.time()))
+        if remote_ip is not None:
+            node_id = self.find_node(remote_ip)
+            ray_options.setdefault("scheduling_strategy", NodeAffinitySchedulingStrategy(node_id=node_id, soft=False))
+        self._ray_robot = SimActor.options(**ray_options).remote(robot, outputs)
         self._ray_methods = get_methods(robot)
         self._ray_actor_methods = get_methods(self._ray_robot)
         self._ray_vars = get_vars(robot)
@@ -38,6 +45,18 @@ class RobotRayWrapper(object):
             self._add_method(a_m, False)
         for v in self._ray_vars:
             self._add_var(v)
+
+    def find_node(self, ip):
+        nodes = ray.nodes()
+        node = None
+        for n in nodes:
+            name = n.get('NodeManagerAddress')
+            if name == ip:
+                node = n.get('NodeID')
+                break
+        if node is None:
+            raise ConnectionRefusedError(f'{ip} is not a valid Ray node. Available: {ray.available_resources}')
+        return node
 
     def _add_method(self, name, robot_method=True):
         if robot_method:

@@ -1,4 +1,5 @@
-from dynamixel_sdk.robotis_def import *
+from .dynamixel_sdk.robotis_def import *
+
 import numpy as np
 
 class TableBase:

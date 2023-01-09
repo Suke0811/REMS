@@ -10,7 +10,7 @@ __date__	= "May 25, 2017"
 
 import sys
 #sys.path.append("../../dependencies/Python")
-import mscl
+#import mscl
 import numpy as np
 import time
 

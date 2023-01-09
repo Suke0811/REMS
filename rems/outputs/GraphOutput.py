@@ -1,7 +1,7 @@
 from rems.typing.DefDict import DefDict
 from rems.outputs import OutputBase
 class GraphOutput(OutputBase):
-    def __init__(self):
+    def __init__(self, plot_elements):
         super().__init__()
 
     def process(self, state, inpt, outpt, timestamp, info):
@@ -15,6 +15,8 @@ class GraphOutput(OutputBase):
         This will be called once after then run is done
         (Not necessary for now)
         """
+
+
 
 
 

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pickle
 from rems.robots.scaler_leg.kinematics.SCALAR_kinematics import ScalerKinematics
 from rems.typing import DefDict
-from rems.typing.definitions import *
+from rems.typing.system_keys import *
 import pandas as pd
 # add straight line trajectory
 add_line = True

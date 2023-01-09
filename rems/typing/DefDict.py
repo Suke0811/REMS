@@ -210,7 +210,6 @@ class DefDict:
     def name(self, val):
         self._name = val
 
-    
     def set(self, ndata, apply_rule=True):
         if ndata is None:
             return self
@@ -224,6 +223,7 @@ class DefDict:
                     ndata = self.format_rule.inv_bind(ndata)
                 except:
                     pass
+
         if isinstance(ndata, DefDict):
             self._from_defdict(ndata)
         elif isinstance(ndata, dict):
@@ -402,7 +402,6 @@ class DefDict:
                 keys = [keys]
         return self.init_data(keys)
 
-    
     def _from_defdict(self, data):
         for k, v in data.items():
             if k in self._data.keys():
@@ -419,7 +418,6 @@ class DefDict:
                 else:
                     self._data[k][0] = self._enforce_type(self.DEF[k], v)
 
-    
     def _list2dict(self, data):
         length = min(len(data), len(self._definition)) - 1
         for i, key in enumerate(self._data.keys()):
@@ -579,7 +577,6 @@ class DefDict:
                     pass
         return self
 
-    @tictoc
     def flatten(self):
         d = dict()
         for k, v in self.items():
@@ -673,7 +670,6 @@ class DefDict:
 
     def __getitem__(self, item):
         return self._data.__getitem__(item)[0]
-
 
     def __deepcopy__(self, memo):
         cls = self.__class__

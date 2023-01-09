@@ -4,6 +4,7 @@ from rems.sim_handler.ray.autocounter import auto_count
 from rems.robots import RobotBase
 from rems.utils.tictoc import tictoc
 import logging
+from ray.util import inspect_serializability
 ROUND = 2
 DISPLAY_MAX_ARRAY_LENGTH = 5
 
@@ -24,10 +25,10 @@ class SimActor:
         observe = None
         info = None
         while np.round(self.t - t_sys, ROUND) < DT:
+            self.robot.process(self.t)
             self.robot.drive(inpt, self.t)
             observe = self.robot.sense()
             state = self.robot.observe_state()
-
             self.t = self.robot.clock(self.t)
             info = self.robot.info
         dt_actual = time.perf_counter() - st
@@ -37,13 +38,13 @@ class SimActor:
         if np.round(self.t - t_sys, ROUND) >= DT:
             return
         #set input here
-        inpt = self.robot.inpt.update(inpt)
+        inpt = self.robot.inpt.format(inpt)
         outpt, state, info, dt_actual, t = self.step_forward(inpt, t_sys, DT)
-
         for out in self.outputs:
             if out is None:
                 continue
             out.process(state, inpt, outpt, t, info)
+
         disp = []
         for r in [inpt, state, outpt]:
             try:

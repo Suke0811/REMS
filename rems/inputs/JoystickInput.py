@@ -26,7 +26,7 @@ class JoystickInput(InputBase):
         pygame.init()
         pygame.joystick.init()
         count = pygame.joystick.get_count()
-        ('Number of Joysticks detected: ' + str(count))
+        logging.info('Number of Joysticks detected: ' + str(count))
 
         if count <= 0:
             raise ModuleNotFoundError('No Joystick is detected')
@@ -66,7 +66,7 @@ class JoystickInput(InputBase):
             main_stick = self.stick_names[self.stick_id]
         else:
             main_stick = self.stick_name
-        return {**self.axes[main_stick], **self.buttons[main_stick]}
+        return DefDict({**self.axes[main_stick], **self.buttons[main_stick]})
 
 
     def if_exit(self):

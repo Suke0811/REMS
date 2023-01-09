@@ -2,7 +2,7 @@ from rems.inputs import InputBase
 import pandas as pd
 import yaml
 import json
-from rems.typing.definitions import *
+from rems.typing.system_keys import *
 from rems.typing import DefDict
 
 

@@ -22,8 +22,8 @@ s = Operator(debug_mode=True)    # Create instance of Robot testing system
 # Create instance of inputs system.
 # You can only have one type of inputs per test
 #i = FileInput('trajectory/sim09_14_2022_23_45_37.csv', loop=False)
-i = KeyboardInput(wait_for=True)
-#i = JoystickInput(0)
+#i = KeyboardInput(wait_for=True)
+i = JoystickInput(0)
 
 s.set_input(i)  # specify inputs to run
 # Create instance of robots and corresponding omutput methods.

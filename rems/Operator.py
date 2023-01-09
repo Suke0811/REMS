@@ -16,17 +16,17 @@ class Operator:
     DT_ERR = 0.01
     DT_DEFAULT = 0.25
 
-    def __init__(self, debug_mode=False, suppress_info=False, ray_init_options: dict=None):
+    def __init__(self, debug_mode=False, suppress_info=False, ray_init_options: dict=None, runtime_env: dict = None):
         """
         :param suppress_info: no log outputs to console
         """
-        if ray_init_options is not None:
-            ray_init_options.setdefault('local_mode', debug_mode)
-            ray_init_options.setdefault('num_gpus', 1)
-            ray.init(**ray_init_options)
-        else:
-            ray.init(local_mode=debug_mode, num_gpus=1) # for windows, not setting num_gpu cause an error
-
+        if ray_init_options is None:
+            ray_init_options = {}
+        ray_init_options.setdefault('local_mode', debug_mode)
+        ray_init_options.setdefault('num_gpus', 1)  # for windows, not setting num_gpu cause an error
+        if runtime_env is not None:
+            ray_init_options.setdefault('runtime_env', runtime_env)  # for remote cluster environment
+        ray.init(**ray_init_options)
 
         self.suppress_info = suppress_info
         self._input_system = None
@@ -57,7 +57,7 @@ class Operator:
         input_system.init()
         self._input_system = input_system
 
-    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None):
+    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None, remote_ip=None):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
@@ -72,7 +72,7 @@ class Operator:
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
 
-        r = ray_robot(robot, outputs)
+        r = ray_robot(robot, outputs, remote_ip=remote_ip)
 
         self._robots.append((inpt, robot, r, outputs))
         self.robot_actors.append(r)
@@ -80,9 +80,10 @@ class Operator:
             self._input_system = inpt
         return r  # robot reference (virtually the same as the robot)
 
-    def add_process(self, process, *args):
-        r, r2, t = args
-        self._processes.append(ProcessActor.options(max_concurrency=2).remote(process, *args))
+    def add_process(self, process, *args, **kwargs):
+        p = ProcessActor.options(max_concurrency=2).remote(process, *args, **kwargs)
+        self._processes.append(p)
+        return p
 
     def init(self, t):
         futs = []
@@ -104,7 +105,11 @@ class Operator:
             futs.append(robot_actor.init(init_state=state, block=False))
         done = ray.get(futs)
 
+
         time.sleep(1)
+    def init_process(self):
+        for p in self._processes:
+            p.init.remote()
 
     def open(self):
         futs = []
@@ -150,11 +155,11 @@ class Operator:
         self.runconfig = config
         self.set_dt(config.dt)
         self.realtime += config.realtime
-
         t = config.start_time
         if self._input_system is None:
             raise ImportError('Input is required')   # you need to have one InputSystem
         self.init(t)
+        self.init_process()
         self.open()
         self.reset(t)
         st = time.perf_counter()
@@ -168,7 +173,6 @@ class Operator:
         logging.info(f"loop time {time.perf_counter()-st}")
         self.close()
         self.make_outputs()
-        # self.close()
 
     def step(self, t):
         for inpt, robot, robot_actor, outputs in self._robots:
@@ -180,40 +184,8 @@ class Operator:
 
     def process(self, t):
         if self._processes:
-
-            #if self._processes_refs:
-            # this wait takes 0.04sec? #set time out for ray.wait
-                #finished, self._processes_refs = ray.wait(self._processes_refs, num_returns=len(self._processes_refs))
-                #if finished:
-                    #pass
-                    #rets = (ray.get(finished[-1]))
             for pro in self._processes:
                 self._processes_refs.append(pro.process.remote(t))
-
-
-    def run_robot(self, t):
-        self.get_ret()
-        for inpt, robot, robot_actor, outputs in self._robots:
-            if inpt is None:
-                i = self._input_system.get_inputs(timestamp=t)
-            else:
-                i = inpt.get_inputs(timestamp=t)
-            #######
-            self.futs.append(robot_actor.step_forward.remote(i, t, self.DT))
-            self.futs_time.append(t)
-            self.futs_robots.append((robot.inpt, robot, robot_actor, outputs))
-
-            ####### ~0.0001s
-
-    def get_ret(self):
-        if self.futs:
-            finished, self.futs = ray.wait(self.futs, num_returns=len(self.robot_actors))
-            futs_time = self.futs_time[0:len(finished)]
-            fut_robot = self.futs_robots[0:len(finished)]
-            self.futs_time = self.futs_time[len(finished):-1]
-            self.fut_robot = self.futs_robots[len(finished):-1]
-            for t, f, f_r in zip(futs_time, finished, fut_robot):
-                self.return_handle(ray.get(f), t, f_r)
 
     def return_handle(self, ret, t, ret_robot):
         inpt, robot, robot_actor, outputs = ret_robot

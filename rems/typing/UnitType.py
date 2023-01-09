@@ -26,11 +26,11 @@ class InvalidUnitChangeError(Exception):
 class UnitType:
     default_unit = 'dimensionless'
     default_dtype = float
-    default_dim: Union[int, Tuple[int, int]] = 1
+    default_dim = 1
     default_value = None
-    default_drange: Tuple[(Union[int, float, str], Union[int, float, str])] = (float('-inf'), float('inf'))
-    default_drange_map: Tuple[(Union[int, float, str], Union[int, float, str])] = None
-    defualt_drange_scale: Tuple[(Union[int, float], Union[int, float])] = (-1, 1)
+    default_drange = (float('-inf'), float('inf'))
+    default_drange_map = None
+    defualt_drange_scale = (-1, 1)
     default_conversion_rules: list = []
 
     def __init__(self, unit=None, drange=None, default=None, dim=None, mapping=None, scale=None, dtype=None, strict=False, data=None):

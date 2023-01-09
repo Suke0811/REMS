@@ -65,6 +65,7 @@ class AnimationOutput(OutputBase):
             x,y,th = line
             self.line.set_data(*(x,y))
             self.ann.remove()
+            from RomelaUtilities import LSE
             x_l, y_l = self._get_axis_size(x,y)
             self.ann = self.ax.annotate('', xy=(x[-1], y[-1]),
                         xytext=(x[-1] + SCALE*x_l*np.cos(th[-1]), y[-1] + SCALE*y_l*np.sin(th[-1])),
