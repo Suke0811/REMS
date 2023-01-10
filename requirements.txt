@@ -12,6 +12,7 @@ ray[default]
 redis
 protobuf~=3.19.0
 plotly
+pillow
 pycreate2
 unyt
 scipy
