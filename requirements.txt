@@ -7,7 +7,7 @@ pytest
 scipy
 websocket-client
 opencv-contrib-python
-sklearn
+scikit-learn
 ray[default]
 redis
 protobuf~=3.19.0
