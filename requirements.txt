@@ -6,7 +6,7 @@ numpy
 pytest
 scipy
 websocket-client
-opencv-contrib-python
+opencv-contrib-python==4.5.5.64
 scikit-learn
 ray[default]
 redis
