@@ -10,6 +10,7 @@ class RobotThread(RobotBase):
         self._controllers = []
         self._processes = []
         self._devices = []
+        self.pros = []
 
     def add_process(self, process, *args, **kwargs):
         self._processes.append(ProcessExecutor(process))
