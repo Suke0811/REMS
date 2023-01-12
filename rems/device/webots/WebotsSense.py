@@ -49,6 +49,7 @@ class WebotsSense(SenseBase):
 
     @staticmethod
     def _filter_nan(values):
+        """Drop nan, because sensor is disabled in that case"""
         if values is None:
             return 0.0
         if not isinstance(values, list):
@@ -56,9 +57,10 @@ class WebotsSense(SenseBase):
 
         ret = []
         for v in values:
-            if np.isnan(v):
-                v = 0.0
-            ret.append(v)
+            if not np.isnan(v):
+                ret.append(v)
+        if len(ret) == 1:
+            ret = ret[0]
         return ret  # this case return list
 
     @staticmethod

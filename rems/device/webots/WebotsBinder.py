@@ -75,7 +75,6 @@ class WebotsBinder(RobotBase):
         self.state.set(self.wb_state)
         return self.state
 
-
     def clock(self, t):
         """to update Webots"""
         self._robot.step(self._timestep)

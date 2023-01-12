@@ -197,13 +197,13 @@ class Operator:
             out.process(robot.state, robot.inpt, robot.outpt, t, robot.info)
 
         if not self.suppress_info:
-            logging.info("Name: {}, dt: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}".format(
+            logging.info("Name: {}, t: {}, inpt: {}, state: {}, output: {}, info: {}, dt: {},".format(
                 robot.run.name,
-                np.round(dt_actual, 5), np.round(t, ROUND),
                 {k: round(v, ROUND) for k, v in inpt.items()},
                 {k: round(v, ROUND) for k, v in robot.state.items()},
                 {k: round(v, ROUND) for k, v in robot.outpt.items()},
-            robot.info))
+            robot.info,
+            np.round(dt_actual, 5), np.round(t, ROUND),))
 
     def make_outputs(self):
         # right now make outputs can be called only once

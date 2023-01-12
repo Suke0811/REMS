@@ -55,7 +55,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
     def init(self, *args, **kwargs):
         """Initialization necessary for the robot. call all binded objects' init
         """
-        [device.init(self.inpt, self.state, self.outpt) for device in self.devices]
+        [device.init() for device in self.devices]
 
     def reset(self, init_state, t):
         """process necessary to reset the robot without restarting"""
@@ -66,6 +66,9 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
         self.inpt.set(inpt)
         self.joint_space.set(self.inpt)
         return self.joint_space
+
+    def process(self, t, *args, **kwargs):
+        pass
 
     def drive(self, inpt, timestamp):
         """drive the robot to the next state
