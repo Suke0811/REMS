@@ -34,7 +34,7 @@ class WebsocketDevice(DeviceBase):
     def __init__(self, target_address=TARGET, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.target = target_address
-        self.to_thread = self.TO_THREAD
+        self.to_thread = False # self.TO_THREAD
         self.config.on().set([True, False, False])
 
     def init(self, *args, **kwargs):
@@ -47,8 +47,8 @@ class WebsocketDevice(DeviceBase):
 
     def open(self, *args, **kwargs):
         self.ws.connect(self.target)
-        # print(self.ws.recv())  # "Connected to"
-        # print(self.ws.recv())  # "ESP_xxxx"
+        print(self.ws.recv())  # "Connected to"
+        print(self.ws.recv())  # "ESP_xxxx"
 
     def close(self, *args, **kwargs):
         self.ws.send("#0")
@@ -60,9 +60,7 @@ class WebsocketDevice(DeviceBase):
         cmd = [126] + [int(90 * -x / 100 + 90) for x in self.drive_send.values()]
         self.ws.send(bytes(cmd), websocket.ABNF.OPCODE_BINARY)
 
-    @tictoc
     def sense(self, *args, **kwargs):
-        return
         self.ws.send("#S")
         resp_opcode, msg = self.ws.recv_data()
         sensors = struct.unpack("<HH", msg)

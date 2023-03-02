@@ -16,6 +16,8 @@ class FileCsvOutput(OutputBase):
     def _save_2_file(self, *data):
         dfs = []
         for d in data:
+            if d[0] is None:
+                continue
             prefix = ''
             if d and isinstance(d[0], DefDict) and d[0].name is not None:
                 prefix = d[0].name + '.'
