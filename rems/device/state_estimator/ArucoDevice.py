@@ -17,7 +17,7 @@ class ArucoDevice(ObserveStateBaseBasic):
         self.track_id = track_id
         self.camera_id = camera_id
         self.vel = [0.0, 0.0, 0.0]
-        self.to_thread = True
+        self.to_thread = False
         self.video_name = video_name
         self.dt = dt
         self.aruco_state = DefDict(ARUCO_STATE)

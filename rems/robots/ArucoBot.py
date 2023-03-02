@@ -10,7 +10,7 @@ class ArucoBot(RobotBase):
         super().__init__(*args, **kwargs)
         self.run.DT = 0.1
         self.run.name = 'Aruco'
-        self.run.supress_info = True
+        self.run.supress_info = False
         self.tracids = tracids
         self.camera_id = camera_id
         self.aruco = ArucoDevice(track_id=self.tracids, camera_id=self.camera_id, video_name=f'video/aruco_{time_str()}.avi',
@@ -18,7 +18,7 @@ class ArucoBot(RobotBase):
         self.add_device(self.aruco)
 
     def define(self, *args, **kwargs):
-        self.state = self.aruco.all_data
+        self.state = self.aruco.aruco_state
         super().define()
 
 
