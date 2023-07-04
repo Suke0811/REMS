@@ -1,4 +1,3 @@
-from rems.typing.DefDict import DefDict
 import copy
 
 class OutputBase:

@@ -3,10 +3,8 @@ import time
 from rems.device.DeviceBase import DeviceBase
 from rems.sim_handler.ray.RayWrapper import RayWrapper
 from time import perf_counter
-from rems.typing import DefDict
-import copy
-from threading import Thread, Lock
-from rems.utils import tictoc
+from defdict import DefDict
+from threading import  Lock
 
 
 class DeviceExecutor(DeviceBase):
@@ -159,7 +157,6 @@ class DeviceHock(DeviceBase):
 
 if __name__ == '__main__':
     from rems.device.iRobot.Create2Device import Create2Device
-    from concurrent.futures import ThreadPoolExecutor
 
     d = DeviceExecutor(Create2Device('COM7'))
     d.init(DefDict(),DefDict(),DefDict())

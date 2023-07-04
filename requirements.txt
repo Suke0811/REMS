@@ -5,15 +5,12 @@ pynput
 numpy
 pytest
 scipy
-websocket-client
-opencv-contrib-python==4.5.5.64
 scikit-learn
 ray[default]==2.1.0
 redis
 protobuf~=3.19.0
 plotly
 pillow
-pycreate2
-unyt
-scipy
 geomdl
+websocket-client
+defdict

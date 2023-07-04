@@ -1,5 +1,5 @@
 from rems.outputs.OutputBase import OutputBase
-from rems.typing import DefDict
+from defdict import DefDict
 from pathlib import Path
 import pandas as pd
 

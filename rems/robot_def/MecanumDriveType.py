@@ -1,6 +1,6 @@
-from rems.typing import DefDict, MapRule
+from defdict import DefDict, MapRule
 from rems.robots import RobotDefBase
-from rems.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, Percent
+from defdict.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, Percent
 import numpy as np
 
 # space definitions

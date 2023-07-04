@@ -1,5 +1,5 @@
 from rems.device import SenseBase
-from rems.typing import DefDict
+from defdict import DefDict
 import numpy as np
 from controller import Node
 from typing import Any

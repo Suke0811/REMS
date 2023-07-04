@@ -2,7 +2,7 @@ from rems.inputs import InputBase
 import logging
 import pygame
 from rems.inputs.map.JOYSTICK_KEYMAP import *
-from rems.typing import DefDict
+from defdict import DefDict
 
 
 class JoystickInput(InputBase):

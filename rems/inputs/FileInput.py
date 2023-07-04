@@ -2,8 +2,8 @@ from rems.inputs import InputBase
 import pandas as pd
 import yaml
 import json
-from rems.typing.system_keys import *
-from rems.typing import DefDict
+from defdict.system_keys import *
+from defdict import DefDict
 
 
 TIMESTAMP = 'timestamp'

@@ -1,4 +1,3 @@
-from rems.typing.DefDict import DefDict
 from rems.outputs import OutputBase
 class GraphOutput(OutputBase):
     def __init__(self, plot_elements):

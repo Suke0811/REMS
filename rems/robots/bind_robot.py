@@ -1,6 +1,4 @@
-from rems.typing import DefDict
 from rems.robots.RobotBase import RobotBase
-from rems.robots.RobotDefBase import RobotDefBase
 import inspect
 
 def module_check(obj):

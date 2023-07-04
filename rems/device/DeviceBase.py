@@ -1,4 +1,4 @@
-from rems.typing import DefDict
+from defdict import DefDict
 from rems.device import BasicDeviceBase
 
 

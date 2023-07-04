@@ -1,5 +1,5 @@
 from rems.device import BasicDeviceBase
-from rems.typing import DefDict
+from defdict import DefDict
 
 class SenseBase(BasicDeviceBase):
     def __init__(self, *args, **kwargs):

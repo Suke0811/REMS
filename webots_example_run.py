@@ -4,15 +4,8 @@ from rems.inputs import KeyboardInput, FileCsvInput, FileInput, JoystickInput
 from rems.outputs import FileCsvOutput, AnimationOutput, FileOutput
 from rems.utils import time_str
 from rems.Config import SimConfig
-from rems.robot_def.webots import CreateDef, Pioneer3AtDef, Pioneer3DxDef, EpuckDef, MooseDef, YoubotArmDef, YoubotBaseDef, YoubotDef
 from rems.robot_def.WoodbotDef import WoodbotDef
 from rems.device.webots.WebotsBinder import WebotsBinder
-from rems.robots.differential_drive.DynabotHard import DynabotHard
-from rems.robots.differential_drive.WoodbotHard import WoodbotHard
-from rems.robots.differential_drive.CreateHard import CreateHard
-from rems.device.state_estimator.ArucoDevice import ShareAruco
-from rems.robots.ArucoBot import ArucoBot
-from rems.robots import JacobianModel
 
 
 logging.basicConfig(level=logging.INFO)

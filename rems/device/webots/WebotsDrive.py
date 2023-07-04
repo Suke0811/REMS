@@ -1,6 +1,6 @@
 from rems.device import DriveBase
-from rems.typing import DefDict
-from rems.typing.std.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
+from defdict import DefDict
+from defdict.StdUnit import Pos, Vel, Ang, AngVel, AngAcc, UnitType
 
 
 class WebotsDrive(DriveBase):

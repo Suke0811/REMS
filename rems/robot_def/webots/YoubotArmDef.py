@@ -1,7 +1,7 @@
 from rems.robot_def import Manipulator5DoF
-from rems.typing.std.StdUnit import Pos, Vel, Acc, Ang, AngVel, AngAcc, UnitType, Percent
+from defdict.StdUnit import Pos, Vel, Acc, Ang, AngVel, AngAcc, UnitType, Percent
 
-from rems.typing import MapRule, DefDict
+from defdict import MapRule, DefDict
 
 # sensor names and definitoins
 

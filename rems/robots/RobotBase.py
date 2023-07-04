@@ -3,7 +3,7 @@ import time
 from rems.robots.RunConfig import RunConfig
 from rems.device.BasicDeviceBase import BasicDeviceBase
 from rems.robots.RobotDefBase import RobotDefBase
-from rems.typing import DefDict
+from defdict import DefDict
 from rems.sim_handler.thread.DeviceExecutor import DeviceExecutor
 import threading
 

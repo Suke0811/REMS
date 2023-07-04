@@ -1,9 +1,8 @@
-from rems.inputs import InputBase
 from pynput.keyboard import Key, Listener
-from rems.typing import DefDict
+
+from rems.inputs import InputBase
 from rems.inputs.map.KEYBOARD_KEYMAP import KEYBOARD_DEF
-import numpy as np
-import time
+
 
 class KeyboardInput(InputBase):
     def __init__(self, init_state=False, enable_keys=None, wait_for=False):

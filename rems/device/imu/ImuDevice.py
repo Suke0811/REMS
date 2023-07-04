@@ -1,6 +1,6 @@
 from rems.device import SenseBase
 from rems.device.imu.Imu_interface import imu
-from rems.typing import DefDict
+from defdict import DefDict
 
 
 class Imu(SenseBase):

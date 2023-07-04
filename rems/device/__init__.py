@@ -7,5 +7,4 @@ from .SenseBase import SenseBase
 
 from .Dynamixel import Dynamixel, DynamixelX
 from .connect import WebsocketDevice
-from .iRobot import Create2Device
 from .state_estimator import ArucoDevice

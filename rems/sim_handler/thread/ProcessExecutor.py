@@ -3,7 +3,7 @@ import time
 from rems.device.DeviceBase import DeviceBase
 from rems.sim_handler.ray.RayWrapper import RayWrapper
 from time import perf_counter
-from rems.typing import DefDict
+from defdict import DefDict
 import copy
 from threading import Thread, Lock
 from rems.utils import tictoc
