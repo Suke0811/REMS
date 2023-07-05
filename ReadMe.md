@@ -1,8 +1,8 @@
 # REMS (Robotics Educational Middleware System)
-Currently in early beta (v0.1.1)
+Currently, in early beta (v0.2.*)
 
 ## PreRequirements 
-- Platform Ubuntu(Recommended), Windows, Mac
+- Platform Ubuntu, Windows, Mac
 - Python 3.8/3.9/ (3.10)
 - IDE: Pycharm(recommended) or Visual Studio
 - git

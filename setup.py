@@ -35,7 +35,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='rems',
-    version='0.1.4',
+    version='0.2.0',
     cmdclass=cmdclass,
     description=get_metadata('description'),
     author=get_metadata('author'),
@@ -44,7 +44,7 @@ setup(
     install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Framework :: Robot Framework'
+        'Framework :: Robot Framework',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
