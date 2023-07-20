@@ -1,13 +1,11 @@
-pygame
 matplotlib==3.5.0
 pandas
 pynput
 numpy
-pytest
 scipy
 scikit-learn
 pydantic==1.9.1
-ray[default]==2.1.0
+ray==2.1.0
 redis
 protobuf~=3.19.0
 plotly

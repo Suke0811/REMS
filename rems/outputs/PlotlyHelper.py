@@ -7,8 +7,8 @@ FPS_LIMIT = 10
 SCALE = 100
 
 class PlotlyHelper:
-    def __init__(self):
-        pass
+    def __init__(self, save_html_path=None):
+        self.save_html_path = save_html_path
 
     def anim_path_dot(self, x, y, th=None, fps=1, title="Animation"):
 
@@ -31,8 +31,8 @@ class PlotlyHelper:
                              line=dict(width=2, color="blue"))
                   ],
             layout=go.Layout(
-                xaxis=dict(range=x_range, autorange=False, zeroline=False),
-                yaxis=dict(range=y_range, autorange=False, zeroline=False),
+                xaxis=dict(range=x_range, autorange=False, zeroline=False, title='x, [m]'),
+                yaxis=dict(range=y_range, autorange=False, zeroline=False, title='y, [m]'),
                 title_text=title, hovermode="closest",
                 updatemenus=[dict(type="buttons",
                                   buttons=[dict(label="Play", method="animate",
@@ -78,6 +78,8 @@ class PlotlyHelper:
                         )], )
             ) for k in N],)
         fig.update_yaxes(scaleanchor="x", scaleratio=1)
+        if self.save_html_path is not None:
+            fig.write_html(self.save_html_path)
         fig.show()
 
     def _get_axis_size(self, x, y):

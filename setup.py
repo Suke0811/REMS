@@ -35,10 +35,11 @@ with open('requirements.txt') as f:
 
 setup(
     name='rems',
-    version='0.2.0',
+    version='0.2.1',
     cmdclass=cmdclass,
     description=get_metadata('description'),
     author=get_metadata('author'),
+    project_urls={'GitHub': 'https://github.com/Suke0811/REMS'},
     license='LGPLv3',
     packages=find_packages(include=['rems', 'rems.*']),
     install_requires=requirements,

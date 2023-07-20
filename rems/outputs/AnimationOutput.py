@@ -14,9 +14,10 @@ SCALE = 0.04
 MARGIN = 0.1
 
 class AnimationOutput(OutputBase):
-    def __init__(self, filepath, tail_length=float('inf'), fps_limit=15):
+    def __init__(self, filepath, tail_length=float('inf'), fps_limit=15, save_html_path=None):
         super().__init__()
         self.filepath = filepath
+        self.save_html_path = save_html_path
         self.tail_length = tail_length
         self.fps_limit = fps_limit
         self.last_update = 0.0
@@ -38,7 +39,7 @@ class AnimationOutput(OutputBase):
         """make proper output from the data"""
         if len(self._timestamps) <= 2:
             return
-        p = PlotlyHelper()
+        p = PlotlyHelper(save_html_path=self.save_html_path)
         p.anim_path_dot(*self.get_plot_list(self._states, FORMAT_XYTh), fps=self.calc_fps())
         self.generate_video()
 
@@ -52,10 +53,13 @@ class AnimationOutput(OutputBase):
         self.ann = self.ax.annotate('', xy=(0, 0),
                                     arrowprops=dict(arrowstyle="<-", color='red', lw=3))
         self.text = self.ax.text(0.0, 0.0, "")
+        self.ax.set_xlabel(f'x, [m]')
+        self.ax.set_ylabel(f'y, [m]')
         self.fig.canvas.draw()
         self.ax_cache = self.fig.canvas.copy_from_bbox(self.ax.bbox)
         plt.autoscale(True)
         plt.rcParams["keymap.quit"] = "esc"
+        plt.grid(True)
         plt.show(block=False)
 
     def _update_canvas(self, line=None, text=None):
@@ -124,6 +128,8 @@ class AnimationOutput(OutputBase):
         # initializing a figure
         fig = plt.figure()
         axis = plt.axes()
+        axis.set_xlabel(f'x, [m]')
+        axis.set_ylabel(f'y, [m]')
         ann = axis.annotate('', xy=(0,0), arrowprops=dict(arrowstyle="<-",
                          color='red',
                          lw=3,
@@ -142,6 +148,7 @@ class AnimationOutput(OutputBase):
         x_l, y_l = self._get_axis_size(states_x, states_y)
         line, = axis.plot(0, 0)
         text = axis.text(0.0,0.0,'')
+        plt.grid(True)
 
         def animate(frame_number):
             x.append(states_x[frame_number])
