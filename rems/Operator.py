@@ -23,7 +23,7 @@ class Operator:
         ray_init_options.setdefault('num_gpus', 1)  # for windows, not setting num_gpu cause an error
         if runtime_env is not None:
             ray_init_options.setdefault('runtime_env', runtime_env)  # for remote cluster environment
-        ray.init(**ray_init_options)
+        ray.init(include_dashboard=False, **ray_init_options)
 
         self.suppress_info = suppress_info
         self._input_system = None
