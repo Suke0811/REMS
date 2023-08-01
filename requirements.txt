@@ -4,8 +4,8 @@ pynput
 numpy
 scipy
 scikit-learn
-pydantic==1.9.1
-ray[default]==2.1.0
+pydantic
+ray[default]
 redis
 protobuf~=3.19.0
 plotly
