@@ -5,3 +5,4 @@ plotly
 pillow
 defdict
 pandas
+websocket-client
