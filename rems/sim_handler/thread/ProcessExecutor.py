@@ -1,7 +1,6 @@
 import time
 
 from rems.device.DeviceBase import DeviceBase
-from rems.sim_handler.ray.RayWrapper import RayWrapper
 from time import perf_counter
 from defdict import DefDict
 import copy

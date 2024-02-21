@@ -1,7 +1,6 @@
 import time
 
 from rems.device.DeviceBase import DeviceBase
-from rems.sim_handler.ray.RayWrapper import RayWrapper
 from time import perf_counter
 from defdict import DefDict
 from threading import  Lock
@@ -16,6 +15,7 @@ class DeviceExecutor(DeviceBase):
         self._timestep = 0.0
 
         if device.to_thread == device.TO_PROCESS:
+            from rems.sim_handler.ray.RayWrapper import RayWrapper
             device = RayWrapper(device, name=device.device_name)
             self.threading = True
         elif device.to_thread == device.TO_THREAD or device.to_thread == True:
