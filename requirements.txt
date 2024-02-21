@@ -6,3 +6,5 @@ pillow
 defdict
 pandas
 websocket-client
+pyyaml
+setuptools
