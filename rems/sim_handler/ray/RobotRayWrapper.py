@@ -1,5 +1,5 @@
 from ray.util.scheduling_strategies import NodeAffinitySchedulingStrategy
-from rems.sim_handler.ray.SimActor import SimActor
+from rems.sim_handler.ray.SimActorRay import SimActorRay
 import time
 import ray
 from ray.util import inspect_serializability
@@ -34,7 +34,7 @@ class RobotRayWrapper:
         if remote_ip is not None:
             node_id = self.find_node(remote_ip)
             ray_options.setdefault("scheduling_strategy", NodeAffinitySchedulingStrategy(node_id=node_id, soft=False))
-        self._ray_robot = SimActor.options(**ray_options).remote(robot, outputs)
+        self._ray_robot = SimActorRay.options(**ray_options).remote(robot, outputs)
         self._ray_methods = get_methods(robot)
         self._ray_actor_methods = get_methods(self._ray_robot)
         self._ray_vars = get_vars(robot)

@@ -1,7 +1,7 @@
 from pynput.keyboard import Key, Listener
 
 from rems.inputs import InputBase
-from rems.inputs.map.KEYBOARD_KEYMAP import KEYBOARD_DEF
+from rems.inputs.key.KEYBOARD_KEYMAP import KEYBOARD_DEF
 
 
 class KeyboardInput(InputBase):

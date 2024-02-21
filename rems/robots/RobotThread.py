@@ -39,7 +39,7 @@ class RobotThread(RobotBase):
                 config.step()[k] = self.run.DT
         self._devices.append(DeviceExecutor(device))
 
-    def init_devices(self):
+    def init_devices(self, *args, **kwargs):
         pass
 
 

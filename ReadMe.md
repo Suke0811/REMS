@@ -1,16 +1,32 @@
 # REMS (Robotics Educational Middleware System)
-Currently, in early beta (v0.2.*)
+Currently, in early beta (v0.3.*)
 
 ## PreRequirements 
 - Platform Ubuntu, Windows, Mac
-- Python 3.8/3.9/ (3.10)
+- Python 3.8/3.9/3.10/3.11/3.12 
 - IDE: Pycharm(recommended) or Visual Studio
-- git
 
-Python 3.10 may not work on Windows environments.
-Generally speaking, Windows causes more problems than the others. 
+
 
 # Install
+> Starting Ver.0.3.*
+## Pip install
+```bash
+pip install rems
+```
+
+## Pip install Keyboard, Joystick and Async Modules
+```bash
+pip install rems[keyboard, joystick, async]
+```
+
+or 
+
+```bash
+pip install rems[full]
+```
+
+
 ### Pip install from repo (as library)
 ```shell
 pip install git+https://github.com/Suke0811/REMS.git@main

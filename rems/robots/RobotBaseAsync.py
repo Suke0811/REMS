@@ -30,7 +30,7 @@ class RobotBaseAsync(RobotDefBase, BasicDeviceBase):
         pass
 
 
-    def init_devices(self):
+    def init_devices(self, *args, **kwargs):
         pass
 
     def add_process(self,  process):

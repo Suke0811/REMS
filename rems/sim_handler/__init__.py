@@ -1,2 +1,3 @@
 from .job_background import *
-from .ray import *
+from .ProcessActor import ProcessActor
+from .SimActor import SimActor

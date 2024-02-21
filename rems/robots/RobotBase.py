@@ -48,7 +48,7 @@ class RobotBase(RobotDefBase, BasicDeviceBase):
                 config.step()[k] = self.run.DT
         self.devices.append(DeviceExecutor(device))
 
-    def init_devices(self):
+    def init_devices(self, *args, **kwargs):
         pass
 
 
