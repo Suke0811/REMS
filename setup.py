@@ -47,7 +47,7 @@ with open('async_req.txt') as f:
 
 setup(
     name='rems',
-    version='0.3.0',
+    version='0.3.2',
     cmdclass=cmdclass,
     description=get_metadata('description'),
     author=get_metadata('author'),

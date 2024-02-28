@@ -18,35 +18,15 @@ class LiteOperator(Operator):
         """
         :param suppress_info: no log outputs to console
         """
+        super().__init__(debug_mode, suppress_info, ray_init_options, runtime_env, args, kwargs)
 
-        self.suppress_info = suppress_info
-        self._input_system = None
-        self._robots = []
         self._robots_input = []
-        self._processes = []
         self.jHandler = JobHandler()
-        self.realtime = False
-        self.runconfig = None
-        self.DT = None
         self.futs = []
         self.robot_actors = []
         self.futs_time = []
         self.futs_robots = []
-        signal.signal(signal.SIGINT, self.handler_ctrl_c)
         self._processes_refs= []
-        self.made_outputs = False
-
-    def handler_ctrl_c(self, signum, frame):
-        """Ctrl+C termination handling"""
-        self.close()
-        self.make_outputs()
-        exit(1)
-
-    def set_input(self, input_system):
-        """set InputSystem
-        :param input_system: input to be used (child of InputSystem)"""
-        input_system.init()
-        self._input_system = input_system
 
     def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None, *args, **kwargs):
         """

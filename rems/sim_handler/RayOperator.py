@@ -16,6 +16,7 @@ from rems.Config import SimConfig
 from rems.robots.bind_robot import bind_robot
 from rems.sim_handler.ray import RobotRayWrapper as ray_robot
 from rems import Operator
+
 ROUND = 2
 
 class RayOperator(Operator):
@@ -26,6 +27,7 @@ class RayOperator(Operator):
         """
         :param suppress_info: no log outputs to console
         """
+        super().__init__(debug_mode, suppress_info, ray_init_options, runtime_env, args, kwargs)
         if ray_init_options is None:
             ray_init_options = {}
         ray_init_options.setdefault('local_mode', debug_mode)
@@ -33,37 +35,15 @@ class RayOperator(Operator):
         if runtime_env is not None:
             ray_init_options.setdefault('runtime_env', runtime_env)  # for remote cluster environment
         ray.init(**ray_init_options)
-
-        self.suppress_info = suppress_info
-        self._input_system = None
-        self._robots = []
         self._robots_input = []
-        self._processes = []
         self.jHandler = JobHandler()
-        self.realtime = False
-        self.runconfig = None
-        self.DT = None
         self.futs = []
         self.robot_actors = []
         self.futs_time = []
         self.futs_robots = []
-        signal.signal(signal.SIGINT, self.handler_ctrl_c)
         self._processes_refs= []
-        self.made_outputs = False
 
-    def handler_ctrl_c(self, signum, frame):
-        """Ctrl+C termination handling"""
-        self.close()
-        self.make_outputs()
-        exit(1)
-
-    def set_input(self, input_system):
-        """set InputSystem
-        :param input_system: input to be used (child of InputSystem)"""
-        input_system.init()
-        self._input_system = input_system
-
-    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None, remote_ip=None):
+    def add_robot(self, robot_def=None, robot=None, def_args=None, robot_args=None, outputs=None, inpt=None, remote_ip=None,  *args, **kwargs):
         """
         Add a robot to simulate and specify output forms
         :param robot: robot to simulate (child of RobotSystem)
@@ -87,7 +67,7 @@ class RayOperator(Operator):
         return r  # robot reference (virtually the same as the robot)
 
     def add_process(self, process, *args, **kwargs):
-        p = ProcessActor.options(max_concurrency=2).remote(process, *args, **kwargs)
+        p = ProcessActorRay.options(max_concurrency=2).remote(process, *args, **kwargs)
         self._processes.append(p)
         return p
 
